@@ -48,6 +48,7 @@ A dictionary implemented via a distributed hash table based on the Chord protoco
 ## Function Descriptions
 
 SuperNode function calls:
+
 	GetNodeForJoin(IP,Port): 
 		- Node contacts SuperNode(using thrift) to join
 		- SuperNode returns one random node's info
@@ -64,6 +65,7 @@ SuperNode function calls:
 		- Client can only contact SuperNode once when running (can contact for each request when testing)
 
 Node function calls:
+
 	Put(word, meaning):
 		- Node will store information if it's the correct node, otherwise will recursively route the Put() request
 
