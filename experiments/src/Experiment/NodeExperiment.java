@@ -14,6 +14,9 @@ public class NodeExperiment {
 
         AddNode();
         PrintStructure();
+
+        // AddNode();
+        // PrintStructure();
     }
 
     private static boolean InRange(int id, int start, int end) {

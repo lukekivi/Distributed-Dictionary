@@ -60,8 +60,8 @@ public class Node {
             }
             fingers[i + 1] = nextFinger;
         }
-        // System.out.println("Printing Node from InitFingerTable");
-        // node.PrintNode();
+        node.PrintNode();
+        PrintNode();
     }
 
 
@@ -78,8 +78,8 @@ public class Node {
         Node node = this;
 
         int index = 0;
-        //System.out.println("\tnodeid: " + node.id);
-        //System.out.println("\t    succ id: " + node.GetSucc().id);
+        System.out.println("\tnodeid: " + node.id);
+        System.out.println("\t    succ id: " + node.GetSucc().id);
         while (!InRangeExIn(id, node.id, node.GetSucc().id)) {  
             index++;
 
@@ -108,20 +108,26 @@ public class Node {
 
 
     private void UpdateOthers() {
-        System.out.println("Update others, printing current node.");
-        this.PrintNode();
+        PrintNode();
+        // System.out.println("*********************");
+        // System.out.println("UpdatingOthers()");
+        PrintNode();
         for (int i = 0; i < fingers.length; i++) {
-            System.out.println("Updating finger[" + i + "]");
             int nId = CircularSubtraction(this.id, (int) Math.pow(2, i));
+
+            // System.out.println("UpdatingOthers(): find pred of " + nId);
+            
             Node pred = FindPredecessor(nId);
-            System.out.println("Iteration i= " + i + " of pred = " + pred.id);
+            // System.out.println("UpdatingOthers(): pred is " + pred.id);
             pred.UpdateFingerTable(this, i);
         }
     }
 
     private void UpdateFingerTable(Node node, int i) {
-        
-        if (InRangeInEx(node.id, this.id, fingers[i].succ.id)) {
+        // System.out.println("UpdateFingerTable() node[" + this.id + "] finger[" + i + "]=" + fingers[i].succ.id);
+        // System.out.println("\t" + this.id + " < " + node.id + " < " + fingers[i].succ.id);
+        if (InRangeExEx(node.id, this.id, fingers[i].succ.id)) {
+            // System.out.println("\t updated to " + node.id);
             fingers[i].succ = node;
             Node pred = this.pred;
             pred.UpdateFingerTable(node, i);
@@ -183,9 +189,7 @@ public class Node {
      */
     private boolean InRangeInEx(int id, int start, int end) {
         if(end < start) {
-            if (id < end) {
-                return true;
-            } else if (id >= start) {
+            if (id < end || id >= start) {
                 return true;
             } else {
                 return false;
@@ -194,6 +198,22 @@ public class Node {
             return true;
         }
         return ((id >= start) && (id < end));
+    }
+
+        /**
+     * inclusive start, exclusive end. Handles circular ranges.
+     */
+    private boolean InRangeExEx(int id, int start, int end) {
+        if(end < start) {
+            if (id < end || id > start) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (end == start) {
+            return id != start;
+        }
+        return ((id > start) && (id < end));
     }
 
     /**
