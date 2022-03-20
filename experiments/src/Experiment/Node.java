@@ -60,37 +60,36 @@ public class Node {
             }
             fingers[i + 1] = nextFinger;
         }
+        // System.out.println("Printing Node from InitFingerTable");
+        // node.PrintNode();
     }
 
 
     // find id's successor
     public Node FindSuccessor(int id) {
-        System.out.println("FindSuccessor(): " + id);
         Node pred = FindPredecessor(id);
-        System.out.println("FindSucccessor(): returning " + pred.GetSucc().id);
+        System.out.println("FindSucccessor() of " + id + ": returning " + pred.GetSucc().id);
         return pred.GetSucc();
     }
 
 
     // Find id's predecessor
     private Node FindPredecessor(int id) {
-        System.out.println("FindPredecessor(): " + id);
         Node node = this;
 
         int index = 0;
-        System.out.println("FindPredecessor():");
-        System.out.println("\tnodeid: " + node.id);
-        System.out.println("\t    id: " + node.GetSucc().id);
+        //System.out.println("\tnodeid: " + node.id);
+        //System.out.println("\t    succ id: " + node.GetSucc().id);
         while (!InRangeExIn(id, node.id, node.GetSucc().id)) {  
             index++;
 
-            if (index == 9) {
+            if (index == maxKey + 1) {
                 System.exit(-1);
             }
-            System.out.println(id + " " + node.id + " " + node.GetSucc().id);
+            //System.out.println("Inside find pred loop: id: " + id + " nodeid: " + node.id + " succ id: " + node.GetSucc().id);
             node = node.ClosestPrecedingFinger(id);
         }
-
+        System.out.println("FindPredecessor() of " + id + ": returning " +  + node.id);
         return node;
     }
 
@@ -109,12 +108,13 @@ public class Node {
 
 
     private void UpdateOthers() {
-        System.out.println("Update others.");
-
+        System.out.println("Update others, printing current node.");
+        this.PrintNode();
         for (int i = 0; i < fingers.length; i++) {
             System.out.println("Updating finger[" + i + "]");
             int nId = CircularSubtraction(this.id, (int) Math.pow(2, i));
             Node pred = FindPredecessor(nId);
+            System.out.println("Iteration i= " + i + " of pred = " + pred.id);
             pred.UpdateFingerTable(this, i);
         }
     }
