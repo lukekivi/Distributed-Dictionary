@@ -1,0 +1,30 @@
+<project name="experiment" default="compile" basedir=".">
+  
+    <property name="src.dir" location="src" />
+    <property name="build.dir" location="build" />
+
+   <path id="build.classpath">
+      <pathelement path="${build.dir}"/>
+   </path>
+
+    <!-- initialize directory structure -->
+    <target name="init">
+       <tstamp/>
+       <mkdir dir="${build.dir}"/>
+    </target>
+ 
+    <!-- Compile all source files -->
+    <target name="compile" depends="init">
+       <javac compiler="modern" includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" />
+    </target>
+ 
+    <!-- Run experiment -->
+    <target name="experiment" depends="compile">
+       <java failonerror="false" fork="true" classpathref="build.classpath" classname="Experiment/NodeExperiment"/>
+    </target>
+ 
+    <!-- clean everything -->
+    <target name="clean">
+       <delete dir="${build.dir}"/>
+    </target>
+ </project>
