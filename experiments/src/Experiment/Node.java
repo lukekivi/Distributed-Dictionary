@@ -44,21 +44,32 @@ public class Node {
      * to communicate with the rest of the network
      */
     private void InitFingerTable(Node node) {
+        System.out.println("InitFingerTable() " + id);
+
         fingers[0] = InitFinger(null, 0);
         fingers[0].succ = node.FindSuccessor(fingers[0].start);
 
         pred = fingers[0].succ.pred;
+        
         fingers[0].succ.pred = this;
+        pred.fingers[0].succ = this; 
+
+        System.out.println("InitFingerTable() --- set one finger ");
+        node.PrintNode();
+        PrintNode();
+        System.out.println("*******************************");
         
         for (int i = 0; i < fingers.length - 1; i++) {
             Finger nextFinger = InitFinger(null, i + 1);
 
             if (InRangeInEx(nextFinger.start, id, fingers[i].succ.id)) {
                 nextFinger.succ = fingers[i].succ;
+
             } else {
                 nextFinger.succ = node.FindSuccessor(nextFinger.start);
             }
             fingers[i + 1] = nextFinger;
+            fingers[i+1].Print();
         }
         node.PrintNode();
         PrintNode();
@@ -67,8 +78,9 @@ public class Node {
 
     // find id's successor
     public Node FindSuccessor(int id) {
+        System.out.println("FindSuccessor(): " + id);
         Node pred = FindPredecessor(id);
-        System.out.println("FindSucccessor() of " + id + ": returning " + pred.GetSucc().id);
+        System.out.println("FindSucccessor() " + id + ": returning " + pred.GetSucc().id);
         return pred.GetSucc();
     }
 
@@ -76,20 +88,19 @@ public class Node {
     // Find id's predecessor
     private Node FindPredecessor(int id) {
         Node node = this;
+        System.out.println("FindPredecessor(): " + id);
+        System.out.println("\t" + node.id + " < " + id + " <= " + node.GetSucc().id);
 
-        int index = 0;
-        System.out.println("\tnodeid: " + node.id);
-        System.out.println("\t    succ id: " + node.GetSucc().id);
+        int index =0;
         while (!InRangeExIn(id, node.id, node.GetSucc().id)) {  
             index++;
-
-            if (index == maxKey + 1) {
+            if (index ==9) {
                 System.exit(-1);
             }
-            //System.out.println("Inside find pred loop: id: " + id + " nodeid: " + node.id + " succ id: " + node.GetSucc().id);
+            System.out.println("FindPredecessor(): loop\n\t " + node.id + " < " + id + " <= " + node.GetSucc().id);
             node = node.ClosestPrecedingFinger(id);
         }
-        System.out.println("FindPredecessor() of " + id + ": returning " +  + node.id);
+        System.out.println("FindPredecessor(): returning " +  + node.id);
         return node;
     }
 
@@ -99,7 +110,7 @@ public class Node {
         for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
             
-            if (InRangeInIn(finger.succ.GetId(), this.id, id)) {
+            if (InRangeExEx(finger.succ.GetId(), this.id, id)) {
                 return fingers[i].succ;
             }
         }
@@ -108,10 +119,10 @@ public class Node {
 
 
     private void UpdateOthers() {
-        PrintNode();
+        // PrintNode();
         // System.out.println("*********************");
         // System.out.println("UpdatingOthers()");
-        PrintNode();
+        // PrintNode();
         for (int i = 0; i < fingers.length; i++) {
             int nId = CircularSubtraction(this.id, (int) Math.pow(2, i));
 
@@ -166,23 +177,6 @@ public class Node {
         return ((id > start) && (id <= end));
     }
 
-    /**
-     * inclusive start, inclusive end. Handles circular ranges.
-     */
-    private boolean InRangeInIn(int id, int start, int end) {
-        if(end < start) {
-            if (id < end) {
-                return true;
-            } else if (id > start) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (end == start) {
-            return true;
-        }
-        return ((id > start) && (id < end));
-    }
 
     /**
      * inclusive start, exclusive end. Handles circular ranges.
@@ -200,8 +194,9 @@ public class Node {
         return ((id >= start) && (id < end));
     }
 
-        /**
-     * inclusive start, exclusive end. Handles circular ranges.
+    
+    /**
+     * exclusive start, exclusive end. Handles circular ranges.
      */
     private boolean InRangeExEx(int id, int start, int end) {
         if(end < start) {
