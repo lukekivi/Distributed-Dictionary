@@ -4,7 +4,7 @@ import java.lang.Math;
 
 public class Node {
     private int maxKey; // the max possible key in the DHT node is a member of
-    private Node pred;
+    private Node pred = null;
     private int id;
     private Finger[] fingers;
 
@@ -45,45 +45,62 @@ public class Node {
      */
     private void InitFingerTable(Node node) {
         fingers[0] = InitFinger(null, 0);
-        fingers[0].succ = node.FindSuccessor(id);
+        fingers[0].succ = node.FindSuccessor(fingers[0].start);
 
         pred = fingers[0].succ.pred;
         fingers[0].succ.pred = this;
         
         for (int i = 0; i < fingers.length - 1; i++) {
-            Finger nextFinger = fingers[i + 1];
-            if (nextFinger.start >= id && fingers[i].succ.id > nextFinger.start) {
-                fingers[i + 1] = InitFinger(fingers[i].succ, i + 1);
+            Finger nextFinger = InitFinger(null, i + 1);
+
+            if (InRangeInEx(nextFinger.start, id, fingers[i].succ.id)) {
+                nextFinger.succ = fingers[i].succ;
             } else {
-                fingers[i + 1] = InitFinger(node.FindSuccessor(fingers[i + 1].start), i + 1);
+                nextFinger.succ = node.FindSuccessor(nextFinger.start);
             }
+            fingers[i + 1] = nextFinger;
         }
     }
 
 
     // find id's successor
     public Node FindSuccessor(int id) {
+        System.out.println("FindSuccessor(): " + id);
         Node pred = FindPredecessor(id);
+        System.out.println("FindSucccessor(): returning " + pred.GetSucc().id);
         return pred.GetSucc();
     }
 
 
     // Find id's predecessor
     private Node FindPredecessor(int id) {
+        System.out.println("FindPredecessor(): " + id);
         Node node = this;
 
-        while (!(id > node.id && id <= node.GetSucc().id)) {    
+        int index = 0;
+        System.out.println("FindPredecessor():");
+        System.out.println("\tnodeid: " + node.id);
+        System.out.println("\t    id: " + node.GetSucc().id);
+        while (!InRangeExIn(id, node.id, node.GetSucc().id)) {  
+            index++;
+
+            if (index == 9) {
+                System.exit(-1);
+            }
+            System.out.println(id + " " + node.id + " " + node.GetSucc().id);
             node = node.ClosestPrecedingFinger(id);
         }
+
         return node;
     }
 
 
     // the first fingertable successor between this node and the id
     public Node ClosestPrecedingFinger(int id) {
-        for (int i = fingers.length - 1; i >= 0; i++) {
+        for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
-            if (finger.succ.GetId() > this.id && finger.succ.id < id) {
+            
+            if (InRangeInIn(finger.succ.GetId(), this.id, id)) {
                 return fingers[i].succ;
             }
         }
@@ -92,35 +109,28 @@ public class Node {
 
 
     private void UpdateOthers() {
+        System.out.println("Update others.");
+
         for (int i = 0; i < fingers.length; i++) {
-            Node pred = FindPredecessor(this.id - ((int) Math.pow(2, i)));
+            System.out.println("Updating finger[" + i + "]");
+            int nId = CircularSubtraction(this.id, (int) Math.pow(2, i));
+            Node pred = FindPredecessor(nId);
             pred.UpdateFingerTable(this, i);
         }
     }
 
     private void UpdateFingerTable(Node node, int i) {
-        if (node.id >= this.id && node.id < fingers[i].succ.id) {
+        
+        if (InRangeInEx(node.id, this.id, fingers[i].succ.id)) {
             fingers[i].succ = node;
             Node pred = this.pred;
             pred.UpdateFingerTable(node, i);
         }
     }
-
-    public void PrintNode() {
-        System.out.println("Node[" + this.id + "]: " );
-        System.out.println("\t-  pred: " + this.pred.GetId());
-        System.out.println("\t- table:");
-        for(int i = 0; i < fingers.length; i++) {
-            System.out.print("\t\t");
-            fingers[i].Print();
-        }
-
-        System.out.println();
-    }
     
     private Finger InitFinger(Node node, int i) {
         Finger finger = new Finger(node);
-        finger.start = (this.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));;
+        finger.start = (this.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
         int end = finger.start + ((int) Math.pow(2, i));
 
         if (end > maxKey) {
@@ -128,9 +138,80 @@ public class Node {
         } else {
             finger.end = end;
         }
-
+    
         return finger;
     }
+
+    /**
+     * exclusive start, inclusive end. Handles circular ranges.
+     */
+    private boolean InRangeExIn(int id, int start, int end) {
+        if(end < start) {
+            if (id <= end) {
+                return true;
+            } else if (id > start) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (end == start) {
+            return true;
+        }
+        return ((id > start) && (id <= end));
+    }
+
+    /**
+     * inclusive start, inclusive end. Handles circular ranges.
+     */
+    private boolean InRangeInIn(int id, int start, int end) {
+        if(end < start) {
+            if (id < end) {
+                return true;
+            } else if (id > start) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (end == start) {
+            return true;
+        }
+        return ((id > start) && (id < end));
+    }
+
+    /**
+     * inclusive start, exclusive end. Handles circular ranges.
+     */
+    private boolean InRangeInEx(int id, int start, int end) {
+        if(end < start) {
+            if (id < end) {
+                return true;
+            } else if (id >= start) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (end == start) {
+            return true;
+        }
+        return ((id >= start) && (id < end));
+    }
+
+    /**
+     * Perform circular subtaction on an id.
+     * id of 0 - 1 == maxKey
+     */
+    private int CircularSubtraction(int id, int val) {
+        int result;
+        
+        result = this.id - val;
+
+        if (result < 0) {
+            result = maxKey + result + 1;
+        }
+        
+        return result;
+    }
+
 
     public int GetId() {
         return this.id;
@@ -138,5 +219,25 @@ public class Node {
 
     public Node GetSucc() {
         return fingers[0].succ;
+    }
+
+    public void PrintNode() {
+        System.out.println("Node[" + this.id + "]: " );
+        if (pred == null) {
+            System.out.println("\t- pred: " + "null");    
+        } else {
+            System.out.println("\t- pred: " + this.pred.GetId());
+        }
+        System.out.println("\t- table:");
+        for(int i = 0; i < fingers.length; i++) {
+            System.out.print("\t\t");
+            if (fingers[i] == null) {   
+                System.out.print("null");
+            } else {
+                fingers[i].Print();
+            }
+        }
+
+        System.out.println();
     }
 }

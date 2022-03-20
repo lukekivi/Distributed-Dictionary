@@ -8,12 +8,30 @@ public class NodeExperiment {
     private static ArrayList<Node> nodes = new ArrayList<Node>();
     
     public static void main(String[] args) {
-
+        
         AddNode();
         PrintStructure();
 
         AddNode();
         PrintStructure();
+    }
+
+    private static boolean InRange(int id, int start, int end) {
+    
+        if(end < start) {
+            
+            if (id <= end) {
+                return true;
+            } else if (id > start) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+            
+        return ((id > start) && (id <= end));
+        
     }
 
     /**

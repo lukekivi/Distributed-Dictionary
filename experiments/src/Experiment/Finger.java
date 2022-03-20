@@ -10,6 +10,13 @@ public class Finger {
     Node succ;
 
     public void Print() {
-        System.out.println("start: " + start + " end: " + end + " succ: " + succ.GetId());
+        String succId;
+
+        if (succ == null) {
+            succId = "null";
+        } else {
+            succId = Integer.toString(succ.GetId());    
+        }
+        System.out.println("start: " + start + " end: " + end + " succ: " + succId);
     }
 }
