@@ -10,13 +10,13 @@ public class NodeExperiment {
     public static void main(String[] args) {
         
         AddNode();
-        PrintStructure();
+        //PrintStructure();
+
+        AddNode();
+        // PrintStructure();
 
         AddNode();
         PrintStructure();
-
-        // AddNode();
-        // PrintStructure();
     }
 
     private static boolean InRange(int id, int start, int end) {
@@ -48,8 +48,10 @@ public class NodeExperiment {
 
         if (size == 0) {
             node.Join(null, GetHashID());
+            // node.Join(null, 3);
         } else {
             node.Join(nodes.get(size-1), GetHashID());
+            // node.Join(nodes.get(size-1), 6);
         }
 
         nodes.add(node);

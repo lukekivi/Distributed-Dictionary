@@ -44,7 +44,7 @@ public class Node {
      * to communicate with the rest of the network
      */
     private void InitFingerTable(Node node) {
-        System.out.println("InitFingerTable() " + id);
+        // System.out.println("InitFingerTable() " + id);
 
         fingers[0] = InitFinger(null, 0);
         fingers[0].succ = node.FindSuccessor(fingers[0].start);
@@ -54,33 +54,33 @@ public class Node {
         fingers[0].succ.pred = this;
         pred.fingers[0].succ = this; 
 
-        System.out.println("InitFingerTable() --- set one finger ");
-        node.PrintNode();
-        PrintNode();
-        System.out.println("*******************************");
+        // node.PrintNode();
+        // PrintNode();
+        // System.out.println("*******************************");
         
         for (int i = 0; i < fingers.length - 1; i++) {
             Finger nextFinger = InitFinger(null, i + 1);
 
             if (InRangeInEx(nextFinger.start, id, fingers[i].succ.id)) {
+                // System.out.println(nextFinger.start + " IS in [" + id + "," + fingers[i].succ.id + "]");
                 nextFinger.succ = fingers[i].succ;
 
             } else {
+                // System.out.println(nextFinger.start + " IS NOT in [" + id + "," + fingers[i].succ.id + "]");
                 nextFinger.succ = node.FindSuccessor(nextFinger.start);
             }
             fingers[i + 1] = nextFinger;
-            fingers[i+1].Print();
         }
-        node.PrintNode();
-        PrintNode();
+        //node.PrintNode();
+        //PrintNode();
     }
 
 
     // find id's successor
     public Node FindSuccessor(int id) {
-        System.out.println("FindSuccessor(): " + id);
+        // System.out.println("FindSuccessor(): " + id);
         Node pred = FindPredecessor(id);
-        System.out.println("FindSucccessor() " + id + ": returning " + pred.GetSucc().id);
+        // System.out.println("FindSucccessor() " + id + ": returning " + pred.GetSucc().id);
         return pred.GetSucc();
     }
 
@@ -88,8 +88,8 @@ public class Node {
     // Find id's predecessor
     private Node FindPredecessor(int id) {
         Node node = this;
-        System.out.println("FindPredecessor(): " + id);
-        System.out.println("\t" + node.id + " < " + id + " <= " + node.GetSucc().id);
+        // System.out.println("FindPredecessor(): " + id);
+        // System.out.println("\t" + node.id + " < " + id + " <= " + node.GetSucc().id);
 
         int index =0;
         while (!InRangeExIn(id, node.id, node.GetSucc().id)) {  
@@ -97,10 +97,10 @@ public class Node {
             if (index ==9) {
                 System.exit(-1);
             }
-            System.out.println("FindPredecessor(): loop\n\t " + node.id + " < " + id + " <= " + node.GetSucc().id);
+            // System.out.println("FindPredecessor(): loop\n\t " + node.id + " < " + id + " <= " + node.GetSucc().id);
             node = node.ClosestPrecedingFinger(id);
         }
-        System.out.println("FindPredecessor(): returning " +  + node.id);
+        // System.out.println("FindPredecessor(): returning " + node.id);
         return node;
     }
 
@@ -137,11 +137,23 @@ public class Node {
     private void UpdateFingerTable(Node node, int i) {
         // System.out.println("UpdateFingerTable() node[" + this.id + "] finger[" + i + "]=" + fingers[i].succ.id);
         // System.out.println("\t" + this.id + " < " + node.id + " < " + fingers[i].succ.id);
-        if (InRangeExEx(node.id, this.id, fingers[i].succ.id)) {
-            // System.out.println("\t updated to " + node.id);
+        System.out.println("Update called on fingertable[" + i + "] of node " + this.id + " by node " + node.id);
+        if (InRangeInEx(node.id, this.id, fingers[i].succ.id)) { // Changed from ExEx to InEx
+            System.out.println("Lower: " + this.id + " Upper: " + fingers[i].succ.id);
+            if (!(IsCloserInEx(node.id, this.id, fingers[i].start))) {
+                System.out.println("NO UPDATE for Node " + this.id + ": Fingers[" + i + "] = " + fingers[i].succ.id + " and new = " + node.id);
+                return;
+            }
+            Node old = fingers[i].succ;
             fingers[i].succ = node;
             Node pred = this.pred;
+            System.out.println("Node " + this.id + ": updated Fingers[" + i + "] = " + old.id + " to " + node.id);
+
             pred.UpdateFingerTable(node, i);
+            
+        }
+        if (i + 1 < fingers.length) {
+            this.UpdateFingerTable(node, i + 1);
         }
     }
     
@@ -163,7 +175,7 @@ public class Node {
      * exclusive start, inclusive end. Handles circular ranges.
      */
     private boolean InRangeExIn(int id, int start, int end) {
-        if(end < start) {
+        if (end < start) {
             if (id <= end) {
                 return true;
             } else if (id > start) {
@@ -192,6 +204,18 @@ public class Node {
             return true;
         }
         return ((id >= start) && (id < end));
+    }
+
+    private boolean IsCloserInEx(int id, int current, int start) {
+        int curDist = current - start;
+        int newDist = id - start;
+        if (current < start) {
+            curDist = maxKey + (current - start);
+        }
+        if (id < start) {
+            newDist = maxKey + (id - start);
+        }
+        return (newDist < curDist);
     }
 
     
