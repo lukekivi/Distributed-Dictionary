@@ -4,7 +4,7 @@ import java.util.*;
 
 public class NodeExperiment {
 
-    private static final int M = 3;
+    private static final int M = 5;
     private static ArrayList<Node> nodes = new ArrayList<Node>();
     
     public static void main(String[] args) {
@@ -14,6 +14,32 @@ public class NodeExperiment {
         AddNode();
         AddNode();
         AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        
 
         CheckNodes();
 
@@ -89,12 +115,18 @@ public class NodeExperiment {
     }
 
     private static void CheckNodes() {
+        int numFalse = 0;
+
         for (int i = 0; i < nodes.size(); i++) {
             Node node = nodes.get(i);
             node.PrintNode();
-            CheckNodePred(node);
-            CheckNodeTable(node);
+            boolean pred = CheckNodePred(node);
+            boolean table = CheckNodeTable(node);
             System.out.println();
+
+            if (!pred || !table) {
+                numFalse++;
+            }
         }
 
         System.out.println("Node ids:");
@@ -102,11 +134,17 @@ public class NodeExperiment {
             System.out.println("\t" + nodes.get(i).GetId());
         }
         
+        if (numFalse == 0) {
+            System.out.println("All nodes correct!");
+        } else {
+            System.out.println(numFalse + " node(s) were incorrect...");
+        }
+    
     }
 
     private static boolean CheckNodeTable(Node node) {
         Finger[] fingers = node.GetFingers();
-        
+        int numFalse = 0;
         for (int i = 0; i < M; i++) {
             int succId = CircularAddition(node.GetId(), ((int) Math.pow(2, i)));
             int correctSucc = -1;
@@ -127,13 +165,14 @@ public class NodeExperiment {
                 System.out.println("finger[" + i + "]: correct");
             } else {
                 System.out.println("finger[" + i + "]: false, " + fingers[i].succ.GetId() + " is not " + correctSucc);
+                numFalse++;
             }
         }
 
-        return false;
+        return numFalse == 0;
     }
 
-    private static void CheckNodePred(Node node) {
+    private static boolean CheckNodePred(Node node) {
         // check pred
         int id = node.GetId();
         int correctPred = -1;
@@ -154,6 +193,7 @@ public class NodeExperiment {
         }
 
         System.out.println("Pred: " + (correctPred == node.GetPredId()));
+        return (correctPred == node.GetPredId());
     }
 
     private static int CalcCircularPrecedence(int start, int end) {
