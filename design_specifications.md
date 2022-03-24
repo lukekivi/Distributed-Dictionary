@@ -85,7 +85,7 @@ Do the hashing.
 **Input**: word, description
 **Return**: integer key
 
-#### PlaceWord()
+#### PutWord()
 Encapsulate the process of placing a word in the DHT
 **Input**: word, description, key
 **Return**: void
