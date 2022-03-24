@@ -88,7 +88,7 @@ Do the hashing.
 #### PutWord()
 Encapsulate the process of placing a word in the DHT
 **Input**: word, description, key
-**Return**: void
+**Return**: String
 
 ### Interface Operations
 #### Get()
