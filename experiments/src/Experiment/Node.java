@@ -1,12 +1,16 @@
 package Experiment;
 
+import java.math.BigInteger;
+import java.util.HashMap;
 import java.lang.Math;
+import java.security.MessageDigest;
 
 public class Node {
     private int maxKey; // the max possible key in the DHT node is a member of
     private Node pred = null;
     private int id;
     private Finger[] fingers;
+    private HashMap<String, String> dict;
 
     public Node(int m) {
         maxKey = ((int) Math.pow(2, m)) - 1;
@@ -16,6 +20,8 @@ public class Node {
         for (int i = 0; i < fingers.length; i++) {
             fingers[i] = null;
         }
+
+        dict = new HashMap<String, String>();
     }
 
 
@@ -24,6 +30,7 @@ public class Node {
      * to communicate with the rest of the network
      */
     public void Join(Node node, int id) {
+        System.out.println("Node " + id + " joined");
         this.id = id;
         if (node == null) {
             // this is the first node in the system
@@ -232,6 +239,65 @@ public class Node {
 
         System.out.println();
     }
+
+/**
+ * Returns the word and its definition
+ */
+    public String findWord(String word) {
+        int wordId = utils.hashFunction(word, maxKey);
+        // System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
+        String ans = "FAILURE";
+        if (isResponsible(wordId)) {
+            ans = dict.get(word);
+            if (ans == null) {
+                return word + ": NOT IN DHT!";
+            } else {
+                return word + ": " + ans;
+            }
+        } else {
+            Node nextNode = this.FindSuccessor(wordId);
+            ans = nextNode.findWord(word);
+            return ans;
+        }
+    }
+
+/**
+ * Returns a string describing the put status
+ */
+    public String putWord(String word, String def) {
+        int wordId = utils.hashFunction(word, maxKey);
+        // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        String ans = "FAILURE";
+        if (isResponsible(wordId)) {
+            ans = dict.put(word, def);
+            if (ans == null) {
+                return word + " added SUCCESSFULLY";
+            } else {
+                return "ALREADY IN DHT.";
+            }
+        } else {
+            Node nextNode = this.FindSuccessor(wordId);
+            ans = nextNode.putWord(word, def);
+            if (ans.equals(word + " added SUCCESSFULLY")) {
+                return word + " added SUCCESSFULLY";
+            } else {
+                return word + " added UNSUCCESSFULLY";
+            }
+        }
+    }
+
+/**
+ * @param id the key we are checking if the current node is responsible for 
+ * Checks if the current node is the successor for the given id
+ */
+    public boolean isResponsible(int id) {
+        if (this.FindSuccessor(id) == this) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     public int GetPredId() {
         return pred.id;

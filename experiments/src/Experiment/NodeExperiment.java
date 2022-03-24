@@ -6,6 +6,44 @@ public class NodeExperiment {
 
     private static final int M = 5;
     private static ArrayList<Node> nodes = new ArrayList<Node>();
+
+    // private static String node0 = "csel-kh4250-30:5323"; 
+    // private static String node1 = "csel-kh4250-31:9934";
+    // private static String node2 = "csel-kh4250-32:6322";
+    // private static String node3 = "csel-kh4250-33:9643";
+    // private static String node4 = "csel-kh4250-34:9064";
+    // private static String node5 = "csel-kh4250-35:5324";
+
+    // private static String node6 = "csel-kh1250-20:9000";
+    // private static String node7 = "csel-kh1250-21:8000";
+    // private static String node8 = "csel-kh1250-22:5235";
+    // private static String node9 = "csel-kh1250-23:6755";
+    // private static String node10 = "csel-kh1250-24:1954";
+    
+    // private static String node11 = "csel-kh4250-30:9000";
+    // private static String node12 = "csel-kh4250-30:9000";
+    // private static String node13 = "csel-kh4250-30:9000";
+    // private static String node14 = "csel-kh4250-30:9000";
+    // private static String node15 = "csel-kh4250-30:9000";
+
+    // private static String node16 = "csel-kh4250-30:9000";
+    // private static String node17 = "csel-kh4250-30:9000";
+    // private static String node18 = "csel-kh4250-30:9000";
+    // private static String node19 = "csel-kh4250-30:9000";
+    // private static String node20 = "csel-kh4250-30:9000";
+
+    // private static String node21 = "csel-kh4250-30:9000";
+    // private static String node22 = "csel-kh4250-30:9000";
+    // private static String node23 = "csel-kh4250-30:9000";
+    // private static String node24 = "csel-kh4250-30:9000";
+    // private static String node25 = "csel-kh4250-30:9000";
+
+    // private static String node26 = "csel-kh4250-30:9000";
+    // private static String node27 = "csel-kh4250-30:9000";
+    // private static String node28 = "csel-kh4250-30:9000";
+    // private static String node29 = "csel-kh4250-30:9000";
+    // private static String node30 = "csel-kh4250-30:9000";
+
     
     public static void main(String[] args) {
 
@@ -20,28 +58,75 @@ public class NodeExperiment {
         AddNode();
         AddNode();
         AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
-        AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+        // AddNode();
+
+        System.out.println(put("House", "Building that humans live in."));
+        System.out.println(put("apple", "Red fruit."));
+        // System.out.println(put("couch", "Furniture that people sit on."));
+        // System.out.println(put("car", "Autmobile, form of transportation that a person operates."));
+        // System.out.println(put("school", "A place where students can learn."));
+        // System.out.println(put("mouse", "A small rodent."));
+        // System.out.println(put("keyboard", "Provides input for a pc and allows someone to operate one."));
+        // System.out.println(put("table", "Flat board with legs that objects can rest on."));
+        // System.out.println(put("snack", "Small portion of food to satisfy a small hunger."));
+        // System.out.println(put("watch", "A mini clock that straps onto someone's wrist."));
+        // System.out.println(put("shirt", "A piece of clothing that is worn on the upper body."));
+        // System.out.println(put("ear", "Body part on the side of someones head, allows people to hear."));
+
+        // put("House", "Building that humans live in.");
+        // put("apple", "Red fruit.");
+        // put("couch", "Furniture that people sit on.");
+        // put("car", "Autmobile, form of transportation that a person operates.");
+        // put("school", "A place where students can learn.");
+        // put("mouse", "A small rodent.");
+        // put("keyboard", "Provides input for a pc and allows someone to operate one.");
+        // put("table", "Flat board with legs that objects can rest on.");
+        // put("snack", "Small portion of food to satisfy a small hunger.");
+        // put("watch", "A mini clock that straps onto someone's wrist.");
+        // put("shirt", "A piece of clothing that is worn on the upper body.");
+        // put("ear", "Body part on the side of someones head, allows people to hear.");
+
+        System.out.println(get("House"));
+        System.out.println(get("apple"));
+        // System.out.println(get("couch"));
+        // System.out.println(get("House"));
+        // System.out.println(get("car"));
+        // System.out.println(get("school"));
+        // System.out.println(get("mouse"));
+        // System.out.println(get("keyboard"));
+        // System.out.println(get("table"));
+        // System.out.println(get("snack"));
+        // System.out.println(get("watch"));
+        // System.out.println(get("shirt"));
+        // System.out.println(get("ear"));
+
+        // System.out.println(get("invalid"));
+
+
+
+
+
         
 
-        CheckNodes();
+        // CheckNodes();
 
     }
 
@@ -63,6 +148,7 @@ public class NodeExperiment {
 
         nodes.add(node);
     }
+
 
     private static void AddNode(int id) {
         int size = nodes.size();
@@ -227,5 +313,31 @@ public class NodeExperiment {
         }
 
         return result;
+    }
+
+    /**
+     * Get the definition of the requested word
+     */
+    private static String get(String word) {
+        Random r = new Random();
+        int maxKey = ((int) Math.pow(2, M)) - 1;
+        int id = utils.hashFunction(word, maxKey);
+        int index = r.nextInt(nodes.size());
+        Node node = nodes.get(index);
+        String ans = node.findWord(word);
+        return ans;
+    }
+
+    /**
+     * Put a word and definition in the DHT
+     */
+    private static String put(String word, String def) {
+        Random r = new Random();
+        int maxKey = ((int) Math.pow(2, M)) - 1;
+        int id = utils.hashFunction(word, maxKey);
+        int index = r.nextInt(nodes.size());
+        Node node = nodes.get(index);
+        String ans = node.putWord(word, def);
+        return ans;
     }
  }
