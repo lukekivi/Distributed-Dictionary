@@ -44,7 +44,7 @@ Finger Table
 #### GetNodeForClient()
 Get a random node for the client to communicate with.
 **Input**: void\
-**Returns**: Status, NodeDetails\
+**Returns**: Status, NodeDetails, msg\
 
 ####  GetNodeForJoin()
 Sign up a node for the DHT system. If **NEW**, pass the requesting its *successor* so it can establish itself. Can be **BUSY**, which means try again later. The SuperNode blocks new calls to `GetNodeForJoin()` until `PostJoin()` is received.\
@@ -98,13 +98,13 @@ Compare hashed value. If the word belongs to this node, get it. Else check the c
 
 #### Put()
 Compare hashed value. If the word belongs to this node, stash it. Else, cache it and send it along to a better node using the finger table. Wait for better node's response and return that back to sender.\
-**Input**: word, meaning - the word user wants a definition for.\
+**Input**: word, definition - the word user wants a definition for.\
 **Returns**: Status, msg - status represents the transaction conclusion and the msg is a description of said conclusion
 
 #### GetNodeStructure()
 Get a `NodeStructure` object that represents the state of a node.
 **Input**: void\
-**Returns**: NodeStructure
+**Returns**: NodeStructure, Status, msg
 
 #### UpdatePredecessor()
 Called within GetFingerTable to update the predecessor field of a successor Node of a new Node.
@@ -116,7 +116,7 @@ Called within GetFingerTable to update the successor field of a predecessor Node
 **Input**: NodeDetails
 **Returns**: Status, msg
 
-#### UpdateDHT()
+#### UpdateFingerTable()
 Called when a new node is entered into the DHT in order to update existing nodes' finger tables.\
 **Input**: void\
 **Returns**: Status, msg
@@ -135,10 +135,12 @@ fields:\
 
 ## NodeStructure
 `int id` - node id
-`int end` - end of range of ids (combined with id you get the full range)
-`int predecessorId` - id of predecessor node
+`int predId` - id of predecessor node
 `Entry[] entries` - array of all entries on the node
-`NodeDetails[] fingerEntries` - the finger table
+`Finger[] fingers` - the finger table
+
+## Finger
+fields - start, end, successor (`NodeDetails`)
 
 ## FingerTable
-fields - an array of NodeDetails
+fields - an array of `Finger`s
