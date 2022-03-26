@@ -1,5 +1,7 @@
 package node;
 
+import pa2.Entry;
+
 public class Cache {
     private Entry[] cache;
     private int size;

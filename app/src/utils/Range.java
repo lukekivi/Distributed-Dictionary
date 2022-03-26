@@ -57,10 +57,10 @@ public class Range {
      * Perform circular subtaction on an id.
      * id of 0 - 1 == maxKey
      */
-    private int CircularSubtraction(int id, int val) {
+    private int CircularSubtraction(int id, int val, int maxKey) {
         int result;
         
-        result = this.id - val;
+        result = id - val;
 
         if (result < 0) {
             result = maxKey + result + 1;
