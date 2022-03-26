@@ -31,7 +31,7 @@ public class Cache {
     public void addEntry(CacheEntry entry) {
         cache[pointer] = entry;
         pointer += 1;
-        if (pointer == size) {
+        if (pointer >= size) {
             pointer = 0;
         }
     }
