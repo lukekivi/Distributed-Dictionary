@@ -58,12 +58,12 @@ public class NodeExperiment {
         AddNode();
         AddNode();
         AddNode();
-        // AddNode();
-        // AddNode();
-        // AddNode();
-        // AddNode();
-        // AddNode();
-        // AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
+        AddNode();
         // AddNode();
         // AddNode();
         // AddNode();
@@ -80,8 +80,8 @@ public class NodeExperiment {
 
         System.out.println(put("House", "Building that humans live in."));
         System.out.println(put("apple", "Red fruit."));
-        // System.out.println(put("couch", "Furniture that people sit on."));
-        // System.out.println(put("car", "Autmobile, form of transportation that a person operates."));
+        System.out.println(put("couch", "Furniture that people sit on."));
+        System.out.println(put("car", "Autmobile, form of transportation that a person operates."));
         // System.out.println(put("school", "A place where students can learn."));
         // System.out.println(put("mouse", "A small rodent."));
         // System.out.println(put("keyboard", "Provides input for a pc and allows someone to operate one."));
@@ -106,8 +106,8 @@ public class NodeExperiment {
 
         System.out.println(get("House"));
         System.out.println(get("apple"));
-        // System.out.println(get("couch"));
-        // System.out.println(get("House"));
+        System.out.println(get("couch"));
+        System.out.println(get("House"));
         // System.out.println(get("car"));
         // System.out.println(get("school"));
         // System.out.println(get("mouse"));
@@ -138,7 +138,7 @@ public class NodeExperiment {
     private static void AddNode() {
         int size = nodes.size();
     
-        Node node = new Node(M);
+        Node node = new Node(M, 10);
 
         if (size == 0) {
             node.Join(null, GetHashID());
@@ -153,7 +153,7 @@ public class NodeExperiment {
     private static void AddNode(int id) {
         int size = nodes.size();
     
-        Node node = new Node(M);
+        Node node = new Node(M, 10);
 
         if (size == 0) {
             node.Join(null, id);

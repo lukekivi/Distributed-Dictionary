@@ -62,7 +62,7 @@ Gets a list of `NodeStructure` objects.
 **Returns**: Status, msg, NodeStructure list
 
 ## Node
-Each node maintains a hashmap of words it knows and a fingertable in order to communicate with other nodes. Each node also maintains `NodeDetails` objects that represents its predecesser and itself.
+Each node maintains a hashmap of words it knows, a fingertable in order to communicate with other nodes, and a cache (user specifies size when creating the node). Each node also maintains `NodeDetails` objects that represents its predecesser and itself.
 
 There will be some type of caching implemented, likely a hashmap of indefinite size. See **Caching Mechanism** section above for more details.
 
@@ -144,3 +144,9 @@ fields - start, end, successor (`NodeDetails`)
 
 ## FingerTable
 fields - an array of `Finger`s
+
+## Cache
+fields - an array of `CacheEntry`s, size of cache, pointer to spot in cache for FIFO
+
+## CacheEntry
+fields - word, def
