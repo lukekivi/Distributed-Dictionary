@@ -17,24 +17,14 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
-
+import java.net.InetAddress;
 
 public class NodeServer {
-    private static final String LOG_FILE = "log/node1Log.txt";
-    private static ReadIn readIn = new ReadIn();
+
+    private static NodeManager nodeManager = new NodeManager();
     public static void main(String[] args) {
         try {
-
-            /**
-             * Right now this is hard coded to be node1Log.txt everytime. 
-             * We need to start logging prior to getting an id from the
-             * SuperNode. So we will probably just need to generate a 
-             * unique id some other way. 
-             */
-            PrintStream fileOut = new PrintStream(LOG_FILE);  
-
-            System.setOut(fileOut);
+            System.out.println(InetAddress.getLocalHost());
 
             NodeHandler handler = new NodeHandler();
             Node.Processor processor = new Node.Processor<NodeHandler>(handler);
@@ -57,8 +47,7 @@ public class NodeServer {
 
     public static void simple(Node.Processor processor) {
         try {
-            // read in portnumber from the config file
-            int port = readIn.getNodePort();
+            int port = nodeManager.getPortOfSelf();
 
             TServerTransport serverTransport = new TServerSocket(port);
             TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
@@ -73,7 +62,7 @@ public class NodeServer {
 
     private static void establishSelf() {
         try {
-            ServerInfo superNode = readIn.getSuperNodeInfo();
+            ServerInfo superNode = nodeManager.getSuperNodeInfo();
 
             TTransport transport = new TSocket(superNode.ip, superNode.port);
             transport.open();
@@ -87,18 +76,27 @@ public class NodeServer {
         } catch (TTransportException x) {
             System.out.println("Server not running as expected.");
             System.exit(1);
-        }   catch (TException x) {
+        } catch (TException x) {
             x.printStackTrace();
         }
     }
 
-    private static void perform(SuperNode.Client client) throws TException {
+    private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
         NodeJoinData nodeData;
 
         nodeData = client.GetNodeForJoin(); 
         System.out.println("Node data:" +
+            "\n\tassigned id: " + nodeData.id +
+            "\n\M: " + nodeData.m +
             "\n\tStatus: " + nodeData.status +
-            "\n\tMsg: " + nodeData.msg + "\n"
+            "\n\tMsg: " + nodeData.msg + 
+            "\n\tnode ip: " + nodeData.nodeInfo.id +
+            "\n\tnode ip: " + nodeData.nodeInfo.ip +
+            "\n\tport: " + nodeData.nodeInfo.port + "\n"
         );
+
+        nodeManager.setLog(nodeData.id);
     }
+
+
 }

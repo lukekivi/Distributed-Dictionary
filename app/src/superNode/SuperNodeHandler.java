@@ -11,8 +11,6 @@ import pa2.SuperNode;
 
 public class SuperNodeHandler implements SuperNode.Iface {
     
-
-
     @Override
     public NodeForClientData GetNodeForClient() {
         NodeForClientData nodeData = new NodeForClientData();
