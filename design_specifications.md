@@ -48,12 +48,12 @@ Get a random node for the client to communicate with.
 
 ####  GetNodeForJoin()
 Sign up a node for the DHT system. If **NEW**, pass the requesting its *successor* so it can establish itself. Can be **BUSY**, which means try again later. The SuperNode blocks new calls to `GetNodeForJoin()` until `PostJoin()` is received.\
-**Input**: ip, port - need node specific ip and port in SuperNode so it can be distributed to entities that want to contact it.\
+**Input**: void\
 **Returns**: JoinStatus, id, NodeDetails, msg - the join status, an assigned id for requesting node, nodedetails for an old node for the requesting node to talk to, a message.
 
 #### PostJoin()
-Alert SuperNode that a Node has finished joining the DHT.
-**Input**: void\
+Alert SuperNode that a Node has finished joining the DHT. Also, track this node now that is successfully added to the system.
+**Input**: ip, port - need node specific ip and port in SuperNode so it can be distributed to entities that want to contact it.\
 **Returns**: Status, msg
 
 #### GetDHTStructure()

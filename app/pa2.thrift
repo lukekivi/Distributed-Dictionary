@@ -111,8 +111,8 @@ struct DHTData {
  */
 service SuperNode {
     NodeForClientData GetNodeForClient(),
-    NodeJoinData GetNodeForJoin(1: string ip, 2: i32 port),
-    StatusData PostJoin(),
+    NodeJoinData GetNodeForJoin(),
+    StatusData PostJoin(1: string ip, 2: i32 port),
     DHTData GetDHTStructure()
 }
 
