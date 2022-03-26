@@ -12,10 +12,6 @@
     <property name="client.log" value="clientLog.txt"/>
     <property name="superNode.log" value="superNodeLog.txt"/>
 
-    <path id="build.classpath">
-        <pathelement path="${build.dir}"/>
-    </path>
-
     <path id="libs.classpath">
         <fileset dir="${env.THRIFT_LIB_PATH}">
             <include name="libthrift*.jar"/>
@@ -29,8 +25,18 @@
         <fileset dir="${env.PROJ_PATH}"/>
     </path>
 
+    <path id="build.classpath">
+        <path refid="libs.classpath" />
+        <pathelement path="${gen.dir}" />
+     </path>
+
     <path id="thrift_compiler.classpath">
         <fileset dir="${env.THRIFT_LIB_PATH}/../../../../compiler/cpp/src/thrift"/>
+    </path>
+
+    <path id="pa2.classpath">
+        <path refid="build.classpath" />
+        <pathelement path="${build.dir}" />
     </path>
 
     <!-- Generate the thrift gen-java source -->
@@ -56,19 +62,19 @@
     <!-- Run client -->
     <target name="client" depends="compile, cleanClientLog">
         <echo>client:</echo>
-        <java classpathref="build.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client"/>
+        <java classpathref="pa2.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client"/>
      </target>
 
      <!-- Run super node -->
     <target name="superNode" depends="compile, cleanSuperNodeLog">
         <echo>superNode:</echo>
-        <java classpathref="build.classpath" output="${log.dir}/${superNode.log}" failonerror="false" fork="true" classname="superNode/SuperNode"/>
+        <java classpathref="pa2.classpath" output="${log.dir}/${superNode.log}" failonerror="false" fork="true" classname="superNode/SuperNodeServer"/>
      </target>
 
     <!-- Start a new node -->
     <target name="node" depends="compile">
         <echo>node:</echo>
-        <java classpathref="build.classpath" failonerror="false" fork="true" classname="node/Node"/>
+        <java classpathref="pa2.classpath" failonerror="false" fork="true" classname="node/NodeServer"/>
     </target>
 
     <!-- Clean client log -->
