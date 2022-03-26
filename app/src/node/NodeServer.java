@@ -26,7 +26,13 @@ public class NodeServer {
     public static void main(String[] args) {
         try {
 
-            PrintStream fileOut = new PrintStream(LOG_FILE);
+            /**
+             * Right now this is hard coded to be node1Log.txt everytime. 
+             * We need to start logging prior to getting an id from the
+             * SuperNode. So we will probably just need to generate a 
+             * unique id some other way. 
+             */
+            PrintStream fileOut = new PrintStream(LOG_FILE);  
 
             System.setOut(fileOut);
 
