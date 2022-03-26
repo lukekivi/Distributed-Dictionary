@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.lang.Math;
 import java.security.MessageDigest;
+import java.util.Queue;
 
 public class Node {
     private int maxKey; // the max possible key in the DHT node is a member of
@@ -11,8 +12,9 @@ public class Node {
     private int id;
     private Finger[] fingers;
     private HashMap<String, String> dict;
+    private Cache cache;
 
-    public Node(int m) {
+    public Node(int m, int cacheSize) {
         maxKey = ((int) Math.pow(2, m)) - 1;
 
         fingers = new Finger[m];
@@ -20,7 +22,7 @@ public class Node {
         for (int i = 0; i < fingers.length; i++) {
             fingers[i] = null;
         }
-
+        cache = new Cache(cacheSize);
         dict = new HashMap<String, String>();
     }
 
@@ -245,8 +247,9 @@ public class Node {
  */
     public String findWord(String word) {
         int wordId = utils.hashFunction(word, maxKey);
-        // System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
+        System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
         String ans = "FAILURE";
+        CacheEntry entry;
         if (isResponsible(wordId)) {
             ans = dict.get(word);
             if (ans == null) {
@@ -255,9 +258,15 @@ public class Node {
                 return word + ": " + ans;
             }
         } else {
-            Node nextNode = this.FindSuccessor(wordId);
-            ans = nextNode.findWord(word);
-            return ans;
+            entry = cache.checkCache(word);
+            if (entry != null) {
+                System.out.println("Grabbed from Cache");
+                return entry.getEntry();
+            } else {
+                Node nextNode = nextJump(wordId);
+                ans = nextNode.findWord(word);
+                return ans;
+            }
         }
     }
 
@@ -266,7 +275,7 @@ public class Node {
  */
     public String putWord(String word, String def) {
         int wordId = utils.hashFunction(word, maxKey);
-        // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
         String ans = "FAILURE";
         if (isResponsible(wordId)) {
             ans = dict.put(word, def);
@@ -276,7 +285,11 @@ public class Node {
                 return "ALREADY IN DHT.";
             }
         } else {
-            Node nextNode = this.FindSuccessor(wordId);
+            System.out.println("Adding entry to cache");
+            CacheEntry entry = new CacheEntry(word, def);
+            cache.addEntry(entry);
+
+            Node nextNode = nextJump(wordId);
             ans = nextNode.putWord(word, def);
             if (ans.equals(word + " added SUCCESSFULLY")) {
                 return word + " added SUCCESSFULLY";
@@ -286,16 +299,30 @@ public class Node {
         }
     }
 
-/**
- * @param id the key we are checking if the current node is responsible for 
- * Checks if the current node is the successor for the given id
- */
+    /**
+    * @param id the key we are checking if the current node is responsible for 
+    * Checks if the current node is the successor for the given id
+    */
     public boolean isResponsible(int id) {
         if (this.FindSuccessor(id) == this) {
             return true;
         } else {
             return false;
         }
+    }
+
+
+    /**
+     * Find the best finger table entry to send the dict entry
+     * @param id key that will be sent to proper node
+    */
+    public Node nextJump(int id) {
+        for (int i = fingers.length - 1; i >= 0; i--) {
+            if (InRangeInEx(id, fingers[i].start, fingers[i].end)) {
+                return fingers[i].succ;
+            }
+        }
+        return null;
     }
 
 
