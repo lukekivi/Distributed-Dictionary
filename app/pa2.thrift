@@ -89,9 +89,10 @@ struct NodeForClientData {
  */
 struct NodeJoinData {
     1: i32 id,
-    2: NodeDetails nodeInfo,
-    3: JoinStatus status,
-    4: string msg
+    2: i32 m,
+    3: NodeDetails nodeInfo,
+    4: JoinStatus status,
+    5: string msg
 }
 
 
