@@ -22,7 +22,6 @@ public class NodeManager {
 
 
 // Should it be updatePred() and updateSucc() or should it be updateOthers()?
-// IsResponsible() requires FindSuccessor() which requires connections, can we do it in NodeManager?
 // Currently, FindPredecessor() is in manager, FindSuccessor() is in handler. Can manager establish connections?
 
 
@@ -187,7 +186,20 @@ public class NodeManager {
         }
     }
 
-
+    /**
+    * @param id the key we are checking if the current node is responsible for 
+    * Checks if the current node is the successor for the given id
+    */
+    public boolean isResponsible(int id) {
+        if (id == this.id) {
+            return true;
+        }
+        if (InRangeExEx(id, pred.id, this.id)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 

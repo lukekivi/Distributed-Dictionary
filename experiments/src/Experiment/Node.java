@@ -304,7 +304,16 @@ public class Node {
     * Checks if the current node is the successor for the given id
     */
     public boolean isResponsible(int id) {
-        if (this.FindSuccessor(id) == this) {
+        // if (this.FindSuccessor(id) == this) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
+
+        if (id == this.id) {
+            return true;
+        }
+        if (InRangeExIn(id, pred.id, this.id)) {
             return true;
         } else {
             return false;
