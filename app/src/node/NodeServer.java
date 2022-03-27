@@ -23,6 +23,7 @@ public class NodeServer {
 
     private static NodeManager nodeManager = new NodeManager();
     public static void main(String[] args) {
+        int cacheSize = Integer.parseInt(args[0]);
         try {
             System.out.println(InetAddress.getLocalHost());
 
@@ -84,7 +85,10 @@ public class NodeServer {
     private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
         NodeJoinData nodeData;
 
-        nodeData = client.GetNodeForJoin(); 
+        nodeData = client.GetNodeForJoin();
+
+        handler.InitializeNode(nodeData, cacheSize); 
+
         System.out.println("Node data:" +
             "\n\tassigned id: " + nodeData.id +
             "\n\M: " + nodeData.m +

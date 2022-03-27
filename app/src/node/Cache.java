@@ -44,4 +44,23 @@ public class Cache {
         }
         return null;
     }
+
+    public List<Entry> getList() {
+        List<Entry> list = new ArrayList<Entry>();
+        for (int i = 0; i < size; i++) {
+            if (cache[i] == null) {
+                return list;
+            }
+            list.add(cache[i]);
+        }
+        return list;
+    }
+
+    public List<Finger> getFingers() {
+        List<Finger> list = new ArrayList<Finger>();
+        for (int i = 0; i < fingers.size; i++) {
+            list.add(fingers[i]);
+        }
+        return list;
+    }
 }
