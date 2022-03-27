@@ -80,20 +80,19 @@ public class NodeExperiment {
 
         System.out.println(put("House", "Building that humans live in."));
         System.out.println(put("apple", "Red fruit."));
-        System.out.println(put("couch", "Furniture that people sit on."));
+
         System.out.println(put("car", "Autmobile, form of transportation that a person operates."));
-        // System.out.println(put("school", "A place where students can learn."));
-        // System.out.println(put("mouse", "A small rodent."));
-        // System.out.println(put("keyboard", "Provides input for a pc and allows someone to operate one."));
-        // System.out.println(put("table", "Flat board with legs that objects can rest on."));
-        // System.out.println(put("snack", "Small portion of food to satisfy a small hunger."));
+        System.out.println(put("school", "A place where students can learn."));
+        System.out.println(put("mouse", "A small rodent."));
+        System.out.println(put("keyboard", "Provides input for a pc and allows someone to operate one."));
+        System.out.println(put("table", "Flat board with legs that objects can rest on."));
+        System.out.println(put("snack", "Small portion of food to satisfy a small hunger."));
         // System.out.println(put("watch", "A mini clock that straps onto someone's wrist."));
         // System.out.println(put("shirt", "A piece of clothing that is worn on the upper body."));
         // System.out.println(put("ear", "Body part on the side of someones head, allows people to hear."));
 
         // put("House", "Building that humans live in.");
         // put("apple", "Red fruit.");
-        // put("couch", "Furniture that people sit on.");
         // put("car", "Autmobile, form of transportation that a person operates.");
         // put("school", "A place where students can learn.");
         // put("mouse", "A small rodent.");
@@ -104,10 +103,9 @@ public class NodeExperiment {
         // put("shirt", "A piece of clothing that is worn on the upper body.");
         // put("ear", "Body part on the side of someones head, allows people to hear.");
 
-        System.out.println(get("House"));
-        System.out.println(get("apple"));
-        System.out.println(get("couch"));
-        System.out.println(get("House"));
+        // System.out.println(get("House"));
+        // System.out.println(get("apple"));
+        // System.out.println(get("House"));
         // System.out.println(get("car"));
         // System.out.println(get("school"));
         // System.out.println(get("mouse"));

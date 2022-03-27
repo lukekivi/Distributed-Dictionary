@@ -36,10 +36,10 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public StatusData Put(String word, String definition) {
-        Status status = putWord(word, definition);
-        if (status == Status.FAILURE) {
+        Status status = putWord(word, definition); // Puts word if responsible
+        if (status == Status.FAILURE) { // Not responsible
             int wordId = utils.hashFunction(word, maxKey);
-            NodeDetails next = nextJump(wordId);
+            NodeDetails next = manager.ClosestPrecedingFinger(wordId);
             // Set up connection to next 
             // call Put() on next node
             // return that
@@ -47,6 +47,7 @@ public class NodeHandler implements Node.Iface {
             StatusData result = new StatusData();
             result.status = Status.SUCCESS;
             result.msg = "Entry put by node " + info.id;
+            return result;
         }
     }
 
@@ -66,17 +67,22 @@ public class NodeHandler implements Node.Iface {
 
     }
 
+    // Add to thrift
+    public NodeDetails GetSucc() {
+        return fingers[0].succ;
+    }
+
     @Override
-    public StatusData UpdatePredecessor(NodeDetails nodeInfo) {
+    public StatusData SetPredecessor(NodeDetails nodeInfo) {
         return null;
     }
 
     @Override
-    public StatusData UpdateSuccessor(NodeDetails nodeInfo) {
+    public StatusData SetSuccessor(NodeDetails nodeInfo) {
         return null;
     }
 
-    // find id's successor
+    // find id's successor, PUT IN THRIFT
     public NodeDetails FindSuccessor(int id) {
         Node pred = manager.FindPredecessor(id);
         // establish connection to pred
@@ -98,4 +104,35 @@ public class NodeHandler implements Node.Iface {
         // Set up connection to pred
         // call updateFingerTable(node, i) on pred
     }
+
+    /** 
+     * node is an arbitrary node in the network used
+     * to communicate with the rest of the network
+     */
+    private void InitFingerTable(NodeDetails node) {
+
+        // fingers[0] = InitFinger(null, 0);
+        // fingers[0].succ = node.FindSuccessor(fingers[0].start);
+
+        // pred = fingers[0].succ.pred;
+        
+        // fingers[0].succ.pred = this;
+        // pred.fingers[0].succ = this; 
+        
+        // for (int i = 0; i < fingers.length - 1; i++) {
+        //     Finger nextFinger = InitFinger(null, i + 1);
+
+        //     if (InRangeInEx(nextFinger.start, id, fingers[i].succ.id)) {
+        //         nextFinger.succ = fingers[i].succ;
+
+        //     } else {
+        //         nextFinger.succ = node.FindSuccessor(nextFinger.start);
+        //     }
+        //     fingers[i + 1] = nextFinger;
+        // }
+
+    }
+
+
+
 }

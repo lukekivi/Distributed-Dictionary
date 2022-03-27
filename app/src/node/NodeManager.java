@@ -119,17 +119,17 @@ public class NodeManager {
             Finger finger = fingers[i];
             
             if (InRangeExEx(finger.succ.id, this.id, id)) {
-                return fingers[i].succ.id;
+                return fingers[i].succ;
             }
         }
-        return this;
+        return info;
     }
 
     // Find id's predecessor
     public NodeDetails FindPredecessor(int id) {
         NodeDetails node = info;
 
-        while (!utils.InRangeExIn(id, info.id, GetSucc().id)) {  
+        while (!utils.InRangeExIn(id, info.id, fingers[0].succ.id)) {  
             node = ClosestPrecedingFinger(id);
         }
         return node;
@@ -166,11 +166,6 @@ public class NodeManager {
     public int GetId() {
         return this.id;
     }
-
-    public NodeDetails GetSucc() {
-        return fingers[0].succ;
-    }
-
 
     public List<Entry> getNodeEntries() {
         return cache.getList();

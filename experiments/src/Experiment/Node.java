@@ -290,6 +290,10 @@ public class Node {
             cache.addEntry(entry);
 
             Node nextNode = nextJump(wordId);
+            if (nextNode == null) {
+                System.out.println("nextNode is null");
+            }
+            System.out.println("Got nextNode " + nextNode.id);
             ans = nextNode.putWord(word, def);
             if (ans.equals(word + " added SUCCESSFULLY")) {
                 return word + " added SUCCESSFULLY";
@@ -310,9 +314,9 @@ public class Node {
         //     return false;
         // }
 
-        if (id == this.id) {
-            return true;
-        }
+        // if (id == this.id) {
+        //     return true;
+        // }
         if (InRangeExIn(id, pred.id, this.id)) {
             return true;
         } else {
@@ -326,6 +330,19 @@ public class Node {
      * @param id key that will be sent to proper node
     */
     public Node nextJump(int id) {
+    //     for (int i = fingers.length - 1; i >= 0; i--) {
+    //         int prev = i - 1;
+    //         if (prev < 0) {
+    //             prev = fingers.length - 1;
+    //         }
+    //         if (fingers[i].succ.id == id) {
+    //             return fingers[i].succ;
+    //         }
+    //         if (!InRangeExIn(id, this.id, finger[i].succ.id)) {
+    //             return fingers[i].succ;
+    //         }
+    //     }
+    //     return null;
         for (int i = fingers.length - 1; i >= 0; i--) {
             if (InRangeInEx(id, fingers[i].start, fingers[i].end)) {
                 return fingers[i].succ;
@@ -333,6 +350,7 @@ public class Node {
         }
         return null;
     }
+
 
 
     public int GetPredId() {
