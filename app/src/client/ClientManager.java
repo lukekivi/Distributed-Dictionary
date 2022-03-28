@@ -1,9 +1,6 @@
 package client;
 
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransportException;
 import pa2.Node;
 import pa2.NodeDetails;
@@ -13,22 +10,25 @@ import pa2.SuperNode;
 import pa2.GetData;
 import utils.ReadIn;
 import utils.ServerInfo;
-import utils.ThriftConnection;
+import utils.SuperConn;
+import utils.ConnFactory;
+import utils.NodeConn;
 
 
 public class ClientManager {
     private final ReadIn readIn = new ReadIn();
-    private ThriftConnection nodeConn;
+    private ConnFactory connFactory = new ConnFactory();
+    private NodeConn nodeConn;
 
     /**
      * Connect the ClientManager to the DHT. The process sets nodeConn as an ambassador node
      */
     public void connectToDHT() {
         try {
-            ThriftConnection superNodeConn = getSuperNodeConn();
+            SuperConn superConn = connFactory.makeSuperConn(readIn.getSuperNodeInfo());
 
             // get a node from supernode for communication with the DHT
-            NodeForClientData nodeData = ((SuperNode.Client) superNodeConn.client).GetNodeForClient(); 
+            NodeForClientData nodeData = superConn.client.GetNodeForClient(); 
             System.out.println("Node data:" +
                 "\n\tid: " + nodeData.nodeInfo.id +
                 "\n\tip: " + nodeData.nodeInfo.ip +
@@ -45,7 +45,7 @@ public class ClientManager {
 
             setNode(nodeData.nodeInfo);
 
-            closeConn(superNodeConn);
+            connFactory.closeSuperConn(superConn);
         } catch (TTransportException x) {
             System.out.println("Server not running as expected.");
             System.exit(1);
@@ -55,57 +55,19 @@ public class ClientManager {
     }
 
 
-    private ThriftConnection getSuperNodeConn() throws TTransportException {
-        ThriftConnection superNodeConn = new ThriftConnection();
-        ServerInfo superNode = getSuperNodeInfo();
-    
-        superNodeConn.transport = new TSocket(superNode.ip, superNode.port);
-        superNodeConn.transport.open();
-
-        TProtocol protocol = new  TBinaryProtocol(superNodeConn.transport);
-        superNodeConn.client = new SuperNode.Client(protocol);
-
-        return superNodeConn;
-    }
-
-
-    /**
-     * Read SuperNode details from config file.
-     */
-    private ServerInfo getSuperNodeInfo() {
-        return readIn.getSuperNodeInfo();
-    }
-
-
     /**
      * Setup connection to Node for communication with the DHT.
      * @param nodeInfo designated ambassador node
      */
     private void setNode(NodeDetails nodeInfo) {
         try {
-            nodeConn = new ThriftConnection();
+            nodeConn = connFactory.makeNodeConn(nodeInfo);
 
-            nodeConn.transport = new TSocket(nodeInfo.ip, nodeInfo.port);
-            nodeConn.transport.open();
-
-            TProtocol protocol = new  TBinaryProtocol(nodeConn.transport);
-            nodeConn.client = new Node.Client(protocol);
         } catch (TTransportException x) {
             System.out.println("ERROR: ClientManager.setNode()"); 
             x.printStackTrace();
             System.exit(1);
         }
-    }
-
-
-    /**
-     * Close connection to the node
-     */
-    private void closeConn(ThriftConnection conn) {
-        if (conn.transport.isOpen()) {
-            conn.transport.close();
-        }
-        conn = null;
     }
 
 
@@ -224,6 +186,6 @@ public class ClientManager {
 
 
     public void close() {
-        closeConn(nodeConn);
+        connFactory.closeNodeConn(nodeConn);
     }
 }
