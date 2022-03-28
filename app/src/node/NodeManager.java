@@ -11,6 +11,8 @@ import java.util.Queue;
 import java.util.ArrayList;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.TException;
 
 import pa2.NodeDetails;
 import pa2.Finger;
@@ -95,12 +97,14 @@ public class NodeManager {
                 NodeDetails nextNode = ClosestPrecedingFinger(wordId);
                 try {
                     NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                    StatusData data = nodeCon.Client.FindWordHelper(word);
-                    ans = data.status;
+                    ans = nodeCon.client.FindWordHelper(word);
                     factory.closeNodeConn(nodeCon);
                 } catch (TTransportException x) {
                     System.out.println("Something went wrong with Node connection.");
                     System.exit(1);
+                } catch (TException e) {
+                    System.out.println("Something went wrong with the RPC Get() call");
+                    e.printStackTrace();
                 }
                 return ans;
             }
@@ -135,12 +139,15 @@ public class NodeManager {
             // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
             try {
                 NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                StatusData insertData = nodeCon.Client.InsertWordHelper(word, def, wordId);
+                StatusData insertData = nodeCon.client.InsertWordHelper(word, def, wordId);
                 ans = insertData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC Get() call");
+                e.printStackTrace();
             }
             return ans;
 
@@ -148,12 +155,15 @@ public class NodeManager {
             try {
             // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
                 NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                StatusData cacheData = nodeCon.Client.FindPredCachingHelper(word, def, wordId);
+                StatusData cacheData = nodeCon.client.FindPredCachingHelper(word, def, wordId);
                 ans = cacheData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC Get() call");
+                e.printStackTrace();
             }
             return ans;
         }
@@ -234,29 +244,32 @@ public class NodeManager {
 
             // Connect to node
             NodeConn con1 = factory.makeNodeConn(node);
-            NodeDetails result1 = con1.Client.FindSuccessor(fingers[0].start);
+            NodeDetails result1 = con1.client.FindSuccessor(fingers[0].start);
             factory.closeNodeConn(con1);
             fingers[0].succ = result1;
 
             // Connect to Successor (fingers[0].succ)
             NodeConn con2 = factory.makeNodeConn(fingers[0].succ);
-            NodeDetails succPred = con2.Client.GetPred();
+            NodeDetails succPred = con2.client.GetPred();
             pred = succPred;
             factory.closeNodeConn(con2);
 
             // Connect to Successor's Predecessor (fingers[0].succ.pred)
             NodeConn con3 = factory.makeNodeConn(succPred);
-            StatusData con3Data = con3.Client.SetPred(info);
+            StatusData con3Data = con3.client.SetPred(info);
             factory.closeNodeConn(con3);
 
             // connect to Predecessor
             NodeConn con4 = factory.makeNodeConn(pred);
-            StatusData con4Data = con4.Client.SetSucc(info);
+            StatusData con4Data = con4.client.SetSucc(info);
             factory.closeNodeConn(con4);
 
         } catch (TTransportException x) {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
+        } catch (TException e) {
+            System.out.println("Something went wrong with the RPC Get() call");
+            e.printStackTrace();
         }
 
         for (int i = 0; i < fingers.length - 1; i++) {
@@ -268,32 +281,37 @@ public class NodeManager {
                     // Connect to nextFinger.succ
                     // client4. SetSucc(manager.fingers[i].succ);
                     NodeConn con5 = factory.makeNodeConn(nextFinger.succ);
-                    StatusData con5Data = con5.Client.SetSucc(fingers[i].succ);
+                    StatusData con5Data = con5.client.SetSucc(fingers[i].succ);
                     factory.closeNodeConn(con5);
 
                 } catch (TTransportException x) {
                     System.out.println("Something went wrong with Node connection.");
                     System.exit(1);
+                } catch (TException e) {
+                    System.out.println("Something went wrong with the RPC Get() call");
+                    e.printStackTrace();
                 }
-
             } else {
                 try {
                     // Connect to node
                     // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
                     NodeConn con6 = factory.makeNodeConn(node);
-                    NodeDetails result2 = con6.Client.FindSuccessor(nextFinger.start);
+                    NodeDetails result2 = con6.client.FindSuccessor(nextFinger.start);
                     factory.closeNodeConn(con6);
                     
 
                     // Connect to nextFinger.succ
                     // client6.SetSucc(result2);
                     NodeConn con7 = factory.makeNodeConn(nextFinger.succ);
-                    StatusData con7Data = con7.Client.SetSucc(result2);
+                    StatusData con7Data = con7.client.SetSucc(result2);
                     factory.closeNodeConn(con7);
 
                 } catch (TTransportException x) {
                     System.out.println("Something went wrong with Node connection.");
                     System.exit(1);
+                } catch (TException e) {
+                    System.out.println("Something went wrong with the RPC Get() call");
+                    e.printStackTrace();
                 }
             }
 
@@ -302,7 +320,7 @@ public class NodeManager {
     }
 
     
-    
+
     public void updateOthers() {
         for (int i = 0; i < fingers.length; i++) {
             int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
@@ -311,11 +329,14 @@ public class NodeManager {
             // Connect to pred
             try {
                 NodeConn nodeCon = factory.makeNodeConn(pred); // connect to nextNode
-                nodeCon.Client.UpdateFingerTable(info, i);
+                nodeCon.client.UpdateFingerTable(info, i);
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC Get() call");
+                e.printStackTrace();
             }
 
         }

@@ -13,6 +13,8 @@ import pa2.NodeJoinData;
 import utils.Hash;
 import utils.ConnFactory;
 import utils.NodeConn;
+import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.TException;
 
 
 public class NodeHandler implements Node.Iface {
@@ -67,12 +69,15 @@ public class NodeHandler implements Node.Iface {
 
             // Set up connection to next 
             try {
-                NodeConn con = factory.makeNodeConn(nextNode);
-                data = con.Client.Get(word);
-                factory.closeNodeConn(con);
+                NodeConn con = manager.factory.makeNodeConn(nextNode);
+                data = con.client.Get(word);
+                manager.factory.closeNodeConn(con);
             } catch (TTransportException x) {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC Get() call");
+                e.printStackTrace();
             }
             return data;
             
@@ -109,12 +114,15 @@ public class NodeHandler implements Node.Iface {
             try {
                 // Set up connection to next 
                 // return client.Put(word, definition);
-                NodeConn con = factory.makeNodeConn(nextNode);
-                data = con.Client.Put(word, definition);
-                factory.closeNodeConn(con);
+                NodeConn con = manager.factory.makeNodeConn(nextNode);
+                data = con.client.Put(word, definition);
+                manager.factory.closeNodeConn(con);
             } catch (TTransportException x) {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC Get() call");
+                e.printStackTrace();
             }
             return data;
 
@@ -179,13 +187,16 @@ public class NodeHandler implements Node.Iface {
         NodeDetails pred = manager.FindPredecessor(id);
         NodeDetails succ = new NodeDetails();
         try {
-            NodeConn nodeCon = manager.factory.makeNodeConn(pred); // Connect to pred
+            NodeConn con = manager.factory.makeNodeConn(pred); // Connect to pred
 
-            succ = nodeCon.Client.GetSucc(id);
-            manager.factory.closeNodeConn(nodeCon);
+            succ = con.client.GetSucc();
+            manager.factory.closeNodeConn(con);
         } catch (TTransportException x) {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
+        } catch (TException e) {
+            System.out.println("Something went wrong with the RPC Get() call");
+            e.printStackTrace();
         }
         return succ;
     }
@@ -198,9 +209,9 @@ public class NodeHandler implements Node.Iface {
         try {
             if (result) {
 
-                NodeConn nodeCon = manager.factory.makeNodeConn(manager.pred); // Connect to pred
-                StatusData connData = nodeCon.Client.UpdateFingerTable(node, i);
-                manager.factory.closeNodeConn(connData);
+                NodeConn con = manager.factory.makeNodeConn(manager.pred); // Connect to pred
+                StatusData connData = con.client.UpdateFingerTable(node, i);
+                manager.factory.closeNodeConn(con);
 
                 data.status = Status.SUCCESS;
                 data.msg = "updated successfully: node " + manager.info.id;
@@ -213,6 +224,9 @@ public class NodeHandler implements Node.Iface {
         } catch (TTransportException x) {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
+        } catch (TException e) {
+            System.out.println("Something went wrong with the RPC Get() call");
+            e.printStackTrace();
         }
         return null;
     }
