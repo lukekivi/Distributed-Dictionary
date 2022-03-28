@@ -123,7 +123,7 @@ public class NodeExperiment {
 
 
         
-
+        checkHashTable();
         // CheckNodes();
 
     }
@@ -256,6 +256,33 @@ public class NodeExperiment {
         return numFalse == 0;
     }
 
+    private static boolean hashTableCheckHelper(Node node) {
+        int nodeId = node.id;
+        for (Map.Entry mapElement : node.dict.entrySet()) {
+            String word = (String)mapElement.getKey();
+            int maxKey = ((int) Math.pow(2, M)) - 1;
+            int key = utils.hashFunction(word, maxKey);
+
+            int predId = node.pred.id;
+            if (!(InRangeExInExp(key, predId, nodeId))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkHashTable() {
+        for (int i = 0; i < nodes.size(); i++) {
+            boolean hashStatus = hashTableCheckHelper(nodes.get(i));
+            if (!hashStatus) {
+                System.out.println("Node " + nodes.get(i).id + " is incorrect");
+                return false;
+            }
+        }
+        System.out.println("Hash Tables all contain poper values");
+        return true;
+    }
+    
     private static boolean CheckNodePred(Node node) {
         // check pred
         int id = node.GetId();
@@ -337,5 +364,24 @@ public class NodeExperiment {
         Node node = nodes.get(index);
         String ans = node.putWord(word, def);
         return ans;
+    }
+
+
+        /**
+     * exclusive start, inclusive end. Handles circular ranges.
+     */
+    private static boolean InRangeExInExp(int id, int start, int end) {
+        if (end < start) {
+            if (id <= end) {
+                return true;
+            } else if (id > start) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (end == start) {
+            return true;
+        }
+        return ((id > start) && (id <= end));
     }
  }

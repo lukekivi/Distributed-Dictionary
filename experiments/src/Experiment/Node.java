@@ -8,10 +8,10 @@ import java.util.Queue;
 
 public class Node {
     private int maxKey; // the max possible key in the DHT node is a member of
-    private Node pred = null;
-    private int id;
+    public Node pred = null;
+    public int id;
     private Finger[] fingers;
-    private HashMap<String, String> dict;
+    public HashMap<String, String> dict;
     private Cache cache;
 
     public Node(int m, int cacheSize) {
@@ -307,6 +307,7 @@ public class Node {
         CacheEntry entry = new CacheEntry(word, def);
         cache.addEntry(entry);
 
+        // PrintNode();
         Node nextNode = ClosestPrecedingFinger(wordId);
         if (nextNode.id == this.id) {
             nextNode = GetSucc();
