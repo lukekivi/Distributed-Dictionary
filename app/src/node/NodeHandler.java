@@ -40,9 +40,10 @@ public class NodeHandler implements Node.Iface {
         if (entry == null) {
             int wordId = utils.hashFunction(word, maxKey);
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
+
             // Set up connection to next 
-            // call Get() on next node
-            // return that
+            return client.Get(word);
+            
         } else {
             GetData result = new GetData();
             result.definition = entry.def;
@@ -57,9 +58,10 @@ public class NodeHandler implements Node.Iface {
         if (status == Status.FAILURE) { // Not responsible
             int wordId = utils.hashFunction(word, maxKey);
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
+
             // Set up connection to next 
-            // call Put() on next node
-            // return that
+            return client.Put(word, definition);
+
         } else {
             StatusData result = new StatusData();
             result.status = Status.SUCCESS;
@@ -107,9 +109,10 @@ public class NodeHandler implements Node.Iface {
     // find id's successor, PUT IN THRIFT
     public NodeDetails FindSuccessor(int id) {
         NodeDetails pred = manager.FindPredecessor(id);
+
         // establish connection to pred
-        // call getSucc() on pred
-        return succ;
+        return client.GetSucc(id);
+
     }
 
     private void UpdateOthers() {
@@ -118,7 +121,8 @@ public class NodeHandler implements Node.Iface {
             NodeDetails pred = FindPredecessor(nId);
 
             // Connect to pred
-            // Call UpdateFingerTable(info, i)
+            StatusData data = client.UpdateFingerTable(info, i);
+
         }
     }
 
@@ -128,12 +132,15 @@ public class NodeHandler implements Node.Iface {
         StatusData data = new StatusData();
         if (result) {
             // Set up connection to pred
-            // call updateFingerTable(node, i) on pred
+            client.updateFingerTable(node, i);
+
             data.status = Status.SUCCESS;
             data.msg = "updated successfully: node " + info.id;
+            return data;
         } else {
             data.status = Status.SUCCESS;
             data.msg = "Didn't need to update: node " + info.id;
+            return data;
         }
     }
 
@@ -142,39 +149,40 @@ public class NodeHandler implements Node.Iface {
      * to communicate with the rest of the network
      */
 
-     // Put in Thrift
     private void InitFingerTable(NodeDetails node) {
 
         fingers[0] = InitFinger(null, 0);
 
         // Connect to node
-        // Call FindSuccessor(fingers[0].start)
-        fingers[0].succ =  result;
+        NodeDetails result1 = client.FindSuccessor(fingers[0].start);
+        fingers[0].succ = result1;
 
         // Connect to fingers[0].succ
-        // Call getPred() on fingers[0].succ
-        manager.pred = result;
+        NodeDetails succPred = client1.GetPred();
+        manager.pred = succPred;
 
-        // Connect to fingers[0].succ.pred  
-        // Call setPred(info)
+        // Connect to fingers[0].succ.pred which is succPred  
+        client2.SetPredecessor(info);
 
         // connect to getPred()
-        // call setSucc(info)
+        client3.SetSuccessor(info);
 
         for (int i = 0; i < fingers.length - 1; i++) {
             Finger nextFinger = manager.InitFinger(null, i + 1);
 
             if (utils.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+
                 // Connect to nextFinger.succ
-                // call setSucc(fingers[i].succ)
+                client4. SetSuccessor(fingers[i].succ);
                 
 
             } else {
                 // Connect to node
-                // Call FindSuccessor(nextFinger.start)
-                NodeDetails result = result;
+               NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
+
                 // Connect to nextFinger.succ
-                // Call setSucc(result)
+                client6.SetSuccessor(result2);
+
             }
             fingers[i + 1] = nextFinger;
 
