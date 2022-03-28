@@ -23,34 +23,22 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public GetData Get(String word) {
-        // Entry entry = manager.findWord(word);
-        // if (entry == null) {
-        //     int wordId = manager.getHash(word);
-        //     NodeDetails next = manager.ClosestPrecedingFinger(wordId);
+        Entry entry = manager.findWord(word);
+        if (entry == null) {
+            int wordId = manager.getHash(word);
+            NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
-        //     // Set up connection to next 
-        //     // return client.Get(word);
-        //     return null;
+            // Set up connection to next 
+            // return client.Get(word);
+            return null;
             
-        // } else {
-        //     GetData result = new GetData();
-        //     result.definition = entry.definition;
-        //     result.status = Status.SUCCESS;
-        //     result.msg = "Word found by node " + manager.info.id;
-        //     return result;
-        // }
-
-        // *** THIS IS TEMPORARY FOR TESTING - uncomment above
-        System.out.print("Get() - " + word);
-
-        GetData data = new GetData();
-        
-        data.status = Status.SUCCESS;
-        data.msg = word;
-        data.definition = "this is the definition";
-
-        return data;
-        // *** END TESTING
+        } else {
+            GetData result = new GetData();
+            result.definition = entry.definition;
+            result.status = Status.SUCCESS;
+            result.msg = "Word found by node " + manager.info.id;
+            return result;
+        }
     }
 
     @Override

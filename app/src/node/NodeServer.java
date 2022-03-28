@@ -90,16 +90,9 @@ public class NodeServer {
         int cacheSize = r.getNodeCacheSize();
         manager.setLog(joinData.id);
         
-        // manager.Join(joinData, cacheSize);
+        manager.Join(joinData, cacheSize);
 
-        // superNodeClient.PostJoin(manager.info);
-
-        // *** THIS IS TEMPORARY FOR TESTING - uncomment above
-        NodeDetails node = manager.info;
-        node.id = joinData.id;
-        superNodeClient.PostJoin(node);
-        // *** FINISH TESTING
-
+        superNodeClient.PostJoin(manager.info);
     }
 
 
