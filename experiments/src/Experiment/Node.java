@@ -270,13 +270,8 @@ public class Node {
         }
     }
 
-/**
- * Returns a string describing the put status
- */
-    public String putWord(String word, String def) {
-        int wordId = utils.hashFunction(word, maxKey);
-        System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
-        String ans = "FAILURE";
+
+    private String insertWord(String word, String def) {
         if (isResponsible(wordId)) {
             ans = dict.put(word, def);
             if (ans == null) {
@@ -285,20 +280,41 @@ public class Node {
                 return "ALREADY IN DHT.";
             }
         } else {
-            System.out.println("Adding entry to cache");
-            CacheEntry entry = new CacheEntry(word, def);
-            cache.addEntry(entry);
-
-            Node nextNode = ClosestPrecedingFinger(wordId);
-            if (nextNode.id == this.id) {
-                nextNode = GetSucc();
-            }
-            System.out.println("Node " + this.id + " is moving put key " + wordId + " over to node " + nextNode.id + " based off closestPrecedingFinger");
-            System.out.println("Got nextNode " + nextNode.id);
-            ans = nextNode.putWord(word, def);
-            return ans;
+            return "Wrong node";
         }
     }
+
+
+    /**
+     * Returns a string describing the put status
+     */
+    public String putWord(String word, String def) {
+        int wordId = utils.hashFunction(word, maxKey);
+        System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        String ans = "FAILURE";
+
+        Node pred = findPredCaching(wordId);
+        Node succ = pred.GetSucc();
+        succ.insertWord(word, def);
+
+        return ans;
+    }
+
+
+    private Node findPredCaching(int id) {
+        System.out.println("Adding entry to cache");
+        CacheEntry entry = new CacheEntry(word, def);
+        cache.addEntry(entry);
+
+        Node nextNode = ClosestPrecedingFinger(wordId);
+        if (nextNode.id == this.id) {
+            return nextNode;
+        }
+        System.out.println("Node " + this.id + " is moving put key " + wordId + " over to node " + nextNode.id + " based off closestPrecedingFinger");
+        System.out.println("Got nextNode " + nextNode.id);
+        return nextNode.findPredCaching(id);
+    }
+
 
     /**
     * @param id the key we are checking if the current node is responsible for 
