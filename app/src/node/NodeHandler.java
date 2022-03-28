@@ -89,23 +89,25 @@ public class NodeHandler implements Node.Iface {
         data.msg = "Data for node " + manager.id;
     }
 
-    // Add to thrift
     public NodeDetails GetSucc() {
         return manager.fingers[0].succ;
     }
 
-    // add to thrift
+
+    public StatusData SetSucc(NodeDetails nodeInfo) {
+        manager.fingers[0].succ = nodeInfo;
+    }
+    
+
     public NodeDetails GetPred() {
         return manager.pred;
     }
 
-    public StatusData SetPredecessor(NodeDetails nodeInfo) {
+
+    public StatusData SetPred(NodeDetails nodeInfo) {
         manager.pred = nodeInfo;
     }
 
-    public StatusData SetSuccessor(NodeDetails nodeInfo) {
-        manager.fingers[0].succ = nodeInfo;
-    }
 
     // find id's successor, PUT IN THRIFT
     public NodeDetails FindSuccessor(int id) {

@@ -148,11 +148,11 @@ service Node {
     GetData Get(1: string word),
     StatusData Put(1: string word, 2: string definition),
     NodeStructureData GetNodeStructure(),
-    StatusData UpdatePredecessor(1: NodeDetails nodeInfo),
-    StatusData UpdateSuccessor(1: NodeDetails nodeInfo),
     StatusData UpdateFingerTable(1: NodeDetails node, 2: i32 i)
     NodeDetails GetSucc(),
+    StatusData SetSucc(1: NodeDetails nodeInfo),
 	NodeDetails GetPred(),
+    StatusData SetPred(1: NodeDetails nodeInfo),
 	NodeDetails FindSuccessor(1: i32 id)
 }
 
