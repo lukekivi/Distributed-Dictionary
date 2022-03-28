@@ -74,7 +74,9 @@
     <!-- Start a new node -->
     <target name="node" depends="compile">
         <echo>node:</echo>
-        <java classpathref="pa2.classpath" failonerror="false" fork="true" classname="node/NodeServer"/>
+        <java classpathref="pa2.classpath" failonerror="false" fork="true" classname="node/NodeServer">
+            <arg line="10"/>
+        </java>
     </target>
 
     <!-- Clean client log -->

@@ -23,6 +23,10 @@ public class NodeServer {
 
     private static NodeManager nodeManager = new NodeManager();
     public static void main(String[] args) {
+        if (args != 1) {
+            System.out.println("Need only 1 argument for size of the cache!");
+            System.exit(1);
+        }
         int cacheSize = Integer.parseInt(args[0]);
         try {
             System.out.println(InetAddress.getLocalHost());
