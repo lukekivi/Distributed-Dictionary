@@ -5,8 +5,6 @@ import utils.ServerInfo;
 import pa2.Node;
 import pa2.SuperNode;
 import pa2.NodeJoinData;
-
-
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServer.Args;
 import org.apache.thrift.server.TSimpleServer;
@@ -23,17 +21,17 @@ import java.net.InetAddress;
 
 public class NodeServer {
 
-    private static NodeManager nodeManager = new NodeManager();
+    private static NodeManager nodeManager;
     public static void main(String[] args) {
-        if (args != 1) {
-            System.out.println("Need only 1 argument for size of the cache!");
-            System.exit(1);
-        }
-        int cacheSize = Integer.parseInt(args[0]);
         try {
             System.out.println(InetAddress.getLocalHost());
 
+            // Call readin on config file
+            // Grab info so we can create a NodeManager
+            // Create NodeManager
+
             NodeHandler handler = new NodeHandler();
+            handler.manager = manager;
             Node.Processor processor = new Node.Processor<NodeHandler>(handler);
 
             Runnable simple = new Runnable() {
@@ -44,7 +42,7 @@ public class NodeServer {
 
             new Thread(simple).start();
 
-            establishSelf(cacheSize);
+            establishSelf();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +75,7 @@ public class NodeServer {
             TProtocol protocol = new  TBinaryProtocol(transport);
             SuperNode.Client client = new SuperNode.Client(protocol);
 
-            perform(client, cacheSize); // Passing job as arg for client
+            perform(client); // Passing job as arg for client
 
             transport.close();
         } catch (TTransportException x) {
@@ -88,14 +86,11 @@ public class NodeServer {
         }
     }
 
-    private static void perform(SuperNode.Client client, int cacheSize) throws TException, FileNotFoundException {
-        NodeJoinData nodeData = client.GetNodeForJoin();
-
-        handler.InitializeNode(nodeData, cacheSize); 
-
+    private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
+        NodeJoinData nodeData = client.GetNodeForJoin(); 
         System.out.println("Node data:" +
             "\n\tassigned id: " + nodeData.id +
-            "\n\tM: " + nodeData.m +
+            "\n\M: " + nodeData.m +
             "\n\tStatus: " + nodeData.status +
             "\n\tMsg: " + nodeData.msg + 
             "\n\tnode ip: " + nodeData.nodeInfo.id +

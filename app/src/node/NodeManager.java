@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.util.Queue;
 import java.util.ArrayList;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import pa2.NodeDetails;
 import pa2.Finger;
@@ -24,13 +25,12 @@ public class NodeManager {
 
     public int maxKey; // the max possible key in the DHT node is a member of
     public NodeDetails pred = null;
-    public int id;
     public Finger[] fingers;
     public HashMap<String, String> dict;
     public Cache cache;
     public NodeDetails info;
 
-
+    // Redo the creation, take out NodeJoinData
     public NodeManager(NodeJoinData data, int cacheSize) {
         maxKey = ((int) Math.pow(2, data.m)) - 1;
 
@@ -41,8 +41,8 @@ public class NodeManager {
         }
         cache = new Cache(cacheSize);
         dict = new HashMap<String, String>();
-        id = data.id;
         info = data.nodeInfo;
+        // set info.port
     }
 
     /**
@@ -52,7 +52,7 @@ public class NodeManager {
         int wordId = HashHelp.hashFunction(word, maxKey);
         System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
         String def = "";
-        Entry entry;
+        Entry entry = new Entry();
         if (isResponsible(wordId)) {
             def = dict.get(word);
             if (def == null) {
@@ -100,7 +100,7 @@ public class NodeManager {
     */
     public NodeDetails nextJump(int id) {
         for (int i = fingers.length - 1; i >= 0; i--) {
-            if (Range.InRangeInEx(id, fingers[i].start, fingers[i].end)) {
+            if (Range.InRangeInEx(id, fingers[i].start, fingers[i].last)) {
                 return fingers[i].succ;
             }
         }
@@ -133,7 +133,8 @@ public class NodeManager {
 
 
     public Finger InitFinger(NodeDetails node, int i) {
-        Finger finger = new Finger(node);
+        Finger finger = new Finger();
+        finger.succ = fingers[0].succ;
         finger.start = (this.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
         int end = finger.start + ((int) Math.pow(2, i));
 
@@ -176,7 +177,7 @@ public class NodeManager {
         for (int i = 0; i < fingers.length; i++) {
             fingers[i] = InitFinger(info, i);
         }
-        pred = this;
+        pred = info;
     }
 
     /**
@@ -206,7 +207,6 @@ public class NodeManager {
 
 
 
-    private ReadIn readIn = new ReadIn();
 
     public void setLog(int id)  {
         try {
@@ -219,12 +219,12 @@ public class NodeManager {
     }
 
     public String getIpAddressOfSelf() {
-
+        return info.ip;
     }
 
     public int getPortOfSelf() {
         // read in portnumber from the config file
-        return readIn.getNodePort();
+        return info.port;
     }
 
     public ServerInfo getSuperNodeInfo() {

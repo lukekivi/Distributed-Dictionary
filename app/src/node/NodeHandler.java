@@ -14,7 +14,7 @@ import utils.*;
 
 
 public class NodeHandler implements Node.Iface {
-    private NodeManager manager;
+    public NodeManager manager;
     private NodeDetails info;
     private int maxKey;
     
@@ -48,13 +48,15 @@ public class NodeHandler implements Node.Iface {
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
             // Set up connection to next 
-            return client.Get(word);
+            // return client.Get(word);
+            return null;
             
         } else {
             GetData result = new GetData();
             result.definition = entry.definition;
             result.status = Status.SUCCESS;
             result.msg = "Word found by node " + info.id;
+            return result;
         }
     }
 
@@ -65,7 +67,8 @@ public class NodeHandler implements Node.Iface {
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
             // Set up connection to next 
-            return client.Put(word, definition);
+            // return client.Put(word, definition);
+            return null;
 
         } else {
             StatusData result = new StatusData();
@@ -87,6 +90,7 @@ public class NodeHandler implements Node.Iface {
         data.nodeStructure = nodeStruct;
         data.status = Status.SUCCESS;
         data.msg = "Data for node " + manager.id;
+        return data;
     }
 
     public NodeDetails GetSucc() {
@@ -96,6 +100,10 @@ public class NodeHandler implements Node.Iface {
 
     public StatusData SetSucc(NodeDetails nodeInfo) {
         manager.fingers[0].succ = nodeInfo;
+        StatusData data = new StatusData();
+        data.status = Status.SUCCESS;
+        data.msg = "Successfully set the successor";
+        return data;
     }
     
 
@@ -106,6 +114,10 @@ public class NodeHandler implements Node.Iface {
 
     public StatusData SetPred(NodeDetails nodeInfo) {
         manager.pred = nodeInfo;
+        StatusData data = new StatusData();
+        data.status = Status.SUCCESS;
+        data.msg = "Successfully set the predecessor";
+        return data;
     }
 
 
@@ -114,17 +126,18 @@ public class NodeHandler implements Node.Iface {
         NodeDetails pred = manager.FindPredecessor(id);
 
         // establish connection to pred
-        return client.GetSucc(id);
+        // return client.GetSucc(id);
+        return null;
 
     }
 
     private void UpdateOthers() {
         for (int i = 0; i < manager.fingers.length; i++) {
-            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1);
+            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
             NodeDetails pred = manager.FindPredecessor(nId);
 
             // Connect to pred
-            StatusData data = client.UpdateFingerTable(info, i);
+            // StatusData data = client.UpdateFingerTable(info, i);
 
         }
     }
@@ -134,7 +147,7 @@ public class NodeHandler implements Node.Iface {
         StatusData data = new StatusData();
         if (result) {
             // Set up connection to pred
-            client.updateFingerTable(node, i);
+            // client.updateFingerTable(node, i);
 
             data.status = Status.SUCCESS;
             data.msg = "updated successfully: node " + info.id;
@@ -156,18 +169,18 @@ public class NodeHandler implements Node.Iface {
         manager.fingers[0] = manager.InitFinger(null, 0);
 
         // Connect to node
-        NodeDetails result1 = client.FindSuccessor(manager.fingers[0].start);
-        manager.fingers[0].succ = result1;
+        // NodeDetails result1 = client.FindSuccessor(manager.fingers[0].start);
+        // manager.fingers[0].succ = result1;
 
         // Connect to fingers[0].succ
-        NodeDetails succPred = client1.GetPred();
-        manager.pred = succPred;
+        // NodeDetails succPred = client1.GetPred();
+        // manager.pred = succPred;
 
         // Connect to fingers[0].succ.pred which is succPred  
-        client2.SetPredecessor(info);
+        // client2.SetPred(info);
 
         // connect to getPred()
-        client3.SetSuccessor(info);
+        // client3.SetSucc(info);
 
         for (int i = 0; i < manager.fingers.length - 1; i++) {
             Finger nextFinger = manager.InitFinger(null, i + 1);
@@ -175,15 +188,15 @@ public class NodeHandler implements Node.Iface {
             if (Range.InRangeInEx(nextFinger.start, info.id, manager.fingers[i].succ.id)) {
 
                 // Connect to nextFinger.succ
-                client4. SetSuccessor(manager.fingers[i].succ);
+                // client4. SetSucc(manager.fingers[i].succ);
                 
 
             } else {
                 // Connect to node
-               NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
+            //    NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
 
                 // Connect to nextFinger.succ
-                client6.SetSuccessor(result2);
+                // client6.SetSucc(result2);
 
             }
             manager.fingers[i + 1] = nextFinger;
