@@ -11,6 +11,8 @@ import pa2.Status;
 import pa2.NodeStructure;
 import pa2.NodeJoinData;
 import utils.Hash;
+import utils.ConnFactory;
+import utils.NodeConn;
 
 
 public class NodeHandler implements Node.Iface {
@@ -19,56 +21,106 @@ public class NodeHandler implements Node.Iface {
     public NodeHandler(NodeManager manager) {
         this.manager = manager;
     }
+
+
+    @Override
+    public Entry FindWordHelper(String word) {
+        return manager.findWord(word);
+    }
+
+
+    @Override
+    public StatusData InsertWordHelper(String word, String definition, int wordId) {
+        StatusData result = new StatusData();
+        Status status = manager.insertWord(word, definition, wordId);
+        if (status == Status.SUCCESS) {
+            result.msg = "Successfully inserted the word";
+        } else {
+            result.msg = "Something went wrong inserting the word";
+        }
+        result.status = status;
+        return result;
+    }
+
+
+    @Override
+    public StatusData FindPredCachingHelper(String word, String definition, int wordId) {
+        StatusData result = new StatusData();
+        Status status = manager.findPredCaching(word, definition, wordId);
+        if (status == Status.SUCCESS) {
+            result.msg = "Successfully cached the word";
+        } else {
+            result.msg = "Something went wrong caching the word";
+        }
+        result.status = status;
+        return result;
+    }
     
 
     @Override
     public GetData Get(String word) {
-        // Entry entry = manager.findWord(word);
-        // if (entry == null) {
-        //     int wordId = manager.getHash(word);
-        //     NodeDetails next = manager.ClosestPrecedingFinger(wordId);
-
-        //     // Set up connection to next 
-        //     // return client.Get(word);
-        //     return null;
-            
-        // } else {
-        //     GetData result = new GetData();
-        //     result.definition = entry.definition;
-        //     result.status = Status.SUCCESS;
-        //     result.msg = "Word found by node " + manager.info.id;
-        //     return result;
-        // }
-
-        // *** THIS IS TEMPORARY FOR TESTING - uncomment above
-        System.out.print("Get() - " + word);
-
+        Entry entry = manager.findWord(word);
         GetData data = new GetData();
-        
-        data.status = Status.SUCCESS;
-        data.msg = word;
-        data.definition = "this is the definition";
+        if (entry == null) {
+            int wordId = manager.getHash(word);
+            NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
 
-        return data;
+            // Set up connection to next 
+            try {
+                NodeConn con = factory.makeNodeConn(nextNode);
+                data = con.Client.Get(word);
+                factory.closeNodeConn(con);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            }
+            return data;
+            
+        } else {
+            data.definition = entry.definition;
+            data.status = Status.SUCCESS;
+            data.msg = "Word found by node " + manager.info.id;
+            return data;
+        }
+
+        // *** THIS IS TEMPORARY FOR TESTING - START TESTING
+        // System.out.print("Get() - " + word);
+
+        // GetData data = new GetData();
+        
+        // data.status = Status.SUCCESS;
+        // data.msg = word;
+        // data.definition = "this is the definition";
+
+        // return data;
         // *** END TESTING
     }
 
     @Override
     public StatusData Put(String word, String definition) {
         Status status = manager.putWord(word, definition); // Puts word if responsible
+        StatusData data = new StatusData();
+
         if (status == Status.ERROR) { // Not responsible
             int wordId = manager.getHash(word);
-            NodeDetails next = manager.ClosestPrecedingFinger(wordId);
+            NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
 
-            // Set up connection to next 
-            // return client.Put(word, definition);
-            return null;
+            try {
+                // Set up connection to next 
+                // return client.Put(word, definition);
+                NodeConn con = factory.makeNodeConn(nextNode);
+                data = con.Client.Put(word, definition);
+                factory.closeNodeConn(con);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            }
+            return data;
 
         } else {
-            StatusData result = new StatusData();
-            result.status = Status.SUCCESS;
-            result.msg = "Entry put by node " + manager.info.id;
-            return result;
+            data.status = Status.SUCCESS;
+            data.msg = "Entry put by node " + manager.info.id;
+            return data;
         }
     }
 
@@ -124,11 +176,17 @@ public class NodeHandler implements Node.Iface {
     @Override
     public NodeDetails FindSuccessor(int id) {
         NodeDetails pred = manager.FindPredecessor(id);
+        NodeDetails succ = new NodeDetails();
+        try {
+            NodeConn nodeCon = manager.factory.makeNodeConn(pred); // Connect to pred
 
-        // establish connection to pred
-        // return client.GetSucc(id);
-        return null;
-
+            succ = nodeCon.Client.GetSucc(id);
+            manager.factory.closeNodeConn(nodeCon);
+        } catch (TTransportException x) {
+            System.out.println("Something went wrong with Node connection.");
+            System.exit(1);
+        }
+        return succ;
     }
 
 
@@ -136,18 +194,26 @@ public class NodeHandler implements Node.Iface {
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
         boolean result = manager.updateFingerTableHelper(node, i);
         StatusData data = new StatusData();
-        if (result) {
-            // Set up connection to pred
-            // client.updateFingerTable(node, i);
+        try {
+            if (result) {
 
-            data.status = Status.SUCCESS;
-            data.msg = "updated successfully: node " + manager.info.id;
-            return data;
-        } else {
-            data.status = Status.SUCCESS;
-            data.msg = "Didn't need to update: node " + manager.info.id;
-            return data;
+                NodeConn nodeCon = manager.factory.makeNodeConn(manager.pred); // Connect to pred
+                StatusData connData = nodeCon.Client.UpdateFingerTable(node, i);
+                manager.factory.closeNodeConn(connData);
+
+                data.status = Status.SUCCESS;
+                data.msg = "updated successfully: node " + manager.info.id;
+                return data;
+            } else {
+                data.status = Status.SUCCESS;
+                data.msg = "Didn't need to update: node " + manager.info.id;
+                return data;
+            }
+        } catch (TTransportException x) {
+            System.out.println("Something went wrong with Node connection.");
+            System.exit(1);
         }
+        return null;
     }
 
     @Override

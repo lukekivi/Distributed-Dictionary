@@ -32,9 +32,11 @@ public class NodeManager {
 
     public NodeDetails info;
     public NodeDetails pred = null;
+    public ConnFactory factory;
 
     public NodeManager(NodeDetails nodeInfo) {
         info = nodeInfo;
+        factory = new ConnFactory();
     }
 
      
@@ -60,7 +62,7 @@ public class NodeManager {
         } else {
             // this is a new node in an existing system
             InitFingerTable(joinData.nodeInfo);
-            UpdateOthers();
+            updateOthers();
         }
         System.out.println("Node " + info.id + " joined");
     }
@@ -91,8 +93,15 @@ public class NodeManager {
             } else {
                 Entry ans = new Entry();
                 NodeDetails nextNode = ClosestPrecedingFinger(wordId);
-                // connect to nextNode
-                // Call findWord(word) on nextNode
+                try {
+                    NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
+                    StatusData data = nodeCon.Client.FindWordHelper(word);
+                    ans = data.status;
+                    factory.closeNodeConn(nodeCon);
+                } catch (TTransportException x) {
+                    System.out.println("Something went wrong with Node connection.");
+                    System.exit(1);
+                }
                 return ans;
             }
         }
@@ -119,18 +128,33 @@ public class NodeManager {
         cache.addEntry(entry);
 
         NodeDetails nextNode = ClosestPrecedingFinger(wordId);
-        // Connect to nextNode
 
         if (nextNode.id == info.id) {
-            nextNode = getSucc();
-            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
-            // Call insertWord(word, def, wordId) on nextNode
+            nextNode = getSucc(); // Update nextNode to the successor
 
+            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            try {
+                NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
+                StatusData insertData = nodeCon.Client.InsertWordHelper(word, def, wordId);
+                ans = insertData.status;
+                factory.closeNodeConn(nodeCon);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            }
             return ans;
-        } else {
-            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
-            // Call findPredCaching(word, def, wordId) on nextNode
 
+        } else {
+            try {
+            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+                NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
+                StatusData cacheData = nodeCon.Client.FindPredCachingHelper(word, def, wordId);
+                ans = cacheData.status;
+                factory.closeNodeConn(nodeCon);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            }
             return ans;
         }
     }
@@ -206,50 +230,93 @@ public class NodeManager {
 
         fingers[0] = InitFinger(null, 0);
 
-        // Connect to node
-        // NodeDetails result1 = client.FindSuccessor(manager.fingers[0].start);
-        // manager.fingers[0].succ = result1;
+        try {
 
-        // Connect to fingers[0].succ
-        // NodeDetails succPred = client1.GetPred();
-        // manager.pred = succPred;
+            // Connect to node
+            NodeConn con1 = factory.makeNodeConn(node);
+            NodeDetails result1 = con1.Client.FindSuccessor(fingers[0].start);
+            factory.closeNodeConn(con1);
+            fingers[0].succ = result1;
 
-        // Connect to fingers[0].succ.pred which is succPred  
-        // client2.SetPred(info);
+            // Connect to Successor (fingers[0].succ)
+            NodeConn con2 = factory.makeNodeConn(fingers[0].succ);
+            NodeDetails succPred = con2.Client.GetPred();
+            pred = succPred;
+            factory.closeNodeConn(con2);
 
-        // connect to getPred()
-        // client3.SetSucc(info);
+            // Connect to Successor's Predecessor (fingers[0].succ.pred)
+            NodeConn con3 = factory.makeNodeConn(succPred);
+            StatusData con3Data = con3.Client.SetPred(info);
+            factory.closeNodeConn(con3);
+
+            // connect to Predecessor
+            NodeConn con4 = factory.makeNodeConn(pred);
+            StatusData con4Data = con4.Client.SetSucc(info);
+            factory.closeNodeConn(con4);
+
+        } catch (TTransportException x) {
+            System.out.println("Something went wrong with Node connection.");
+            System.exit(1);
+        }
 
         for (int i = 0; i < fingers.length - 1; i++) {
             Finger nextFinger = InitFinger(null, i + 1);
 
             if (Range.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+                try {
+                    
+                    // Connect to nextFinger.succ
+                    // client4. SetSucc(manager.fingers[i].succ);
+                    NodeConn con5 = factory.makeNodeConn(nextFinger.succ);
+                    StatusData con5Data = con5.Client.SetSucc(fingers[i].succ);
+                    factory.closeNodeConn(con5);
 
-                // Connect to nextFinger.succ
-                // client4. SetSucc(manager.fingers[i].succ);
-                
+                } catch (TTransportException x) {
+                    System.out.println("Something went wrong with Node connection.");
+                    System.exit(1);
+                }
 
             } else {
-                // Connect to node
-                // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
+                try {
+                    // Connect to node
+                    // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
+                    NodeConn con6 = factory.makeNodeConn(node);
+                    NodeDetails result2 = con6.Client.FindSuccessor(nextFinger.start);
+                    factory.closeNodeConn(con6);
+                    
 
-                // Connect to nextFinger.succ
-                // client6.SetSucc(result2);
+                    // Connect to nextFinger.succ
+                    // client6.SetSucc(result2);
+                    NodeConn con7 = factory.makeNodeConn(nextFinger.succ);
+                    StatusData con7Data = con7.Client.SetSucc(result2);
+                    factory.closeNodeConn(con7);
 
+                } catch (TTransportException x) {
+                    System.out.println("Something went wrong with Node connection.");
+                    System.exit(1);
+                }
             }
-            fingers[i + 1] = nextFinger;
 
+            fingers[i + 1] = nextFinger;
         }
     }
 
     
-    private void UpdateOthers() {
+    
+    public void updateOthers() {
         for (int i = 0; i < fingers.length; i++) {
             int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
             NodeDetails pred = FindPredecessor(nId);
 
             // Connect to pred
-            // call UpdateFingerTable(info, i) on pred;
+            try {
+                NodeConn nodeCon = factory.makeNodeConn(pred); // connect to nextNode
+                nodeCon.Client.UpdateFingerTable(info, i);
+                factory.closeNodeConn(nodeCon);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            }
 
         }
     }

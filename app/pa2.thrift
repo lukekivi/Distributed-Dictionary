@@ -155,6 +155,9 @@ service Node {
 	NodeDetails GetPred(),
     StatusData SetPred(1: NodeDetails nodeInfo),
 	NodeDetails FindSuccessor(1: i32 id),
+    Entry FindWordHelper(1: string word),
+    StatusData InsertWordHelper(1: string word, 2: string definition, 3: i32 wordId),
+    StatusData FindPredCachingHelper(1: string word, 2: string definition, 3: i32 wordId),
     oneway void Kill()
 }
 
