@@ -89,7 +89,7 @@ public class ReadIn {
         }
 
         if (scanCommand.hasNextLine()) {
-            results = scanCommand.nextLine().split(" ");
+            results = scanCommand.nextLine().split(", ");
         } else {
             commandFile = null;
             scanCommand = null;
