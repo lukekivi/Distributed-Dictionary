@@ -118,7 +118,7 @@ Called within GetFingerTable to update the successor field of a predecessor Node
 
 #### UpdateFingerTable()
 Called when a new node is entered into the DHT in order to update existing nodes' finger tables.\
-**Input**: void\
+**Input**: NodeDetails, index\
 **Returns**: Status, msg
 
 # Data Structures

@@ -19,7 +19,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
         nodeData.nodeInfo = manager.getRandomNode();
 
         if (nodeData.nodeInfo == null) {
-            nodeData.status = Status.FAILURE;
+            nodeData.status = Status.ERROR;
             nodeData.msg = "There are no nodes in the DHT";
         } else {
             nodeData.status = Status.SUCCESS;
@@ -37,7 +37,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
         if (manager.isBusy()) {
             // a node is already establishin itself. Cannot do two at once.
             nodeJoinData.id = -1;
-            nodeJoinData.NodeDetails = null;
+            nodeJoinData.nodeInfo = null;
             nodeJoinData.status = JoinStatus.BUSY;
             nodeJoinData.msg = null;
         } else {
@@ -45,8 +45,8 @@ public class SuperNodeHandler implements SuperNode.Iface {
 
             if (nodeJoinData.id == -1) {
                 // DHT is full
-                nodeJoinData.NodeDetails = null;
-                nodeJoinData.status = JoinStatus.FAILURE;
+                nodeJoinData.nodeInfo = null;
+                nodeJoinData.status = JoinStatus.ERROR;
                 nodeJoinData.msg = "DHT is full; cannot add more nodes.";
             } else {
                 nodeJoinData.nodeInfo = manager.getRandomNode();

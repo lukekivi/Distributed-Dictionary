@@ -18,7 +18,7 @@ class Client {
         String commandsPath = null;
         Logger.getRootLogger().setLevel(Level.ERROR);
 
-        if (args.size() == 1) {
+        if (args.length == 1) {
             commandsPath = args[0];
         }
 
@@ -53,7 +53,7 @@ class Client {
             "\n\tMsg: " + nodeData.msg + "\n"
         );
 
-        if (filePath != null) {
+        if (commandsPath != null) {
             manager.doCommands(commandsPath);
         }
     }

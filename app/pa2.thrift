@@ -113,7 +113,7 @@ struct DHTData {
 service SuperNode {
     NodeForClientData GetNodeForClient(),
     NodeJoinData GetNodeForJoin(),
-    StatusData PostJoin(1: string ip, 2: i32 port),
+    StatusData PostJoin(1: NodeDetails nodeInfo),
     DHTData GetDHTStructure()
 }
 
@@ -150,7 +150,7 @@ service Node {
     NodeStructureData GetNodeStructure(),
     StatusData UpdatePredecessor(1: NodeDetails nodeInfo),
     StatusData UpdateSuccessor(1: NodeDetails nodeInfo),
-    StatusData UpdateFingerTable()
+    StatusData UpdateFingerTable(1: NodeDetails node, 2: i32 i)
     NodeDetails GetSucc(),
 	NodeDetails GetPred(),
 	NodeDetails FindSuccessor(1: i32 id)

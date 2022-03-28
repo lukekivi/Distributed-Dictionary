@@ -3,8 +3,7 @@ package superNode;
 import java.util.ArrayList;
 import java.util.Random;
 import java.lang.Math;
-import pa2.NodeDetails;
-import pa2.Status;
+import pa2.*;
 
 public class SuperNodeManager {
     private final int M = 4;
@@ -38,10 +37,10 @@ public class SuperNodeManager {
         StatusData data = new StatusData();
 
         if (isBusy == false) {
-            data.status = Status.FAILURE;
+            data.status = Status.ERROR;
             data.msg = "SuperNode wasn't expecting a node to be set.";
         } else if (!isAvailable(nodeInfo.id)) {
-            data.status = Status.FAILURE;
+            data.status = Status.ERROR;
             data.msg = "Node ID " + nodeInfo.id + " was already taken.";
         } else {
             isBusy = false;
@@ -68,8 +67,8 @@ public class SuperNodeManager {
         Random r = new Random();
         int id = r.nextInt(MAX_KEY);
 
-        while (!IsAvailable(id)) {
-            if (id == MAX_SIZE) {
+        while (!isAvailable(id)) {
+            if (id == MAX_KEY) {
                 id = 0;
             } else {
                 id++;
@@ -85,7 +84,7 @@ public class SuperNodeManager {
      */
     private boolean isAvailable(int id) {
         for (int i = 0; i < nodes.size(); i++) {
-            if (nodes.get(i).GetId() == id) {
+            if (nodes.get(i).id == id) {
                 return false;
             }
         }
