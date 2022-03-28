@@ -63,6 +63,7 @@
     <target name="client" depends="compile, cleanClientLog">
         <echo>client:</echo>
         <java classpathref="pa2.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client"/>
+            <arg line="commands.txt"/>
      </target>
 
      <!-- Run super node -->

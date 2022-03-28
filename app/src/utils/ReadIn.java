@@ -71,7 +71,6 @@ public class ReadIn {
         return port;
     }
 
-
     public void setCommandFile(String filePath) {
         try {
             commandFile = new FileInputStream(filePath);
@@ -82,15 +81,20 @@ public class ReadIn {
     }
 
     public String[] readCommand() {
+        String[] results = null;
+
         if (commandFile == null || scanCommand == null) {
             System.out.println("ERROR: ReadIn.setCommandFile() - tried to read from null file.");
+            System.exit(1);
         }
 
         if (scanCommand.hasNextLine()) {
-            return scanCommand.nextLine().split(" ");
+            results = scanCommand.nextLine().split(" ");
         } else {
             commandFile = null;
             scanCommand = null;
         }
+
+        return results;
     }
 }

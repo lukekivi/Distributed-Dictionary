@@ -15,7 +15,12 @@ import org.apache.log4j.Level;
 class Client {
     private static final ClientManager manager = new ClientManager();
     public static void main(String[] args) {
+        String commandsPath = null;
         Logger.getRootLogger().setLevel(Level.ERROR);
+
+        if (args.size() == 1) {
+            commandsPath = args[0];
+        }
 
         try {
             ServerInfo superNode = manager.getSuperNodeInfo();
@@ -26,7 +31,7 @@ class Client {
             TProtocol protocol = new  TBinaryProtocol(transport);
             SuperNode.Client client = new SuperNode.Client(protocol);
 
-            perform(client); // Passing job as arg for client
+            perform(client, commandsPath); // Passing job as arg for client
 
             transport.close();
         } catch (TTransportException x) {
@@ -37,13 +42,19 @@ class Client {
         }
     }
 
-    private static void perform(SuperNode.Client client) throws TException {
+    private static void perform(SuperNode.Client client, String commandsPath) throws TException {
+        // get a node from supernode for communication with the DHT
         NodeForClientData nodeData = client.GetNodeForClient(); 
         System.out.println("Node data:" +
+            "\n\tid: " + nodeData.nodeInfo.id +
+            "\n\tip: " + nodeData.nodeInfo.ip +
+            "\n\tport: " + nodeData.nodeInfo.port +
             "\n\tStatus: " + nodeData.status +
             "\n\tMsg: " + nodeData.msg + "\n"
         );
 
-
+        if (filePath != null) {
+            manager.doCommands(commandsPath);
+        }
     }
 }
