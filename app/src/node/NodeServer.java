@@ -87,9 +87,7 @@ public class NodeServer {
     }
 
     private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
-        NodeJoinData nodeData;
-
-        nodeData = client.GetNodeForJoin();
+        NodeJoinData nodeData = client.GetNodeForJoin();
 
         handler.InitializeNode(nodeData, cacheSize); 
 

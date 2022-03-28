@@ -1,6 +1,5 @@
 package client;
 
-import utils.ReadIn;
 import utils.ServerInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -14,13 +13,12 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 class Client {
-
-    private static ReadIn readIn = new ReadIn();
+    private static final ClientManager manager = new ClientManager();
     public static void main(String[] args) {
         Logger.getRootLogger().setLevel(Level.ERROR);
 
         try {
-            ServerInfo superNode = readIn.getSuperNodeInfo();
+            ServerInfo superNode = manager.getSuperNodeInfo();
 
             TTransport transport = new TSocket(superNode.ip, superNode.port);
             transport.open();
@@ -40,12 +38,12 @@ class Client {
     }
 
     private static void perform(SuperNode.Client client) throws TException {
-        NodeForClientData nodeData;
-
-        nodeData = client.GetNodeForClient(); 
+        NodeForClientData nodeData = client.GetNodeForClient(); 
         System.out.println("Node data:" +
             "\n\tStatus: " + nodeData.status +
             "\n\tMsg: " + nodeData.msg + "\n"
         );
+
+
     }
 }

@@ -7,9 +7,9 @@ import pa2.NodeStructureData;
 import pa2.NodeDetails;
 
 public class NodeHandler implements Node.Iface {
-    NodeManager manager;
-    NodeDetails info;
-    int maxKey;
+    private NodeManager manager;
+    private NodeDetails info;
+    private int maxKey;
     
     public InitializeNode(NodeJoinData joinData, int cacheSize) {
         this.manager = new NodeManager(data, cacheSize);
@@ -72,18 +72,18 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public NodeStructureData GetNodeStructure() {
-        NodeStructureData data = new NodeStructureData();
+        // NodeStructureData data = new NodeStructureData();
 
-        NodeStructure nodeStruct = new NodeStructure();
-        nodeStruct.id = info.id;
-        nodeStruct.predId = manager.pred.id;
-        nodeStruct.entries = manager.getList();
-        nodeStruct.fingers = manager.getFingers();
+        // NodeStructure nodeStruct = new NodeStructure();
+        // nodeStruct.id = info.id;
+        // nodeStruct.predId = manager.pred.id;
+        // nodeStruct.entries = manager.getList();
+        // nodeStruct.fingers = manager.getFingers();
 
-        data.nodeStructure = nodeStruct;
-        data.status = Status.SUCCESS;
-        data.msg = "Data for node " + manager.id;
-
+        // data.nodeStructure = nodeStruct;
+        // data.status = Status.SUCCESS;
+        // data.msg = "Data for node " + manager.id;
+        return null;
     }
 
     // Add to thrift
@@ -185,10 +185,7 @@ public class NodeHandler implements Node.Iface {
 
             }
             fingers[i + 1] = nextFinger;
-
         }
-
-
     }
 
 

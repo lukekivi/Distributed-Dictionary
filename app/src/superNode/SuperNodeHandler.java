@@ -10,43 +10,63 @@ import pa2.StatusData;
 import pa2.SuperNode;
 
 public class SuperNodeHandler implements SuperNode.Iface {
+
+    private final SuperNodeManager manager = new SuperNodeManager();
     
     @Override
     public NodeForClientData GetNodeForClient() {
         NodeForClientData nodeData = new NodeForClientData();
-        NodeDetails nodeDetails = new NodeDetails();
+        nodeData.nodeInfo = manager.getRandomNode();
 
-        nodeDetails.port = 1;
-        nodeDetails.ip = "ip address";
-
-        nodeData.nodeInfo = nodeDetails;    
-        nodeData.status = Status.SUCCESS;
-        nodeData.msg = "All good in the hood.";
+        if (nodeData.nodeInfo == null) {
+            nodeData.status = Status.FAILURE;
+            nodeData.msg = "There are no nodes in the DHT";
+        } else {
+            nodeData.status = Status.SUCCESS;
+            nodeData.msg = null;
+        }
 
         return nodeData;
     }
 
     @Override
     public NodeJoinData GetNodeForJoin() {
-        NodeJoinData nodeJoinData = new NodeJoinData();
-        NodeDetails nodeInfo = new NodeDetails();
-        nodeJoinData.id = 1;
+        NodeJoinData nodeJoinData = new NodeJoinData(); 
+        nodeJoinData.m = manager.getM();
 
-        nodeInfo.id = 2;
-        nodeInfo.ip = "ip address";
-        nodeInfo.port = 2;
+        if (manager.isBusy()) {
+            // a node is already establishin itself. Cannot do two at once.
+            nodeJoinData.id = -1;
+            nodeJoinData.NodeDetails = null;
+            nodeJoinData.status = JoinStatus.BUSY;
+            nodeJoinData.msg = null;
+        } else {
+            nodeJoinData.id = manager.getHashID();
 
-        nodeJoinData.nodeInfo = nodeInfo;
+            if (nodeJoinData.id == -1) {
+                // DHT is full
+                nodeJoinData.NodeDetails = null;
+                nodeJoinData.status = JoinStatus.FAILURE;
+                nodeJoinData.msg = "DHT is full; cannot add more nodes.";
+            } else {
+                nodeJoinData.nodeInfo = manager.getRandomNode();
+                nodeJoinData.msg = null;
 
-        nodeJoinData.status = JoinStatus.NEW;
-        nodeJoinData.msg = "We've got this.";
+                if (nodeJoinData.nodeInfo == null) {
+                    // this node is the first one in the DHT
+                    nodeJoinData.status = JoinStatus.ORIGINAL;
+                } else {
+                    nodeJoinData.status = JoinStatus.SUCCESS
+                }
+            }
+        }
 
         return nodeJoinData;
     }
 
     @Override
-    public StatusData PostJoin(String ip, int port) {
-        return null;
+    public StatusData PostJoin(NodeDetails nodeInfo) {
+        return manager.setNode(nodeInfo);
     }
 
     @Override

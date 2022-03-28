@@ -19,7 +19,7 @@ enum Status {
  */
 enum JoinStatus {
     ORIGINAL = 0,
-    NEW = 1,
+    SUCCESS = 1,
     BUSY = 2,
     ERROR = 3
 }
