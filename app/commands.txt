@@ -1,3 +1,2 @@
-put, hello, a greetng
-put, deez, nuts
-get, deez
+get:-deez
+get:-dose

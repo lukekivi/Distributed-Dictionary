@@ -49,6 +49,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
                 nodeJoinData.status = JoinStatus.ERROR;
                 nodeJoinData.msg = "DHT is full; cannot add more nodes.";
             } else {
+                // Success state
                 nodeJoinData.nodeInfo = manager.getRandomNode();
                 nodeJoinData.msg = null;
 
@@ -72,5 +73,10 @@ public class SuperNodeHandler implements SuperNode.Iface {
     @Override
     public DHTData GetDHTStructure() {
         return null;
+    }
+
+    @Override
+    public void KillDHT() {
+        
     }
 }

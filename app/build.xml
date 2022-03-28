@@ -62,8 +62,9 @@
     <!-- Run client -->
     <target name="client" depends="compile, cleanClientLog">
         <echo>client:</echo>
-        <java classpathref="pa2.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client"/>
+        <java classpathref="pa2.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands.txt"/>
+        </java>
      </target>
 
      <!-- Run super node -->
@@ -75,9 +76,7 @@
     <!-- Start a new node -->
     <target name="node" depends="compile">
         <echo>node:</echo>
-        <java classpathref="pa2.classpath" failonerror="false" fork="true" classname="node/NodeServer">
-            <arg line="10"/>
-        </java>
+        <java classpathref="pa2.classpath" failonerror="false" fork="true" classname="node/NodeServer"/>
     </target>
 
     <!-- Clean client log -->

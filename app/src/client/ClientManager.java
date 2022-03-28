@@ -1,20 +1,18 @@
 package client;
 
-import pa2.Node;
-import pa2.NodeDetails;
-import pa2.StatusData;
-import pa2.Status;
-import pa2.GetData;
-import pa2.SuperNode;
-import pa2.NodeForClientData;
-import utils.ReadIn;
-import utils.ServerInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import pa2.Node;
+import pa2.NodeDetails;
+import pa2.NodeForClientData;
+import pa2.Status;
+import pa2.SuperNode;
+import pa2.GetData;
+import utils.ReadIn;
+import utils.ServerInfo;
 import utils.ThriftConnection;
 
 
@@ -29,7 +27,7 @@ public class ClientManager {
         try {
             ThriftConnection superNodeConn = getSuperNodeConn();
 
-                    // get a node from supernode for communication with the DHT
+            // get a node from supernode for communication with the DHT
             NodeForClientData nodeData = ((SuperNode.Client) superNodeConn.client).GetNodeForClient(); 
             System.out.println("Node data:" +
                 "\n\tid: " + nodeData.nodeInfo.id +
@@ -168,13 +166,13 @@ public class ClientManager {
         System.out.println("\tword: " + command[1]);
         System.out.println("\tdefiniton: " + command[2]);
 
-        StatusData statusData = ((Node.Client) nodeConn.client).Put(command[1], command[2]);
+        // StatusData statusData = ((Node.Client) nodeConn.client).Put(command[1], command[2]);
 
-        if (statusData.status == Status.SUCCESS) {
-            System.out.println(command[1] + " successfully entered into the dictionary.");
-        } else {
-            System.out.println(command[1] + " failed to be entered into the dictionary.\n\t" + statusData.msg);
-        }
+        // if (statusData.status == Status.SUCCESS) {
+        //     System.out.println(command[1] + " successfully entered into the dictionary.");
+        // } else {
+        //     System.out.println(command[1] + " failed to be entered into the dictionary.\n\t" + statusData.msg);
+        // }
     }
 
 
@@ -188,7 +186,7 @@ public class ClientManager {
             System.exit(1);
         }
 
-        if (command.length != 3) {
+        if (command.length != 2) {
             System.out.println("ERROR: ClientManager.handleGet(): get command of length " + command.length + " is invalid. Command should be of" +
                 " the form 'get, <word>'");
             System.exit(1);

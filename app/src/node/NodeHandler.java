@@ -10,59 +10,54 @@ import pa2.Finger;
 import pa2.Status;
 import pa2.NodeStructure;
 import pa2.NodeJoinData;
-import utils.*;
+import utils.Hash;
 
 
 public class NodeHandler implements Node.Iface {
-    public NodeManager manager;
-    public NodeDetails info;
-    public int maxKey;
+    private NodeManager manager;
+
+    public NodeHandler(NodeManager manager) {
+        this.manager = manager;
+    }
     
-    public void InitializeNode(NodeJoinData joinData, int port) {
-        this.info = joinData.nodeInfo;
-        this.maxKey = maxKey = ((int) Math.pow(2, joinData.m)) - 1;
-    }
 
-    // ADD TO THRIFT
-    /** 
-     * node is an arbitrary node in the network used
-     * to communicate with the rest of the network
-     */
-    public void Join(NodeDetails node, int id) {
-        System.out.println("Node " + id + " joined");
-        info.id = id;
-        if (node == null) {
-            manager.initNewNode();
-        } else {
-            // this is a new node in an existing system
-            InitFingerTable(node);
-            UpdateOthers();
-        }
-    }
-
+    @Override
     public GetData Get(String word) {
-        Entry entry = manager.findWord(word);
-        if (entry == null) {
-            int wordId = HashHelp.hashFunction(word, maxKey);
-            NodeDetails next = manager.ClosestPrecedingFinger(wordId);
+        // Entry entry = manager.findWord(word);
+        // if (entry == null) {
+        //     int wordId = manager.getHash(word);
+        //     NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
-            // Set up connection to next 
-            // return client.Get(word);
-            return null;
+        //     // Set up connection to next 
+        //     // return client.Get(word);
+        //     return null;
             
-        } else {
-            GetData result = new GetData();
-            result.definition = entry.definition;
-            result.status = Status.SUCCESS;
-            result.msg = "Word found by node " + info.id;
-            return result;
-        }
+        // } else {
+        //     GetData result = new GetData();
+        //     result.definition = entry.definition;
+        //     result.status = Status.SUCCESS;
+        //     result.msg = "Word found by node " + manager.info.id;
+        //     return result;
+        // }
+
+        // *** THIS IS TEMPORARY FOR TESTING - uncomment above
+        System.out.print("Get() - " + word);
+
+        GetData data = new GetData();
+        
+        data.status = Status.SUCCESS;
+        data.msg = word;
+        data.definition = "this is the definition";
+
+        return data;
+        // *** END TESTING
     }
 
+    @Override
     public StatusData Put(String word, String definition) {
         Status status = manager.putWord(word, definition); // Puts word if responsible
         if (status == Status.ERROR) { // Not responsible
-            int wordId = HashHelp.hashFunction(word, maxKey);
+            int wordId = manager.getHash(word);
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
             // Set up connection to next 
@@ -72,16 +67,17 @@ public class NodeHandler implements Node.Iface {
         } else {
             StatusData result = new StatusData();
             result.status = Status.SUCCESS;
-            result.msg = "Entry put by node " + info.id;
+            result.msg = "Entry put by node " + manager.info.id;
             return result;
         }
     }
 
+    @Override
     public NodeStructureData GetNodeStructure() {
         NodeStructureData data = new NodeStructureData();
 
         NodeStructure nodeStruct = new NodeStructure();
-        nodeStruct.id = info.id;
+        nodeStruct.id = manager.info.id;
         nodeStruct.predId = manager.pred.id;
         nodeStruct.entries = manager.getNodeEntries();
         nodeStruct.fingers = manager.getNodeFingers();
@@ -92,13 +88,16 @@ public class NodeHandler implements Node.Iface {
         return data;
     }
 
+
+    @Override
     public NodeDetails GetSucc() {
-        return manager.fingers[0].succ;
+        return manager.getSucc();
     }
 
 
+    @Override
     public StatusData SetSucc(NodeDetails nodeInfo) {
-        manager.fingers[0].succ = nodeInfo;
+        manager.setSucc(nodeInfo);;
         StatusData data = new StatusData();
         data.status = Status.SUCCESS;
         data.msg = "Successfully set the successor";
@@ -106,11 +105,13 @@ public class NodeHandler implements Node.Iface {
     }
     
 
+    @Override
     public NodeDetails GetPred() {
         return manager.pred;
     }
 
 
+    @Override
     public StatusData SetPred(NodeDetails nodeInfo) {
         manager.pred = nodeInfo;
         StatusData data = new StatusData();
@@ -120,7 +121,7 @@ public class NodeHandler implements Node.Iface {
     }
 
 
-    // find id's successor, PUT IN THRIFT
+    @Override
     public NodeDetails FindSuccessor(int id) {
         NodeDetails pred = manager.FindPredecessor(id);
 
@@ -130,17 +131,8 @@ public class NodeHandler implements Node.Iface {
 
     }
 
-    private void UpdateOthers() {
-        for (int i = 0; i < manager.fingers.length; i++) {
-            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
-            NodeDetails pred = manager.FindPredecessor(nId);
 
-            // Connect to pred
-            // StatusData data = client.UpdateFingerTable(info, i);
-
-        }
-    }
-
+    @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
         boolean result = manager.updateFingerTableHelper(node, i);
         StatusData data = new StatusData();
@@ -149,60 +141,19 @@ public class NodeHandler implements Node.Iface {
             // client.updateFingerTable(node, i);
 
             data.status = Status.SUCCESS;
-            data.msg = "updated successfully: node " + info.id;
+            data.msg = "updated successfully: node " + manager.info.id;
             return data;
         } else {
             data.status = Status.SUCCESS;
-            data.msg = "Didn't need to update: node " + info.id;
+            data.msg = "Didn't need to update: node " + manager.info.id;
             return data;
         }
     }
 
-    /** 
-     * node is an arbitrary node in the network used
-     * to communicate with the rest of the network
-     */
-
-    private void InitFingerTable(NodeDetails node) {
-
-        manager.fingers[0] = manager.InitFinger(null, 0);
-
-        // Connect to node
-        // NodeDetails result1 = client.FindSuccessor(manager.fingers[0].start);
-        // manager.fingers[0].succ = result1;
-
-        // Connect to fingers[0].succ
-        // NodeDetails succPred = client1.GetPred();
-        // manager.pred = succPred;
-
-        // Connect to fingers[0].succ.pred which is succPred  
-        // client2.SetPred(info);
-
-        // connect to getPred()
-        // client3.SetSucc(info);
-
-        for (int i = 0; i < manager.fingers.length - 1; i++) {
-            Finger nextFinger = manager.InitFinger(null, i + 1);
-
-            if (Range.InRangeInEx(nextFinger.start, info.id, manager.fingers[i].succ.id)) {
-
-                // Connect to nextFinger.succ
-                // client4. SetSucc(manager.fingers[i].succ);
-                
-
-            } else {
-                // Connect to node
-            //    NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
-
-                // Connect to nextFinger.succ
-                // client6.SetSucc(result2);
-
-            }
-            manager.fingers[i + 1] = nextFinger;
-
-        }
+    @Override
+    public void Kill() {
+        System.out.println("Received kill command.");
+        manager.closeLog();
+        System.exit(0);
     }
-
-
-
 }

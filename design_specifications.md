@@ -61,6 +61,17 @@ Gets a list of `NodeStructure` objects.
 **Input**: void\
 **Returns**: Status, msg, NodeStructure list
 
+#### KillDHT()
+Send out kill messages to every node in the DHT then kill self. This is a `oneway` thrift function.
+**Input**: void\
+**Returns**: n/a
+
+
+
+
+
+
+
 ## Node
 Each node maintains a hashmap of words it knows, a fingertable in order to communicate with other nodes, and a cache (user specifies size when creating the node). Each node also maintains `NodeDetails` objects that represents its predecesser and itself.
 
@@ -120,6 +131,13 @@ Called within GetFingerTable to update the successor field of a predecessor Node
 Called when a new node is entered into the DHT in order to update existing nodes' finger tables.\
 **Input**: NodeDetails, index\
 **Returns**: Status, msg
+
+#### Kill()
+Kill self. This is a `oneway` thrift function.
+**Input**: void\
+**Returns**: n/a
+
+
 
 # Data Structures
 ## App State (enums)

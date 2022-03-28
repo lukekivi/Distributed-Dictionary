@@ -114,7 +114,8 @@ service SuperNode {
     NodeForClientData GetNodeForClient(),
     NodeJoinData GetNodeForJoin(),
     StatusData PostJoin(1: NodeDetails nodeInfo),
-    DHTData GetDHTStructure()
+    DHTData GetDHTStructure(),
+    oneway void KillDHT()
 }
 
 
@@ -153,7 +154,8 @@ service Node {
     StatusData SetSucc(1: NodeDetails nodeInfo),
 	NodeDetails GetPred(),
     StatusData SetPred(1: NodeDetails nodeInfo),
-	NodeDetails FindSuccessor(1: i32 id)
+	NodeDetails FindSuccessor(1: i32 id),
+    oneway void Kill()
 }
 
 

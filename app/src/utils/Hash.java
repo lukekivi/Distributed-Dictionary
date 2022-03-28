@@ -3,13 +3,13 @@ package utils;
 import java.math.BigInteger;
 import java.security.MessageDigest;    
     
-public class HashHelp {
+public class Hash {
     /**
      * Calls MD5 hash on the word to get its id. Used geeksforgeeks to learn how to use MD5
      * @param String which is the word to be hashed
      * @return the id returned by the hashing function
      */
-    public static int hashFunction(String word, int max) {
+    public int makeKey(String word, int max) {
         int total = 0;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
