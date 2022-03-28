@@ -70,6 +70,36 @@ public class ReadIn {
 
         return port;
     }
+    public int getNodeCacheSize() {
+        int cacheSize = -1;
+
+        try {
+            FileInputStream file = new FileInputStream(CONFIG_FILE);
+            Scanner scanConfig = new Scanner(file);
+            String[] line;
+
+            while (scanConfig.hasNextLine()) {
+                line = scanConfig.nextLine().split(" ");
+                if (line[0].equals("Node")) { // Found SupeNode line
+                    cacheSize = Integer.parseInt(line[2]);
+                    break;
+                }
+            }
+
+            scanConfig.close();
+        } catch (Exception exception) {
+            System.out.println("ERROR: ReadIn.getNodeCacheSize() - " + exception);
+            System.exit(1);
+        }
+        if (cacheSize == -1) { // Server line never found
+            System.out.println("ERROR: ReadIn.getNodeCacheSize() Improper Configuration file - Invalid cacheSize value.\n");
+            System.exit(1);
+        }
+
+        return cacheSize;
+    }
+
+
 
     public void setCommandFile(String filePath) {
         try {

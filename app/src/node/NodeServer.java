@@ -21,28 +21,38 @@ import java.net.InetAddress;
 
 public class NodeServer {
 
-    private static NodeManager nodeManager;
+    private static ReadIn r;
     public static void main(String[] args) {
+        if (args.length != 0) {
+            System.out.println("No args taken.");
+            System.exit(1);
+        }
         try {
-            System.out.println(InetAddress.getLocalHost());
+            InetAddress ipAddress = (InetAddress.getLocalHost());
+            String ip = ipAddress.getHostAddress();
+            r = new ReadIn();
+            int port = r.getNodePort();
 
-            // Call readin on config file
-            // Grab info so we can create a NodeManager
-            // Create NodeManager
+            NodeManager nodeManager = new NodeManager();
+            nodeManager.info.port = port;
+            nodeManager.info.ip = ip;
 
             NodeHandler handler = new NodeHandler();
-            handler.manager = manager;
+            handler.info.port = port;
+            handler.info.ip = ip;
+            handler.manager = nodeManager;
+
             Node.Processor processor = new Node.Processor<NodeHandler>(handler);
 
             Runnable simple = new Runnable() {
                 public void run() {
-                    simple(processor);
+                    simple(processor, port);
                 }
             };
 
+            establishSelf(nodeManager, handler);
             new Thread(simple).start();
 
-            establishSelf();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,9 +60,8 @@ public class NodeServer {
     }
 
 
-    public static void simple(Node.Processor processor) {
+    public static void simple(Node.Processor processor, int port) {
         try {
-            int port = nodeManager.getPortOfSelf();
 
             TServerTransport serverTransport = new TServerSocket(port);
             TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
@@ -65,9 +74,9 @@ public class NodeServer {
         }
     }
 
-    private static void establishSelf() {
+    private static void establishSelf(NodeManager nodeManager, NodeHandler handler) {
         try {
-            ServerInfo superNode = nodeManager.getSuperNodeInfo();
+            ServerInfo superNode = r.getSuperNodeInfo();
 
             TTransport transport = new TSocket(superNode.ip, superNode.port);
             transport.open();
@@ -75,7 +84,11 @@ public class NodeServer {
             TProtocol protocol = new  TBinaryProtocol(transport);
             SuperNode.Client client = new SuperNode.Client(protocol);
 
-            perform(client); // Passing job as arg for client
+            NodeJoinData joinData = client.GetNodeForJoin(); 
+            int cacheSize = r.getNodeCacheSize();
+            handler.InitializeNode(joinData, nodeManager.info.port);
+            nodeManager.initManager(joinData, cacheSize);
+            nodeManager.setLog(joinData.id);
 
             transport.close();
         } catch (TTransportException x) {
@@ -85,21 +98,4 @@ public class NodeServer {
             x.printStackTrace();
         }
     }
-
-    private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
-        NodeJoinData nodeData = client.GetNodeForJoin(); 
-        System.out.println("Node data:" +
-            "\n\tassigned id: " + nodeData.id +
-            "\n\M: " + nodeData.m +
-            "\n\tStatus: " + nodeData.status +
-            "\n\tMsg: " + nodeData.msg + 
-            "\n\tnode ip: " + nodeData.nodeInfo.id +
-            "\n\tnode ip: " + nodeData.nodeInfo.ip +
-            "\n\tport: " + nodeData.nodeInfo.port + "\n"
-        );
-
-        nodeManager.setLog(nodeData.id);
-    }
-
-
 }

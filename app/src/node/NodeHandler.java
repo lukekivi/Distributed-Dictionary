@@ -15,11 +15,10 @@ import utils.*;
 
 public class NodeHandler implements Node.Iface {
     public NodeManager manager;
-    private NodeDetails info;
-    private int maxKey;
+    public NodeDetails info;
+    public int maxKey;
     
-    public void InitializeNode(NodeJoinData joinData, int cacheSize) {
-        this.manager = new NodeManager(joinData, cacheSize);
+    public void InitializeNode(NodeJoinData joinData, int port) {
         this.info = joinData.nodeInfo;
         this.maxKey = maxKey = ((int) Math.pow(2, joinData.m)) - 1;
     }
@@ -89,7 +88,7 @@ public class NodeHandler implements Node.Iface {
 
         data.nodeStructure = nodeStruct;
         data.status = Status.SUCCESS;
-        data.msg = "Data for node " + manager.id;
+        data.msg = "Data for node " + manager.info.id;
         return data;
     }
 

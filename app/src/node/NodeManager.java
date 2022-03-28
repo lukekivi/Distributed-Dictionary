@@ -30,8 +30,7 @@ public class NodeManager {
     public Cache cache;
     public NodeDetails info;
 
-    // Redo the creation, take out NodeJoinData
-    public NodeManager(NodeJoinData data, int cacheSize) {
+    public void initManager(NodeJoinData data, int cacheSize) {
         maxKey = ((int) Math.pow(2, data.m)) - 1;
 
         fingers = new Finger[data.m];
@@ -42,7 +41,6 @@ public class NodeManager {
         cache = new Cache(cacheSize);
         dict = new HashMap<String, String>();
         info = data.nodeInfo;
-        // set info.port
     }
 
     /**
@@ -50,7 +48,7 @@ public class NodeManager {
     */
     public Entry findWord(String word) {
         int wordId = HashHelp.hashFunction(word, maxKey);
-        System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
+        System.out.println("Get request came in for key " + wordId + " at Node " + info.id);
         String def = "";
         Entry entry = new Entry();
         if (isResponsible(wordId)) {
@@ -78,7 +76,7 @@ public class NodeManager {
     */
     public Status putWord(String word, String def) {
         int wordId = HashHelp.hashFunction(word, maxKey);
-        // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        // System.out.println("Put request came in for key " + wordId + " at Node " + info.id);
         String ans = "FAILURE";
         if (isResponsible(wordId)) {
             ans = dict.put(word, def);
@@ -113,7 +111,7 @@ public class NodeManager {
         for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
             
-            if (Range.InRangeExEx(finger.succ.id, this.id, id)) {
+            if (Range.InRangeExEx(finger.succ.id, info.id, id)) {
                 return fingers[i].succ;
             }
         }
@@ -135,7 +133,7 @@ public class NodeManager {
     public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger();
         finger.succ = fingers[0].succ;
-        finger.start = (this.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
+        finger.start = (info.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
         int end = finger.start + ((int) Math.pow(2, i));
 
         if (end > maxKey) {
@@ -148,7 +146,7 @@ public class NodeManager {
     }
 
     public int GetId() {
-        return this.id;
+        return info.id;
     }
 
     public ArrayList<Entry> getNodeEntries() {
@@ -185,10 +183,10 @@ public class NodeManager {
     * Checks if the current node is the successor for the given id
     */
     public boolean isResponsible(int id) {
-        if (id == this.id) {
+        if (id == info.id) {
             return true;
         }
-        if (Range.InRangeExEx(id, pred.id, this.id)) {
+        if (Range.InRangeExEx(id, pred.id, info.id)) {
             return true;
         } else {
             return false;
@@ -225,9 +223,5 @@ public class NodeManager {
     public int getPortOfSelf() {
         // read in portnumber from the config file
         return info.port;
-    }
-
-    public ServerInfo getSuperNodeInfo() {
-        return readIn.getSuperNodeInfo();
     }
 }
