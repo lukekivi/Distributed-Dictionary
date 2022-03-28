@@ -99,7 +99,7 @@ public class Node {
         for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
             
-            if (InRangeExEx(finger.succ.GetId(), this.id, id)) {
+            if (InRangeExEx(finger.succ.id, this.id, id)) {
                 return fingers[i].succ;
             }
         }
@@ -263,7 +263,7 @@ public class Node {
                 System.out.println("Grabbed from Cache");
                 return entry.getEntry();
             } else {
-                Node nextNode = nextJump(wordId);
+                Node nextNode = ClosestPrecedingFinger(wordId);
                 ans = nextNode.findWord(word);
                 return ans;
             }
@@ -289,17 +289,14 @@ public class Node {
             CacheEntry entry = new CacheEntry(word, def);
             cache.addEntry(entry);
 
-            Node nextNode = nextJump(wordId);
-            if (nextNode == null) {
-                System.out.println("nextNode is null");
+            Node nextNode = ClosestPrecedingFinger(wordId);
+            if (nextNode.id == this.id) {
+                nextNode = GetSucc();
             }
+            System.out.println("Node " + this.id + " is moving put key " + wordId + " over to node " + nextNode.id + " based off closestPrecedingFinger");
             System.out.println("Got nextNode " + nextNode.id);
             ans = nextNode.putWord(word, def);
-            if (ans.equals(word + " added SUCCESSFULLY")) {
-                return word + " added SUCCESSFULLY";
-            } else {
-                return word + " added UNSUCCESSFULLY";
-            }
+            return ans;
         }
     }
 
@@ -317,7 +314,10 @@ public class Node {
         // if (id == this.id) {
         //     return true;
         // }
-        if (InRangeExIn(id, pred.id, this.id)) {
+        if (id == this.id) {
+            return true;
+        }
+        if (InRangeExEx(id, pred.id, this.id)) {
             return true;
         } else {
             return false;
