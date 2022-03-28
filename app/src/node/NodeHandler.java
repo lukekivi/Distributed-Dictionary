@@ -188,12 +188,8 @@ public class NodeHandler implements Node.Iface {
                 client6.SetSuccessor(result2);
 
             }
-<<<<<<< HEAD
-            fingers[i + 1] = nextFinger;
-=======
             manager.fingers[i + 1] = nextFinger;
 
->>>>>>> 345d7844d3cdc239e96f83bb346a51f89832ca3d
         }
     }
 

@@ -56,7 +56,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
                     // this node is the first one in the DHT
                     nodeJoinData.status = JoinStatus.ORIGINAL;
                 } else {
-                    nodeJoinData.status = JoinStatus.SUCCESS
+                    nodeJoinData.status = JoinStatus.SUCCESS;
                 }
             }
         }

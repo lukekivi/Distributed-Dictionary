@@ -8,7 +8,7 @@ public class ReadIn {
     private final String CONFIG_FILE = "config.txt";
 
     private FileInputStream commandFile = null;
-    private Scanner scanCommand = null
+    private Scanner scanCommand = null;
 
     public ServerInfo getSuperNodeInfo() {
         ServerInfo serverInfo = new ServerInfo();
