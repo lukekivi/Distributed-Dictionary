@@ -105,6 +105,7 @@ public class Node {
         }
         return this;
     }
+    
 
 
     private void UpdateOthers() {
@@ -271,7 +272,9 @@ public class Node {
     }
 
 
-    private String insertWord(String word, String def) {
+    private String insertWord(String word, String def, int wordId) {
+        System.out.println("Word added to node " + this.id + "'s dictionary");
+        String ans = "";
         if (isResponsible(wordId)) {
             ans = dict.put(word, def);
             if (ans == null) {
@@ -293,26 +296,28 @@ public class Node {
         System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
         String ans = "FAILURE";
 
-        Node pred = findPredCaching(wordId);
-        Node succ = pred.GetSucc();
-        succ.insertWord(word, def);
-
+        ans = findPredCaching(word, def, wordId);
         return ans;
     }
 
 
-    private Node findPredCaching(int id) {
+    private String findPredCaching(String word, String def, int wordId) {
+        String ans = "FAILURE";
         System.out.println("Adding entry to cache");
         CacheEntry entry = new CacheEntry(word, def);
         cache.addEntry(entry);
 
         Node nextNode = ClosestPrecedingFinger(wordId);
         if (nextNode.id == this.id) {
-            return nextNode;
+            nextNode = GetSucc();
+            System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            ans = nextNode.insertWord(word, def, wordId);
+            return ans;
+        } else {
+            System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            ans = nextNode.findPredCaching(word, def, wordId);
+            return ans;
         }
-        System.out.println("Node " + this.id + " is moving put key " + wordId + " over to node " + nextNode.id + " based off closestPrecedingFinger");
-        System.out.println("Got nextNode " + nextNode.id);
-        return nextNode.findPredCaching(id);
     }
 
 
