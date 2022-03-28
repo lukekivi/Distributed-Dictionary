@@ -41,11 +41,10 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
-    @Override
     public GetData Get(String word) {
         Entry entry = manager.findWord(word);
         if (entry == null) {
-            int wordId = myHash.hashFunction(word, maxKey);
+            int wordId = HashHelp.hashFunction(word, maxKey);
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
             // Set up connection to next 
@@ -59,11 +58,10 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
-    @Override
     public StatusData Put(String word, String definition) {
         Status status = manager.putWord(word, definition); // Puts word if responsible
         if (status == Status.ERROR) { // Not responsible
-            int wordId = myHash.hashFunction(word, maxKey);
+            int wordId = HashHelp.hashFunction(word, maxKey);
             NodeDetails next = manager.ClosestPrecedingFinger(wordId);
 
             // Set up connection to next 
@@ -77,7 +75,6 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
-    @Override
     public NodeStructureData GetNodeStructure() {
         NodeStructureData data = new NodeStructureData();
 
@@ -121,7 +118,7 @@ public class NodeHandler implements Node.Iface {
 
     private void UpdateOthers() {
         for (int i = 0; i < manager.fingers.length; i++) {
-            int nId = CircularSubtraction(info.id, (int) Math.pow(2, i) - 1);
+            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1);
             NodeDetails pred = manager.FindPredecessor(nId);
 
             // Connect to pred
@@ -130,7 +127,6 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
-    @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
         boolean result = manager.updateFingerTableHelper(node, i);
         StatusData data = new StatusData();
@@ -155,7 +151,7 @@ public class NodeHandler implements Node.Iface {
 
     private void InitFingerTable(NodeDetails node) {
 
-        manager.fingers[0] = InitFinger(null, 0);
+        manager.fingers[0] = manager.InitFinger(null, 0);
 
         // Connect to node
         NodeDetails result1 = client.FindSuccessor(manager.fingers[0].start);
@@ -174,10 +170,10 @@ public class NodeHandler implements Node.Iface {
         for (int i = 0; i < manager.fingers.length - 1; i++) {
             Finger nextFinger = manager.InitFinger(null, i + 1);
 
-            if (Range.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+            if (Range.InRangeInEx(nextFinger.start, info.id, manager.fingers[i].succ.id)) {
 
                 // Connect to nextFinger.succ
-                client4. SetSuccessor(fingers[i].succ);
+                client4. SetSuccessor(manager.fingers[i].succ);
                 
 
             } else {

@@ -9,6 +9,7 @@ import java.lang.Math;
 import java.security.MessageDigest;
 import java.util.Queue;
 import java.util.ArrayList;
+import java.io.FileInputStream;
 
 import pa2.NodeDetails;
 import pa2.Finger;
@@ -48,7 +49,7 @@ public class NodeManager {
     * Returns the word and its definition
     */
     public Entry findWord(String word) {
-        int wordId = myHash.hashFunction(word, maxKey);
+        int wordId = HashHelp.hashFunction(word, maxKey);
         System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
         String def = "";
         Entry entry;
@@ -58,7 +59,7 @@ public class NodeManager {
                 return null;
             } else {
                 entry.word = word;
-                entry.def = def;
+                entry.definition = def;
                 return entry;
             }
         } else {
@@ -76,7 +77,7 @@ public class NodeManager {
     * Returns a string describing the put status
     */
     public Status putWord(String word, String def) {
-        int wordId = myHash.hashFunction(word, maxKey);
+        int wordId = HashHelp.hashFunction(word, maxKey);
         // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
         String ans = "FAILURE";
         if (isResponsible(wordId)) {
@@ -87,7 +88,7 @@ public class NodeManager {
             Entry entry = new Entry(word, def);
             cache.addEntry(entry);
 
-            return Status.FAILURE;
+            return Status.ERROR;
         }
     }
 
@@ -131,15 +132,15 @@ public class NodeManager {
     
 
 
-    private Finger InitFinger(NodeDetails node, int i) {
+    public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger(node);
         finger.start = (this.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
         int end = finger.start + ((int) Math.pow(2, i));
 
         if (end > maxKey) {
-            finger.end = end - maxKey - 1;
+            finger.last = end - maxKey - 1;
         } else {
-            finger.end = end;
+            finger.last = end;
         }
     
         return finger;
@@ -175,7 +176,7 @@ public class NodeManager {
         for (int i = 0; i < fingers.length; i++) {
             fingers[i] = InitFinger(info, i);
         }
-        info.pred = this;
+        pred = this;
     }
 
     /**

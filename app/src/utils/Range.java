@@ -4,7 +4,7 @@ public class Range {
         /**
      * exclusive start, inclusive end. Handles circular ranges.
      */
-    private boolean InRangeExIn(int id, int start, int end) {
+    public static boolean InRangeExIn(int id, int start, int end) {
         if (end < start) {
             if (id <= end) {
                 return true;
@@ -23,7 +23,7 @@ public class Range {
     /**
      * inclusive start, exclusive end. Handles circular ranges.
      */
-    private boolean InRangeInEx(int id, int start, int end) {
+    public static boolean InRangeInEx(int id, int start, int end) {
         if(end < start) {
             if (id < end || id >= start) {
                 return true;
@@ -40,7 +40,7 @@ public class Range {
     /**
      * exclusive start, exclusive end. Handles circular ranges.
      */
-    private boolean InRangeExEx(int id, int start, int end) {
+    public static boolean InRangeExEx(int id, int start, int end) {
         if(end < start) {
             if (id < end || id > start) {
                 return true;

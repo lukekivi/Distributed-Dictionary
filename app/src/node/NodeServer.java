@@ -44,7 +44,7 @@ public class NodeServer {
 
             new Thread(simple).start();
 
-            establishSelf();
+            establishSelf(cacheSize);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +77,7 @@ public class NodeServer {
             TProtocol protocol = new  TBinaryProtocol(transport);
             SuperNode.Client client = new SuperNode.Client(protocol);
 
-            perform(client); // Passing job as arg for client
+            perform(client, cacheSize); // Passing job as arg for client
 
             transport.close();
         } catch (TTransportException x) {
@@ -88,7 +88,7 @@ public class NodeServer {
         }
     }
 
-    private static void perform(SuperNode.Client client) throws TException, FileNotFoundException {
+    private static void perform(SuperNode.Client client, int cacheSize) throws TException, FileNotFoundException {
         NodeJoinData nodeData = client.GetNodeForJoin();
 
         handler.InitializeNode(nodeData, cacheSize); 

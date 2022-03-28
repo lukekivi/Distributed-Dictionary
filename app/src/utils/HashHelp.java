@@ -2,7 +2,7 @@
 import java.math.BigInteger;
 import java.security.MessageDigest;    
     
-public class myHash {
+public class HashHelp {
     /**
      * Calls MD5 hash on the word to get its id. Used geeksforgeeks to learn how to use MD5
      * @param String which is the word to be hashed
