@@ -8,17 +8,26 @@ import java.util.HashMap;
 import java.lang.Math;
 import java.security.MessageDigest;
 import java.util.Queue;
+import java.util.ArrayList;
+
+import pa2.NodeDetails;
+import pa2.Finger;
+import pa2.NodeJoinData;
+import pa2.Entry;
+import pa2.Status;
+import utils.*;
+
 
 public class NodeManager {
     private final String LOG_FILE = "log/node";
 
-    private int maxKey; // the max possible key in the DHT node is a member of
-    private NodeDetails pred = null;
-    private int id;
-    private Finger[] fingers;
-    private HashMap<String, String> dict;
-    private Cache cache;
-    private NodeDetails info;
+    public int maxKey; // the max possible key in the DHT node is a member of
+    public NodeDetails pred = null;
+    public int id;
+    public Finger[] fingers;
+    public HashMap<String, String> dict;
+    public Cache cache;
+    public NodeDetails info;
 
 
     public NodeManager(NodeJoinData data, int cacheSize) {
@@ -39,7 +48,7 @@ public class NodeManager {
     * Returns the word and its definition
     */
     public Entry findWord(String word) {
-        int wordId = utils.hashFunction(word, maxKey);
+        int wordId = myHash.hashFunction(word, maxKey);
         System.out.println("Get request came in for key " + wordId + " at Node " + this.id);
         String def = "";
         Entry entry;
@@ -67,7 +76,7 @@ public class NodeManager {
     * Returns a string describing the put status
     */
     public Status putWord(String word, String def) {
-        int wordId = utils.hashFunction(word, maxKey);
+        int wordId = myHash.hashFunction(word, maxKey);
         // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
         String ans = "FAILURE";
         if (isResponsible(wordId)) {
@@ -90,7 +99,7 @@ public class NodeManager {
     */
     public NodeDetails nextJump(int id) {
         for (int i = fingers.length - 1; i >= 0; i--) {
-            if (InRangeInEx(id, fingers[i].start, fingers[i].end)) {
+            if (Range.InRangeInEx(id, fingers[i].start, fingers[i].end)) {
                 return fingers[i].succ;
             }
         }
@@ -103,7 +112,7 @@ public class NodeManager {
         for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
             
-            if (InRangeExEx(finger.succ.id, this.id, id)) {
+            if (Range.InRangeExEx(finger.succ.id, this.id, id)) {
                 return fingers[i].succ;
             }
         }
@@ -114,7 +123,7 @@ public class NodeManager {
     public NodeDetails FindPredecessor(int id) {
         NodeDetails node = info;
 
-        while (!utils.InRangeExIn(id, info.id, fingers[0].succ.id)) {  
+        while (!(Range.InRangeExIn(id, info.id, fingers[0].succ.id))) {  
             node = ClosestPrecedingFinger(id);
         }
         return node;
@@ -136,32 +145,24 @@ public class NodeManager {
         return finger;
     }
 
-    // the first fingertable successor between this node and the id
-    public NodeDetails ClosestPrecedingFinger(int id) {
-        for (int i = fingers.length - 1; i >= 0; i--) {
-            Finger finger = fingers[i];
-            
-            if (utils.InRangeExEx(finger.succ.id, this.id, id)) {
-                return fingers[i].succ;
-            }
-        }
-        return info;
-    }
-
     public int GetId() {
         return this.id;
     }
 
-    public List<Entry> getNodeEntries() {
+    public ArrayList<Entry> getNodeEntries() {
         return cache.getList();
     }
 
-    public List<Finger> getNodeFingers() {
-        return cache.getFingers();
+    public ArrayList<Finger> getNodeFingers() {
+        ArrayList<Finger> list = new ArrayList<Finger>();
+        for (int i = 0; i < fingers.length; i++) {
+            list.add(fingers[i]);
+        }
+        return list;
     }
 
     public boolean updateFingerTableHelper(NodeDetails node, int i) {
-        if (utils.InRangeInEx(node.id, fingers[i].start, fingers[i].succ.id)) { 
+        if (Range.InRangeInEx(node.id, fingers[i].start, fingers[i].succ.id)) { 
             fingers[i].succ = node;
             return true;
         } else {
@@ -185,7 +186,7 @@ public class NodeManager {
         if (id == this.id) {
             return true;
         }
-        if (InRangeExEx(id, pred.id, this.id)) {
+        if (Range.InRangeExEx(id, pred.id, this.id)) {
             return true;
         } else {
             return false;

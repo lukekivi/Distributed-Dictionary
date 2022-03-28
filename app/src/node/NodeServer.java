@@ -5,6 +5,8 @@ import utils.ServerInfo;
 import pa2.Node;
 import pa2.SuperNode;
 import pa2.NodeJoinData;
+
+
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServer.Args;
 import org.apache.thrift.server.TSimpleServer;
@@ -93,7 +95,7 @@ public class NodeServer {
 
         System.out.println("Node data:" +
             "\n\tassigned id: " + nodeData.id +
-            "\n\M: " + nodeData.m +
+            "\n\tM: " + nodeData.m +
             "\n\tStatus: " + nodeData.status +
             "\n\tMsg: " + nodeData.msg + 
             "\n\tnode ip: " + nodeData.nodeInfo.id +

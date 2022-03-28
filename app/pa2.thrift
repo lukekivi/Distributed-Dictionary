@@ -151,6 +151,9 @@ service Node {
     StatusData UpdatePredecessor(1: NodeDetails nodeInfo),
     StatusData UpdateSuccessor(1: NodeDetails nodeInfo),
     StatusData UpdateFingerTable()
+    NodeDetails GetSucc(),
+	NodeDetails GetPred(),
+	NodeDetails FindSuccessor(1: i32 id)
 }
 
 
