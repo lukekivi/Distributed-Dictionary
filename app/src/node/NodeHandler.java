@@ -17,12 +17,29 @@ public class NodeHandler implements Node.Iface {
         this.maxKey = maxKey = ((int) Math.pow(2, joinData.m)) - 1;
     }
 
+    // ADD TO THRIFT
+    /** 
+     * node is an arbitrary node in the network used
+     * to communicate with the rest of the network
+     */
+    public void Join(NodeDetails node, int id) {
+        System.out.println("Node " + id + " joined");
+        info.id = id;
+        if (node == null) {
+            manager.initNewNode();
+        } else {
+            // this is a new node in an existing system
+            InitFingerTable(node);
+            UpdateOthers();
+        }
+    }
+
     @Override
     public GetData Get(String word) {
         Entry entry = findWord(word);
         if (entry == null) {
             int wordId = utils.hashFunction(word, maxKey);
-            NodeDetails next = nextJump(wordId);
+            NodeDetails next = manager.ClosestPrecedingFinger(wordId);
             // Set up connection to next 
             // call Get() on next node
             // return that
@@ -72,64 +89,97 @@ public class NodeHandler implements Node.Iface {
         return fingers[0].succ;
     }
 
+    // add to thrift
+    public NodeDetails GetPred() {
+        return manager.pred;
+    }
+
     @Override
     public StatusData SetPredecessor(NodeDetails nodeInfo) {
-        return null;
+        manager.pred = nodeInfo;
     }
 
     @Override
     public StatusData SetSuccessor(NodeDetails nodeInfo) {
-        return null;
+        fingers[0].succ = nodeInfo;
     }
 
     // find id's successor, PUT IN THRIFT
     public NodeDetails FindSuccessor(int id) {
-        Node pred = manager.FindPredecessor(id);
+        NodeDetails pred = manager.FindPredecessor(id);
         // establish connection to pred
         // call getSucc() on pred
+        return succ;
     }
 
     private void UpdateOthers() {
         for (int i = 0; i < manager.fingers.length; i++) {
-            int nId = utils.CircularSubtraction(this.id, (int) Math.pow(2, i) - 1);
-            Node pred = FindPredecessor(nId);
+            int nId = utils.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1);
+            NodeDetails pred = FindPredecessor(nId);
 
-            pred.UpdateFingerTable(this, i);
+            // Connect to pred
+            // Call UpdateFingerTable(info, i)
         }
     }
 
     @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
-        manager.updateFingerTableHelper(node, i);
-        // Set up connection to pred
-        // call updateFingerTable(node, i) on pred
+        boolean result = manager.updateFingerTableHelper(node, i);
+        StatusData data = new StatusData();
+        if (result) {
+            // Set up connection to pred
+            // call updateFingerTable(node, i) on pred
+            data.status = Status.SUCCESS;
+            data.msg = "updated successfully: node " + info.id;
+        } else {
+            data.status = Status.SUCCESS;
+            data.msg = "Didn't need to update: node " + info.id;
+        }
     }
 
     /** 
      * node is an arbitrary node in the network used
      * to communicate with the rest of the network
      */
+
+     // Put in Thrift
     private void InitFingerTable(NodeDetails node) {
 
-        // fingers[0] = InitFinger(null, 0);
-        // fingers[0].succ = node.FindSuccessor(fingers[0].start);
+        fingers[0] = InitFinger(null, 0);
 
-        // pred = fingers[0].succ.pred;
-        
-        // fingers[0].succ.pred = this;
-        // pred.fingers[0].succ = this; 
-        
-        // for (int i = 0; i < fingers.length - 1; i++) {
-        //     Finger nextFinger = InitFinger(null, i + 1);
+        // Connect to node
+        // Call FindSuccessor(fingers[0].start)
+        fingers[0].succ =  result;
 
-        //     if (InRangeInEx(nextFinger.start, id, fingers[i].succ.id)) {
-        //         nextFinger.succ = fingers[i].succ;
+        // Connect to fingers[0].succ
+        // Call getPred() on fingers[0].succ
+        manager.pred = result;
 
-        //     } else {
-        //         nextFinger.succ = node.FindSuccessor(nextFinger.start);
-        //     }
-        //     fingers[i + 1] = nextFinger;
-        // }
+        // Connect to fingers[0].succ.pred  
+        // Call setPred(info)
+
+        // connect to getPred()
+        // call setSucc(info)
+
+        for (int i = 0; i < fingers.length - 1; i++) {
+            Finger nextFinger = manager.InitFinger(null, i + 1);
+
+            if (utils.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+                // Connect to nextFinger.succ
+                // call setSucc(fingers[i].succ)
+                
+
+            } else {
+                // Connect to node
+                // Call FindSuccessor(nextFinger.start)
+                NodeDetails result = result;
+                // Connect to nextFinger.succ
+                // Call setSucc(result)
+            }
+            fingers[i + 1] = nextFinger;
+
+        }
+
 
     }
 

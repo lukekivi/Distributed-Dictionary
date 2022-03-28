@@ -21,11 +21,6 @@ public class NodeManager {
     private NodeDetails info;
 
 
-// Should it be updatePred() and updateSucc() or should it be updateOthers()?
-// Currently, FindPredecessor() is in manager, FindSuccessor() is in handler. Can manager establish connections?
-
-
-
     public NodeManager(NodeJoinData data, int cacheSize) {
         maxKey = ((int) Math.pow(2, data.m)) - 1;
 
@@ -63,10 +58,7 @@ public class NodeManager {
                 System.out.println("Grabbed from Cache");
                 return entry;
             } else {
-                // NodeDetails nextNode = nextJump(wordId);
-                // ans = nextNode.findWord(word);
-                // return ans; 
-                return null;
+                return null; // Not in cache, go to next node
             }
         }
     }
@@ -87,13 +79,6 @@ public class NodeManager {
             cache.addEntry(entry);
 
             return Status.FAILURE;
-
-            // ans = nextNode.putWord(word, def);
-            // if (ans.equals(word + " added SUCCESSFULLY")) {
-            //     return word + " added SUCCESSFULLY";
-            // } else {
-            //     return word + " added UNSUCCESSFULLY";
-            // }
         }
     }
 
@@ -175,10 +160,21 @@ public class NodeManager {
         return cache.getFingers();
     }
 
-    public void updateFingerTableHelper(NodeDetails node, int i) {
+    public boolean updateFingerTableHelper(NodeDetails node, int i) {
         if (utils.InRangeInEx(node.id, fingers[i].start, fingers[i].succ.id)) { 
             fingers[i].succ = node;
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    public void initNewNode() {
+        // this is the first node in the system
+        for (int i = 0; i < fingers.length; i++) {
+            fingers[i] = InitFinger(info, i);
+        }
+        info.pred = this;
     }
 
     /**
