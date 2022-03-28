@@ -65,6 +65,7 @@ public class NodeManager {
         System.out.println("Node " + info.id + " joined");
     }
 
+
     /**
     * Returns the word and its definition
     */
@@ -88,43 +89,62 @@ public class NodeManager {
                 System.out.println("Grabbed from Cache");
                 return entry;
             } else {
-                return null; // Not in cache, go to next node
+                Entry ans = new Entry();
+                NodeDetails nextNode = ClosestPrecedingFinger(wordId);
+                // connect to nextNode
+                // Call findWord(word) on nextNode
+                return ans;
             }
         }
     }
 
+
     /**
-    * Returns a string describing the put status
-    */
+     * Returns a string describing the put status
+     */
     public Status putWord(String word, String def) {
         int wordId = getHash(word);
-        // System.out.println("Put request came in for key " + wordId + " at Node " + info.id);
-        String ans = "FAILURE";
-        if (isResponsible(wordId)) {
-            ans = dict.put(word, def);
-            return Status.SUCCESS;
-        } else {
-            // System.out.println("Adding entry to cache");
-            Entry entry = new Entry(word, def);
-            cache.addEntry(entry);
+        // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        Status ans = Status.ERROR;
 
-            return Status.ERROR;
+        ans = findPredCaching(word, def, wordId);
+        return ans;
+    }
+
+
+    public Status findPredCaching(String word, String def, int wordId) {
+        Status ans = Status.ERROR;
+        // System.out.println("Adding entry to cache");
+        Entry entry = new Entry(word, def);
+        cache.addEntry(entry);
+
+        NodeDetails nextNode = ClosestPrecedingFinger(wordId);
+        // Connect to nextNode
+
+        if (nextNode.id == info.id) {
+            nextNode = getSucc();
+            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            // Call insertWord(word, def, wordId) on nextNode
+
+            return ans;
+        } else {
+            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            // Call findPredCaching(word, def, wordId) on nextNode
+
+            return ans;
         }
     }
 
 
-
-    /**
-     * Find the best finger table entry to send the dict entry
-     * @param id key that will be sent to proper node
-    */
-    public NodeDetails nextJump(int id) {
-        for (int i = fingers.length - 1; i >= 0; i--) {
-            if (Range.InRangeInEx(id, fingers[i].start, fingers[i].last)) {
-                return fingers[i].succ;
-            }
+    public Status insertWord(String word, String def, int wordId) {
+        // System.out.println("Word added to node " + this.id + "'s dictionary");
+        Status ans = Status.ERROR;
+        if (isResponsible(wordId)) {
+            dict.put(word, def);
+            return Status.SUCCESS;
+        } else {
+            return Status.ERROR; // Shouldn't ever get here
         }
-        return null;
     }
 
 
@@ -140,6 +160,7 @@ public class NodeManager {
         return info;
     }
 
+
     // Find id's predecessor
     public NodeDetails FindPredecessor(int id) {
         NodeDetails node = info;
@@ -150,7 +171,6 @@ public class NodeManager {
         return node;
     }
     
-
 
     public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger();
@@ -167,48 +187,10 @@ public class NodeManager {
         return finger;
     }
 
-    public int GetId() {
-        return info.id;
-    }
-
-    public ArrayList<Entry> getNodeEntries() {
-        return cache.getList();
-    }
-
-    public ArrayList<Finger> getNodeFingers() {
-        ArrayList<Finger> list = new ArrayList<Finger>();
-        for (int i = 0; i < fingers.length; i++) {
-            list.add(fingers[i]);
-        }
-        return list;
-    }
 
     public boolean updateFingerTableHelper(NodeDetails node, int i) {
         if (Range.InRangeInEx(node.id, fingers[i].start, fingers[i].succ.id)) { 
             fingers[i].succ = node;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void initNewNode() {
-        // this is the first node in the system
-        for (int i = 0; i < fingers.length; i++) {
-            fingers[i] = InitFinger(info, i);
-        }
-        pred = info;
-    }
-
-    /**
-    * @param id the key we are checking if the current node is responsible for 
-    * Checks if the current node is the successor for the given id
-    */
-    public boolean isResponsible(int id) {
-        if (id == info.id) {
-            return true;
-        }
-        if (Range.InRangeExEx(id, pred.id, info.id)) {
             return true;
         } else {
             return false;
@@ -249,7 +231,7 @@ public class NodeManager {
 
             } else {
                 // Connect to node
-            //    NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
+                // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
 
                 // Connect to nextFinger.succ
                 // client6.SetSucc(result2);
@@ -267,18 +249,65 @@ public class NodeManager {
             NodeDetails pred = FindPredecessor(nId);
 
             // Connect to pred
-            // StatusData data = client.UpdateFingerTable(info, i);
+            // call UpdateFingerTable(info, i) on pred;
 
         }
     }
+
+
+    /**
+    * @param id the key we are checking if the current node is responsible for 
+    * Checks if the current node is the successor for the given id
+    */
+    public boolean isResponsible(int id) {
+        if (id == info.id) {
+            return true;
+        }
+        if (Range.InRangeExEx(id, pred.id, info.id)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    public void initNewNode() {
+        // this is the first node in the system
+        for (int i = 0; i < fingers.length; i++) {
+            fingers[i] = InitFinger(info, i);
+        }
+        pred = info;
+    }
+
+
+    public int GetId() {
+        return info.id;
+    }
+
+
+    public ArrayList<Entry> getNodeEntries() {
+        return cache.getList();
+    }
+
+
+    public ArrayList<Finger> getNodeFingers() {
+        ArrayList<Finger> list = new ArrayList<Finger>();
+        for (int i = 0; i < fingers.length; i++) {
+            list.add(fingers[i]);
+        }
+        return list;
+    }
     
+
     public String getIpAddressOfSelf() {
         return info.ip;
     }
 
 
+    /**
+     * read in portnumber from the config file
+     */
     public int getPortOfSelf() {
-        // read in portnumber from the config file
         return info.port;
     }
 
@@ -288,7 +317,6 @@ public class NodeManager {
             System.out.println("ERROR: NodeManager.getHash() - attempted to hash prior to having a maxKey set");
             System.exit(1);
         }
-
         return hash.makeKey(word, maxKey);
     }
 
