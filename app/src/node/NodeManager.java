@@ -20,6 +20,7 @@ import pa2.NodeJoinData;
 import pa2.Entry;
 import pa2.Status;
 import pa2.StatusData;
+import pa2.JoinStatus;
 import utils.*;
 
 
@@ -59,7 +60,7 @@ public class NodeManager {
         info.id = joinData.id;
 
 
-        if (joinData.nodeInfo == null) {
+        if (joinData.status == JoinStatus.ORIGINAL) { // First node in system
             initNewNode();
         } else {
             // this is a new node in an existing system
