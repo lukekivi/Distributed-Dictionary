@@ -73,11 +73,11 @@ public class NodeHandler implements Node.Iface {
                 data = con.client.Get(word);
                 manager.factory.closeNodeConn(con);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
+                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Get() call");
-                e.printStackTrace();
+                System.out.println("Something went wrong with the RPC Get() call- " + e.getStackTrace());
+                System.exit(1);
             }
             return data;
             
@@ -118,11 +118,11 @@ public class NodeHandler implements Node.Iface {
                 data = con.client.Put(word, definition);
                 manager.factory.closeNodeConn(con);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
+                System.out.println("Something went wrong with Node connection - " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Put() call");
-                e.printStackTrace();
+                System.out.println("Something went wrong with the RPC Put() call- " + e.getStackTrace());
+                System.exit(1);
             }
             return data;
 
@@ -192,11 +192,11 @@ public class NodeHandler implements Node.Iface {
             succ = con.client.GetSucc();
             manager.factory.closeNodeConn(con);
         } catch (TTransportException x) {
-            System.out.println("Something went wrong with Node connection.");
+            System.out.println("Something went wrong with Node connection- " + x.getStackTrace());
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the RPC GetSucc() call");
-            e.printStackTrace();
+            System.out.println("Something went wrong with the RPC GetSucc() call- " + e.getStackTrace());
+            System.exit(1);
         }
         return succ;
     }
@@ -222,11 +222,11 @@ public class NodeHandler implements Node.Iface {
                 return data;
             }
         } catch (TTransportException x) {
-            System.out.println("Something went wrong with Node connection.");
+            System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the RPC UpdateFingerTable() call");
-            e.printStackTrace();
+            System.out.println("Something went wrong with the RPC UpdateFingerTable() call - " + e.getStackTrace());
+            System.exit(1);
         }
         return null;
     }

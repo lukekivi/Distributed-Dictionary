@@ -101,11 +101,11 @@ public class NodeManager {
                     ans = nodeCon.client.FindWordHelper(word);
                     factory.closeNodeConn(nodeCon);
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.");
+                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC Get() call");
-                    e.printStackTrace();
+                    System.out.println("Something went wrong with the RPC Get() call- " + e.getStackTrace());
+                    System.exit(1);
                 }
                 return ans;
             }
@@ -144,11 +144,11 @@ public class NodeManager {
                 ans = insertData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
+                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC InserWordHelper() call");
-                e.printStackTrace();
+                System.out.println("Something went wrong with the RPC InsertWordHelper() call- " + e.getStackTrace());
+                System.exit(1);
             }
             return ans;
 
@@ -160,11 +160,11 @@ public class NodeManager {
                 ans = cacheData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
+                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC FindPredCachingHelper() call");
-                e.printStackTrace();
+                System.out.println("Something went wrong with the RPC FindPredCachingHelper() call- " + e.getStackTrace());
+                System.exit(1);
             }
             return ans;
         }
@@ -266,11 +266,11 @@ public class NodeManager {
             factory.closeNodeConn(con4);
 
         } catch (TTransportException x) {
-            System.out.println("Something went wrong with Node connection.");
+            System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the InitFingerTable RPC calls");
-            e.printStackTrace();
+            System.out.println("Something went wrong with the InitFingerTable RPC calls- " + e.getStackTrace());
+            System.exit(1);
         }
 
         for (int i = 0; i < fingers.length - 1; i++) {
@@ -286,11 +286,10 @@ public class NodeManager {
                     factory.closeNodeConn(con5);
 
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.");
-                    System.exit(1);
+                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC SetSucc() call");
-                    e.printStackTrace();
+                    System.out.println("Something went wrong with the RPC SetSucc() call- " + e.getStackTrace());
+                    System.exit(1);
                 }
             } else {
                 try {
@@ -308,11 +307,11 @@ public class NodeManager {
                     factory.closeNodeConn(con7);
 
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.");
+                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC FindSuccessor() or SetSucc() call");
-                    e.printStackTrace();
+                    System.out.println("Something went wrong with the RPC FindSuccessor() or SetSucc() call- " + e.getStackTrace());
+                    System.exit(1);
                 }
             }
 
@@ -333,11 +332,10 @@ public class NodeManager {
                 nodeCon.client.UpdateFingerTable(info, i);
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
-                System.exit(1);
+                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC UpdateFingerTable() call");
-                e.printStackTrace();
+                System.out.println("Something went wrong with the RPC UpdateFingerTable() call- " + e.getStackTrace());
+                System.exit(1);
             }
 
         }

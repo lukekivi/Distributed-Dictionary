@@ -95,7 +95,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
                 System.exit(1);
             } catch (TException e) {
                 System.out.println("Something went wrong with the RPC GetNodeStructure() call");
-                e.printStackTrace();
+                System.exit(1);
             }
         }
 
