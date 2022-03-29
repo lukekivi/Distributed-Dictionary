@@ -76,7 +76,7 @@ public class NodeManager {
     */
     public Entry findWord(String word) {
         int wordId = getHash(word);
-        System.out.println("Get request came in for key " + wordId + " at Node " + info.id);
+        // System.out.println("Get request came in for key " + wordId + " at Node " + info.id);
         String def = "";
         Entry entry = new Entry();
         if (isResponsible(wordId)) {
@@ -101,10 +101,10 @@ public class NodeManager {
                     ans = nodeCon.client.FindWordHelper(word);
                     factory.closeNodeConn(nodeCon);
                 } catch (TTransportException x) {
-                    System.out.println("ERROR: NodeManager.findWord() - Something went wrong with Node connection - " + x.getMessage());
+                    System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findWord() - nodeCon: " + x.getStackTrace());
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC Get() call- " + e.getStackTrace());
+                    System.out.println("Error: Node " + info.id + ": RPC FindWordHelper() call to Node " + nextNode.id + " inside findWord() - nodeCon: " + e.getStackTrace());
                     System.exit(1);
                 }
                 return ans;
@@ -144,10 +144,10 @@ public class NodeManager {
                 ans = insertData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC InsertWordHelper() call- " + e.getStackTrace());
+                System.out.println("Error: Node " + info.id + ": RPC InsertWordHelper() call to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + e.getStackTrace());
                 System.exit(1);
             }
             return ans;
@@ -160,10 +160,10 @@ public class NodeManager {
                 ans = cacheData.status;
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + x.getStackTrace());
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC FindPredCachingHelper() call- " + e.getStackTrace());
+                System.out.println("Error: Node " + info.id + ": RPC FindPredCachingHelper() call to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + e.getStackTrace());
                 System.exit(1);
             }
             return ans;
@@ -233,6 +233,9 @@ public class NodeManager {
     }
 
 
+
+
+
     /** 
      * node is an arbitrary node in the network used
      * to communicate with the rest of the network
@@ -248,17 +251,46 @@ public class NodeManager {
             NodeDetails result1 = con1.client.FindSuccessor(fingers[0].start);
             factory.closeNodeConn(con1);
             fingers[0].succ = result1;
+        } catch (TTransportException x) {
+            System.out.println("Error: Node " + info.id + " connect to Node " + node.id + " inside InitFingerTable() - con1: " + x.getStackTrace());
+            System.exit(1);
+        } catch (TException e) {
+            System.out.println("Error: Node " + info.id + ": RPC FindSuccessor(fingers[0].start) or call to Node " + node.id + " inside InitFingerTable() - con1: " + e.getStackTrace());
+            System.exit(1);
+        }    
 
+        NodeDetails succPred = new NodeDetails();
+        try {
             // Connect to Successor (fingers[0].succ)
             NodeConn con2 = factory.makeNodeConn(fingers[0].succ);
-            NodeDetails succPred = con2.client.GetPred();
+            succPred = con2.client.GetPred();
             pred = succPred;
             factory.closeNodeConn(con2);
+
+        } catch (TTransportException x) {
+            System.out.println("Error: Node " + info.id + " connect to Node " + fingers[0].succ.id + " inside InitFingerTable() - con2: " + x.getStackTrace());
+            System.exit(1);
+        } catch (TException e) {
+            System.out.println("Error: Node " + info.id + ": RPC GetPred() or call to Node " + fingers[0].succ.id + " inside InitFingerTable() - con2: " + e.getStackTrace());
+            System.exit(1);
+        }    
+
+        try {
 
             // Connect to Successor's Predecessor (fingers[0].succ.pred)
             NodeConn con3 = factory.makeNodeConn(succPred);
             StatusData con3Data = con3.client.SetPred(info);
             factory.closeNodeConn(con3);
+
+        } catch (TTransportException x) {
+            System.out.println("Error: Node " + info.id + " connect to Node " + succPred.id + " inside InitFingerTable() - con3: " + x.getStackTrace());
+            System.exit(1);
+        } catch (TException e) {
+            System.out.println("Error: Node " + info.id + ": RPC SetPred(info) or call to Node " + succPred.id + " inside InitFingerTable() - con3: " + e.getStackTrace());
+            System.exit(1);
+        }    
+
+        try {
 
             // connect to Predecessor
             NodeConn con4 = factory.makeNodeConn(pred);
@@ -266,10 +298,10 @@ public class NodeManager {
             factory.closeNodeConn(con4);
 
         } catch (TTransportException x) {
-            System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+            System.out.println("Error: Node " + info.id + " connect to Node " + pred.id + " inside InitFingerTable() - con4: " + x.getStackTrace());
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the InitFingerTable RPC calls- " + e.getStackTrace());
+            System.out.println("Error: Node " + info.id + ": RPC SetSucc(info) or call to Node " + pred.id + " inside InitFingerTable() - con4: " + e.getStackTrace());
             System.exit(1);
         }
 
@@ -286,20 +318,29 @@ public class NodeManager {
                     factory.closeNodeConn(con5);
 
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() - con5: " + x.getStackTrace());
+                    System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC SetSucc() call- " + e.getStackTrace());
+                    System.out.println("Error: Node " + info.id + ": RPC SetSucc() call to Node " + nextFinger.succ.id + " inside InitFingerTable() - con5: " + e.getStackTrace());
                     System.exit(1);
                 }
             } else {
+                NodeDetails result2 = new NodeDetails();
                 try {
                     // Connect to node
                     // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
                     NodeConn con6 = factory.makeNodeConn(node);
-                    NodeDetails result2 = con6.client.FindSuccessor(nextFinger.start);
+                    result2 = con6.client.FindSuccessor(nextFinger.start);
                     factory.closeNodeConn(con6);
-                    
+                } catch (TTransportException x) {
+                    System.out.println("Error: Node " + info.id + " connect to Node " + node.id + " inside InitFingerTable() - con6: " + x.getStackTrace());
+                    System.exit(1);
+                } catch (TException e) {
+                    System.out.println("Error: Node " + info.id + ": RPC FindSuccessor(nextFingers.start) call to Node " + node.id + " inside InitFingerTable() - con6: " + e.getStackTrace());
+                    System.exit(1);
+                }
 
+                try {
                     // Connect to nextFinger.succ
                     // client6.SetSucc(result2);
                     NodeConn con7 = factory.makeNodeConn(nextFinger.succ);
@@ -307,10 +348,10 @@ public class NodeManager {
                     factory.closeNodeConn(con7);
 
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: " + x.getStackTrace());
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC FindSuccessor() or SetSucc() call- " + e.getStackTrace());
+                    System.out.println("Error: Node " + info.id + ": RPC SetSucc(result2) call to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: " + e.getStackTrace());
                     System.exit(1);
                 }
             }
@@ -320,6 +361,11 @@ public class NodeManager {
     }
 
     
+
+
+
+
+
 
     public void updateOthers() {
         for (int i = 0; i < fingers.length; i++) {
@@ -332,9 +378,10 @@ public class NodeManager {
                 nodeCon.client.UpdateFingerTable(info, i);
                 factory.closeNodeConn(nodeCon);
             } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                System.out.println("Error: Node " + info.id + " connect to Node " + pred.id + " inside updateOthers() - nodeCon: " + x.getStackTrace());
+                System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC UpdateFingerTable() call- " + e.getStackTrace());
+                System.out.println("Error: Node " + info.id + ": RPC UpdateFingerTable() call to Node " + pred.id + " inside udpateOthers() - nodeCon: " + e.getStackTrace());
                 System.exit(1);
             }
 
@@ -401,7 +448,7 @@ public class NodeManager {
 
     public int getHash(String word) {
         if (maxKey == -1) {
-            System.out.println("ERROR: NodeManager.getHash() - attempted to hash prior to having a maxKey set");
+            System.out.println("ERROR: Node + " + info.id + " getHash() - attempted to hash prior to having a maxKey set");
             System.exit(1);
         }
         return hash.makeKey(word, maxKey);
@@ -413,7 +460,7 @@ public class NodeManager {
             fileOut = new PrintStream(LOG_FILE + id + ".txt");
             System.setOut(fileOut);  
         } catch (FileNotFoundException x) {
-            System.out.println("Not able to establish a log file.");
+            System.out.println("Error: Node " + info.id + " not able to establish a log file.");
             System.exit(1);
         }
     }

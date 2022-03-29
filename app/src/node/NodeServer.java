@@ -74,10 +74,10 @@ public class NodeServer {
             transport.close();
 
         } catch (TTransportException x) {
-            System.out.println("Server not running as expected.");
+            System.out.println("Error: Node can't connect to the superNode");
             System.exit(1);
         } catch (TException x) {
-            x.printStackTrace();
+            System.out.println("Error: Node couldn't call GetNodeForJoin() on the superNode");
             System.exit(1);
         }
 
@@ -100,7 +100,7 @@ public class NodeServer {
         System.out.println("NodeData:"
             + "\n\tid: " + joinData.id
             + "\n\tnodeInfo: " + joinData.nodeInfo
-            + "\n\tstaus: " + joinData.status
+            + "\n\tstatus: " + joinData.status
             + "\n\tmsg: " + joinData.msg);
 
         int cacheSize = r.getNodeCacheSize();
