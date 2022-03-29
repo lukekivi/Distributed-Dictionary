@@ -53,6 +53,7 @@ public class NodeServer {
             new Thread(simple).start();
 
         } catch (Exception e) {
+            System.out.println("ERROR: NodeServer.main()");
             e.printStackTrace();
         }
     }

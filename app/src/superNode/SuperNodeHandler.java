@@ -1,5 +1,6 @@
 package superNode;
 
+import utils.Print;
 import pa2.DHTData;
 import pa2.NodeDetails;
 import pa2.NodeForClientData;
@@ -83,9 +84,11 @@ public class SuperNodeHandler implements SuperNode.Iface {
         DHTData data = new DHTData();
         ArrayList<NodeStructure> nodeStructures = new ArrayList<NodeStructure>();
         for (int i = 0; i < manager.getNodeSize(); i++) {
-            NodeDetails node = manager.getNodeIndex(i);
+            NodeDetails node = manager.getNode(i);
             try {
-            // Connect to node
+                System.out.print("Getting details for ");
+                Print.nodeDetails(node);
+                // Connect to node
                 NodeConn nodeCon = manager.factory.makeNodeConn(node);
                 NodeStructureData result = nodeCon.client.GetNodeStructure();
                 nodeStructures.add(result.nodeStructure);

@@ -9,7 +9,7 @@ public class Hash {
      * @param String which is the word to be hashed
      * @return the id returned by the hashing function
      */
-    public int makeKey(String word, int max) {
+    public static int makeKey(String word, int max) {
         int total = 0;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

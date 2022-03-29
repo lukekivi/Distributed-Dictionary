@@ -9,7 +9,6 @@ import org.apache.thrift.TException;
 import utils.ConnFactory;
 import utils.NodeConn;
 import utils.SuperConn;
-import java.util.ArrayList;
 
 public class SuperNodeManager {
     private final int M = 4;
@@ -112,7 +111,7 @@ public class SuperNodeManager {
         return nodes.size();
     }
 
-    public NodeDetails getNodeIndex(int i) {
+    public NodeDetails getNode(int i) {
         return nodes.get(i);
     }
 }

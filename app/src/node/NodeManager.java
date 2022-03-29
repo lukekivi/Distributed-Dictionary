@@ -27,7 +27,6 @@ import utils.*;
 public class NodeManager {
     private final String LOG_FILE = "log/node";
     private int maxKey = -1; // the max possible key in the DHT node is a member of
-    private final Hash hash = new Hash();
     private PrintStream fileOut = null;
     private Finger[] fingers;
     private HashMap<String, String> dict;
@@ -348,7 +347,8 @@ public class NodeManager {
                     factory.closeNodeConn(con7);
 
                 } catch (TTransportException x) {
-                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: " + x.getStackTrace());
+                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: ");
+                    x.printStackTrace();
                     System.exit(1);
                 } catch (TException e) {
                     System.out.println("Error: Node " + info.id + ": RPC SetSucc(result2) call to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: " + e.getStackTrace());
@@ -451,7 +451,7 @@ public class NodeManager {
             System.out.println("ERROR: Node + " + info.id + " getHash() - attempted to hash prior to having a maxKey set");
             System.exit(1);
         }
-        return hash.makeKey(word, maxKey);
+        return Hash.makeKey(word, maxKey);
     }
 
 
