@@ -2,12 +2,7 @@ package client;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
-import pa2.Node;
-import pa2.NodeDetails;
-import pa2.NodeForClientData;
-import pa2.Status;
-import pa2.SuperNode;
-import pa2.GetData;
+import pa2.*;
 import utils.ReadIn;
 import utils.ServerInfo;
 import utils.SuperConn;
@@ -18,6 +13,7 @@ import utils.NodeConn;
 public class ClientManager {
     private final ReadIn readIn = new ReadIn();
     private ConnFactory connFactory = new ConnFactory();
+    private ServerInfo superInfo = null;
     private NodeConn nodeConn;
 
     /**
@@ -25,17 +21,11 @@ public class ClientManager {
      */
     public void connectToDHT() {
         try {
-            SuperConn superConn = connFactory.makeSuperConn(readIn.getSuperNodeInfo());
+            SuperConn superConn = connFactory.makeSuperConn(getSuperNodeInfo());
 
+            
             // get a node from supernode for communication with the DHT
             NodeForClientData nodeData = superConn.client.GetNodeForClient(); 
-            System.out.println("Node data:" +
-                "\n\tid: " + nodeData.nodeInfo.id +
-                "\n\tip: " + nodeData.nodeInfo.ip +
-                "\n\tport: " + nodeData.nodeInfo.port +
-                "\n\tStatus: " + nodeData.status +
-                "\n\tMsg: " + nodeData.msg + "\n"
-            );
 
             if (nodeData.status == Status.ERROR) {
                 System.out.println("ERROR: Client.connectToDHT: received an error from the supernode.\n" +
@@ -43,6 +33,8 @@ public class ClientManager {
                 System.exit(1);
             }
 
+            System.out.println("Got node " + nodeData.nodeInfo.id + " as an ambassador.");
+        
             setNode(nodeData.nodeInfo);
 
             connFactory.closeSuperConn(superConn);
@@ -180,12 +172,69 @@ public class ClientManager {
             System.exit(1);
         }
 
-        System.out.println("ClientManager.handleGet():");
-        System.out.println("\tword: " + command[1]);
+        SuperConn superConn = connFactory.makeSuperConn(getSuperNodeInfo());
+        DHTData dhtData = superConn.client.GetDHTStructure(); 
+        connFactory.closeSuperConn(superConn);
+
+        if (dhtData.status == Status.ERROR) {
+            System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
+            System.exit(1);
+        } else {
+
+        }
     }
 
 
     public void close() {
         connFactory.closeNodeConn(nodeConn);
+    }
+
+
+    private ServerInfo getSuperNodeInfo() {
+        if (superInfo == null) {
+            superInfo = readIn.getSuperNodeInfo();
+        }
+        return superInfo;
+    }
+
+
+    private void printNodeStructure(NodeStructure node) {
+        System.out.println("Node[" + node.id + "]:\n" + 
+            "\t- pred: " + node.predId + "\n" +
+            "\t- table:");
+
+        for(int i = 0; i < node.fingers.size(); i++) {
+            System.out.print("\t\t");
+            if (node.fingers.get(i) == null) {   
+                System.out.println("null");
+            } else {
+                printFinger(node.fingers.get(i));
+            }
+        }
+
+        System.out.println("\t- entries:");
+
+        if (node.entries.size() == 0) {
+            System.out.println("\t\tEMPTY");
+        }
+
+        for(int i = 0; i < node.entries.size(); i++) {
+            System.out.print("\t\t");
+            if (node.entries.get(i) == null) {   
+                System.out.println("null");
+            } else {
+                printEntry(node.entries.get(i));
+            }
+        }
+
+        System.out.println();
+    }
+
+    private void printFinger(Finger finger) {        
+        System.out.println("start: " + finger.start + " end: " + finger.last + " succ: " + finger.succ.id);
+    }
+
+    private void printEntry(Entry entry) {
+        System.out.println(entry.word + " : " + entry.definition);
     }
 }

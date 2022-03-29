@@ -101,7 +101,7 @@ public class NodeManager {
                     ans = nodeCon.client.FindWordHelper(word);
                     factory.closeNodeConn(nodeCon);
                 } catch (TTransportException x) {
-                    System.out.println("Something went wrong with Node connection.- " + x.getStackTrace());
+                    System.out.println("ERROR: NodeManager.findWord() - Something went wrong with Node connection - " + x.getMessage());
                     System.exit(1);
                 } catch (TException e) {
                     System.out.println("Something went wrong with the RPC Get() call- " + e.getStackTrace());
@@ -209,7 +209,7 @@ public class NodeManager {
 
     public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger();
-        finger.succ = fingers[0].succ;
+        finger.succ = node;
         finger.start = (info.id + ((int) Math.pow(2, i))) % ((int) Math.pow(2, fingers.length));
         int end = finger.start + ((int) Math.pow(2, i));
 

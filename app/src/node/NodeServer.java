@@ -6,6 +6,8 @@ import pa2.Node;
 import pa2.SuperNode;
 import pa2.NodeJoinData;
 import pa2.NodeDetails;
+import pa2.JoinStatus;
+import pa2.Status;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.thrift.server.TServer;
@@ -37,7 +39,9 @@ public class NodeServer {
             NodeHandler handler = new NodeHandler(manager);
 
             // enter into the DHT
-            establishSelf(handler);
+            if (establishSelf(handler) == Status.ERROR) {
+                return;
+            }
             
             // Perform server duties
             Node.Processor processor = new Node.Processor<NodeHandler>(handler);
@@ -54,7 +58,8 @@ public class NodeServer {
     }
 
 
-    private static void establishSelf(NodeHandler handler) {
+    private static Status establishSelf(NodeHandler handler) {
+        Status status = Status.ERROR;
         try {
             ServerInfo superNode = r.getSuperNodeInfo();
 
@@ -64,9 +69,10 @@ public class NodeServer {
             TProtocol protocol = new  TBinaryProtocol(transport);
             SuperNode.Client superNodeClient = new SuperNode.Client(protocol);
 
-            joinDHT(superNodeClient);
+            status = joinDHT(superNodeClient);
 
             transport.close();
+
         } catch (TTransportException x) {
             System.out.println("Server not running as expected.");
             System.exit(1);
@@ -74,12 +80,22 @@ public class NodeServer {
             x.printStackTrace();
             System.exit(1);
         }
+
+        return status;
     }
 
 
-    private static void joinDHT(SuperNode.Client superNodeClient) throws TException {
+    private static Status joinDHT(SuperNode.Client superNodeClient) throws TException {
         // Get join data from supernode
-        NodeJoinData joinData = superNodeClient.GetNodeForJoin(); 
+        NodeJoinData joinData = superNodeClient.GetNodeForJoin();
+        
+        if (joinData.status == JoinStatus.ERROR) {
+            System.out.println("ERROR: NodeServer.joinDHT() \n\t" + joinData.msg);
+            return Status.ERROR;
+        } else if (joinData.status == JoinStatus.BUSY) {
+            System.out.println("NodeServer.joinDHT() - SuperNode was busy onboarding another node.");
+            return Status.ERROR;
+        }
 
         System.out.println("NodeData:"
             + "\n\tid: " + joinData.id
@@ -93,6 +109,8 @@ public class NodeServer {
         manager.Join(joinData, cacheSize);
 
         superNodeClient.PostJoin(manager.info);
+
+        return Status.SUCCESS;
     }
 
 
