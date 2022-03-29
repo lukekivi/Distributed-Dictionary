@@ -8,6 +8,14 @@ import pa2.Status;
 import pa2.JoinStatus;
 import pa2.StatusData;
 import pa2.SuperNode;
+import pa2.NodeStructureData;
+import pa2.NodeStructure;
+import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.TException;
+import java.util.ArrayList;
+import utils.ConnFactory;
+import utils.NodeConn;
+
 
 public class SuperNodeHandler implements SuperNode.Iface {
 
@@ -72,7 +80,30 @@ public class SuperNodeHandler implements SuperNode.Iface {
 
     @Override
     public DHTData GetDHTStructure() {
-        return null;
+        DHTData data = new DHTData();
+        ArrayList<NodeStructure> nodeStructures = new ArrayList<NodeStructure>();
+        for (int i = 0; i < manager.getNodeSize(); i++) {
+            NodeDetails node = manager.getNodeIndex(i);
+            try {
+            // Connect to node
+                NodeConn nodeCon = manager.factory.makeNodeConn(node);
+                NodeStructureData result = nodeCon.client.GetNodeStructure();
+                nodeStructures.add(result.nodeStructure);
+                manager.factory.closeNodeConn(nodeCon);
+            } catch (TTransportException x) {
+                System.out.println("Something went wrong with Node connection.");
+                System.exit(1);
+            } catch (TException e) {
+                System.out.println("Something went wrong with the RPC GetNodeStructure() call");
+                e.printStackTrace();
+            }
+        }
+
+        data.nodeStructures = nodeStructures;
+        data.status = Status.SUCCESS;
+        data.msg = "Node structures added for " + nodeStructures.size();
+        return data;
+
     }
 
     @Override

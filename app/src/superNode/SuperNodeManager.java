@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.lang.Math;
 import pa2.*;
+import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.TException;
+import utils.ConnFactory;
+import utils.NodeConn;
+import utils.SuperConn;
+import java.util.ArrayList;
 
 public class SuperNodeManager {
     private final int M = 4;
     private final Random r = new Random();
     private final int MAX_KEY = ((int) Math.pow(2, M) - 1);
     private boolean isBusy = false;
+    public ConnFactory factory = new ConnFactory();
 
     private ArrayList<NodeDetails> nodes = new ArrayList<NodeDetails>();
 
@@ -99,5 +106,13 @@ public class SuperNodeManager {
 
     public int getM() {
         return M;
+    }
+
+    public int getNodeSize() {
+        return nodes.size();
+    }
+
+    public NodeDetails getNodeIndex(int i) {
+        return nodes.get(i);
     }
 }

@@ -147,7 +147,7 @@ public class NodeManager {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Get() call");
+                System.out.println("Something went wrong with the RPC InserWordHelper() call");
                 e.printStackTrace();
             }
             return ans;
@@ -163,7 +163,7 @@ public class NodeManager {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Get() call");
+                System.out.println("Something went wrong with the RPC FindPredCachingHelper() call");
                 e.printStackTrace();
             }
             return ans;
@@ -269,7 +269,7 @@ public class NodeManager {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the RPC Get() call");
+            System.out.println("Something went wrong with the InitFingerTable RPC calls");
             e.printStackTrace();
         }
 
@@ -289,7 +289,7 @@ public class NodeManager {
                     System.out.println("Something went wrong with Node connection.");
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC Get() call");
+                    System.out.println("Something went wrong with the RPC SetSucc() call");
                     e.printStackTrace();
                 }
             } else {
@@ -311,7 +311,7 @@ public class NodeManager {
                     System.out.println("Something went wrong with Node connection.");
                     System.exit(1);
                 } catch (TException e) {
-                    System.out.println("Something went wrong with the RPC Get() call");
+                    System.out.println("Something went wrong with the RPC FindSuccessor() or SetSucc() call");
                     e.printStackTrace();
                 }
             }
@@ -336,7 +336,7 @@ public class NodeManager {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Get() call");
+                System.out.println("Something went wrong with the RPC UpdateFingerTable() call");
                 e.printStackTrace();
             }
 

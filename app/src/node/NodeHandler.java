@@ -121,7 +121,7 @@ public class NodeHandler implements Node.Iface {
                 System.out.println("Something went wrong with Node connection.");
                 System.exit(1);
             } catch (TException e) {
-                System.out.println("Something went wrong with the RPC Get() call");
+                System.out.println("Something went wrong with the RPC Put() call");
                 e.printStackTrace();
             }
             return data;
@@ -195,7 +195,7 @@ public class NodeHandler implements Node.Iface {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the RPC Get() call");
+            System.out.println("Something went wrong with the RPC GetSucc() call");
             e.printStackTrace();
         }
         return succ;
@@ -225,7 +225,7 @@ public class NodeHandler implements Node.Iface {
             System.out.println("Something went wrong with Node connection.");
             System.exit(1);
         } catch (TException e) {
-            System.out.println("Something went wrong with the RPC Get() call");
+            System.out.println("Something went wrong with the RPC UpdateFingerTable() call");
             e.printStackTrace();
         }
         return null;
