@@ -176,24 +176,19 @@ public class NodeHandler implements Node.Iface {
     @Override
     public NodeDetails FindSuccessor(int id) {
         final String FUNC_ID = "NodeHandler.FindSuccessor()";
-        System.out.println(FUNC_ID + ": Incoming find successor of " + id);
 
-        System.out.println(FUNC_ID + ": must find predecessor of " + id);
         NodeDetails predInfo = manager.FindPredecessor(id);
 
         if (predInfo.id == manager.info.id) {
-            System.out.println(FUNC_ID + ": find predecssor locally, we are the pred");
             return manager.getSucc();
         }
 
-        System.out.println(FUNC_ID + ": find predecssor remotely via pred: " + predInfo.id);
         return NodeComm.getSucc(FUNC_ID, predInfo);
     }
 
 
     @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
-        System.out.println("UpdatingFingerTable() - attempted update\n\tnode: " + node.id + "\n\tfinger: " + i + "\n\tthis.node: " + manager.GetId() + "\n\tthis.pred: " + manager.pred.id);
         final String FUNC_ID = "NodeHandler.UpdateFingerTable()";
 
         StatusData data = new StatusData();
@@ -205,13 +200,10 @@ public class NodeHandler implements Node.Iface {
             manager.setFingerSucc(i, node);
 
             if (manager.pred.id != node.id) {
-                System.out.println("Update was needed - continue on to:\n\tnode: " + manager.pred.id + "\n\tfinger: " + i);
                 data = NodeComm.updateFingerTable(FUNC_ID, manager.pred, node, i);
-            } else {
-                System.out.println("Update wasn't needed");
             }
+            
         } else {
-            System.out.println("Update wasn't needed");
             data.status = Status.SUCCESS;
             data.msg = "Succesfull update.";
         }
