@@ -181,7 +181,10 @@ public class NodeHandler implements Node.Iface {
 
         if (predInfo.id == manager.info.id || id == manager.info.id) {
             return manager.getSucc();
-        }
+        } else if (predInfo.id == manager.pred.id || id == manager.info.id) {
+            System.out.println("CAUGHT POSSIBLE ERROR inside FindSuccessor(). Was going to contact predecessor for its successor, thats me");
+            return manager.info;
+        } 
 
         return NodeComm.getSucc(FUNC_ID, predInfo);
     }
@@ -214,6 +217,33 @@ public class NodeHandler implements Node.Iface {
 
         return data;
     }
+
+
+    // @Override
+    // public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
+    //     System.out.println("UpdatingFingerTable() - attempted update\n\tnode: " + node.id + "\n\tfinger: " + i + "\n\tthis.node: " + manager.GetId() + "\n\tthis.pred: " + manager.pred.id);
+    //     final String FUNC_ID = "NodeHandler.UpdateFingerTable()";
+
+    //     StatusData data = new StatusData();
+
+    //     Finger finger = manager.getFinger(i);
+
+    //     if (Range.InRangeInEx(node.id, finger.start, finger.succ.id)) {
+            
+    //         manager.setFingerSucc(i, node);
+
+    //         if (manager.pred.id != node.id && manager.pred.id != manager.info.id) {
+    //             System.out.println("Update was needed - continue on to:\n\tnode: " + manager.pred.id + "\n\tfinger: " + i);
+    //             data = NodeComm.updateFingerTable(FUNC_ID, manager.pred, node, i);
+    //         }
+    //     }
+    //     System.out.println("Update wasn't needed");
+    //     data.status = Status.SUCCESS;
+    //     data.msg = "Succesfull update.";
+        
+
+    //     return data;
+    // }
 
 
     @Override

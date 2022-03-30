@@ -18,9 +18,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getSucc()");
+            handleException(x, from, "calling NodeComm.getSucc() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getSucc()");
+            handleException(x, from, "calling NodeComm.getSucc() onto node" + nodeInfo.id);
         }
         return succInfo;
     }
@@ -33,9 +33,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.setSucc()");
+            handleException(x, from, "NodeComm.setSucc() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.setSucc()");
+            handleException(x, from, "NodeComm.setSucc() onto node" + nodeInfo.id);
         }
     }
 
@@ -48,9 +48,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.findSuccessor()");
+            handleException(x, from, "NodeComm.findSuccessor(" + id + ") onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.findSuccessor()");
+            handleException(x, from, "NodeComm.findSuccessor(" + id + ") onto node" + nodeInfo.id);
         }
         return succInfo;
     }
@@ -64,9 +64,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getPred()");
+            handleException(x, from, "NodeComm.getPred() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getPred()");
+            handleException(x, from, "NodeComm.getPred() onto node" + nodeInfo.id);
         }
         return predInfo;
     }
@@ -79,9 +79,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.setPred()");
+            handleException(x, from, "NodeComm.setPred() onto node" + nodeInfo.id + ". Setting pred to " + predInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.setPred()");
+            handleException(x, from, "NodeComm.setPred() onto node" + nodeInfo.id+ ". Setting pred to " + predInfo.id);
         }
     }
 
@@ -95,9 +95,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id + ". Updating node" + nodeInfo.id + " finger" + fingerTableIndex + ".succ to node" + newNodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id+ ". Updating node" + nodeInfo.id + " finger" + fingerTableIndex + ".succ to node" + newNodeInfo.id);
         }
 
         return statusData;
@@ -113,9 +113,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id + " on index " + id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id+ " on index " + id);
         }
 
         return closestNodeInfo;
@@ -130,9 +130,9 @@ public class NodeComm {
             Print.nodeStructure(nodeStructureData.nodeStructure);
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getNodeStructure()");
+            handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getNodeStructure()");
+            handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
         }
         return nodeStructureData;
     }

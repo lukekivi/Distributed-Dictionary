@@ -41,7 +41,7 @@
 
     <!-- Generate the thrift gen-java source -->
     <target name="generate">
-        <exec failonerror="true" executable="../../thrift-0.15.0/compiler/cpp/thrift">
+        <exec failonerror="true" executable="../../../../thrift-0.15.0/compiler/cpp/thrift">
            <arg line="--gen java -r pa2.thrift"/>
         </exec>
     </target>

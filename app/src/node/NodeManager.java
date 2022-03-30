@@ -88,7 +88,7 @@ public class NodeManager {
      * to communicate with the rest of the network
      */
     private void InitFingerTable(NodeDetails node) {
-        System.out.println("Initing finger table");
+        System.out.println("Initing finger table inside " + info.id);
         final String FUNC_ID = "NodeManager.InitFingerTable()";   // error sourcing in nodeComm
 
         fingers[0] = InitFinger(null, 0);
@@ -105,8 +105,21 @@ public class NodeManager {
                 // the previous finger's successor is a valid successor for this finger too
                 nextFinger.succ = fingers[i].succ;
             } else {
-                // search the DHT for the best successor for nextFinger
-                nextFinger.succ = NodeComm.findSuccessor(FUNC_ID, node, nextFinger.start);
+                if (nextFinger.start == node.id) {
+                    System.out.println("!!!!!Triggered the IF statement, avoiding a connection: node"+ info.id + " tried to call findSuccessor(" + nextFinger.start + ") on node" + node.id);
+                    nextFinger.succ = node;
+                } else if(nextFinger.start == info.id) {
+                    System.out.println("!!!!!Triggered the first ELSE IF statement, avoiding a connection: node"+ info.id + " tried to call findSuccessor(" + nextFinger.start + ") on node" + node.id);
+                    nextFinger.succ = info;
+                } else if (nextFinger.start == pred.id) {
+                    System.out.println("!!!!!Triggered the second ELSE IF statement, avoiding a connection: node"+ info.id + " tried to call findSuccessor(" + nextFinger.start + ") on node" + node.id);
+                    nextFinger.succ = pred;
+                }
+                else {
+                    // search the DHT for the best successor for nextFinger
+                    System.out.println("!!!!!Triggered ELSE, MIGHT CAUSE AN ERROR: Node" + info.id + " is calling findSuccessor(" + nextFinger.start + ") on node" + node.id);
+                    nextFinger.succ = NodeComm.findSuccessor(FUNC_ID, node, nextFinger.start);
+                }
             }
 
             fingers[i + 1] = nextFinger;
@@ -118,7 +131,7 @@ public class NodeManager {
         nodeStructure.fingers = getNodeFingers();
         nodeStructure.entries = getNodeEntries();
 
-        Print.nodeStructure(nodeStructure);
+        // Print.nodeStructure(nodeStructure);
     }
 
 
@@ -145,7 +158,7 @@ public class NodeManager {
     
     // Find id's predecessor
     public NodeDetails FindPredecessor(int id) {
-        final String ` = "NodeManager.FindPredecessor()";
+        final String FUNC_ID = "NodeManager.FindPredecessor()";
 
         NodeDetails nodeInfo = info;
         int nodeSuccId = fingers[0].succ.id;
