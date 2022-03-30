@@ -152,15 +152,14 @@ public class ClientManager {
                 System.exit(1);
             }
 
-            System.out.println("ClientManager.handleGet():");
-            System.out.println("\tword: " + command[1]);
+            System.out.println("ClientManager.handleGet() - word: " + command[1]);
 
             GetData getData = nodeConn.client.Get(command[1]);
 
             if (getData.status == Status.SUCCESS) {
-                System.out.println("Successful Get:\n\t" + command[1] + " : " + getData.definition);
+                System.out.println("Successful - \n\t" + command[1] + ": " + getData.definition + "\n");
             } else {
-                System.out.println(command[1] + " failed to be entered into the dictionary.\n\t" + getData.msg);
+                System.out.println("Failure - \n\t" + getData.msg);
             }
         } catch (TException x) {
             System.out.println("ERROR: ClientManager.handleGet() - TException occurred in command " + command[0]);

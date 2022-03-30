@@ -29,12 +29,6 @@ public class NodeHandler implements Node.Iface {
 
 
     @Override
-    public Entry FindWordHelper(String word) {
-        return manager.findWord(word);
-    }
-
-
-    @Override
     public StatusData InsertWordHelper(String word, String definition, int wordId) {
         StatusData result = new StatusData();
         Status status = manager.insertWord(word, definition, wordId);
@@ -64,13 +58,17 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public GetData Get(String word) {
-        Entry entry = manager.findWord(word);
+        EntryData result = manager.findWord(word);
         GetData data = new GetData();
-        if (entry == null) {
+        if (result.entry == null && result.status == Status.ERROR) { // Not in cache, isnt' correct dict
             int wordId = manager.getHash(word);
             NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
 
+            if (nextNode.id == manager.info.id) { // This node is closest preceding node to the word, send to its successor
+                nextNode = manager.getSucc();
+            }
             // Set up connection to next 
+            System.out.println("Node " + manager.info.id + ": forwarding Get() for " + word + "(key " + wordId + ") to node " + nextNode.id + " since it wasn't in the cache and not correct node");
             try {
                 NodeConn con = manager.factory.makeNodeConn(nextNode);
                 data = con.client.Get(word);
@@ -84,8 +82,15 @@ public class NodeHandler implements Node.Iface {
             }
             return data;
             
-        } else {
-            data.definition = entry.definition;
+        } else if (result.entry == null && result.status == Status.SUCCESS) { // Correct node, not in proper dict
+            // System.out.println("Node " + info.id +": " + word + "(key " + wordId + ") not in the dictionary. This is the proper node";
+            data.definition = null;
+            data.status = Status.ERROR;
+            data.msg = word + " not in the dictionary";
+            return data;
+        }
+        else { // Found it
+            data.definition = result.entry.definition;
             data.status = Status.SUCCESS;
             data.msg = "Word found by node " + manager.info.id;
             return data;

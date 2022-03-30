@@ -128,6 +128,14 @@ struct GetData {
     3: string msg
 }
 
+/**
+ * Data for a findWord() operation
+ */
+struct EntryData {
+    1: Entry entry,
+    2: Status status,
+}
+
 
 /**
  * Data returned by a node to represent its structure.
@@ -156,7 +164,6 @@ service Node {
     NodeDetails ClosestPrecedingFinger(1: i32 id),
     GetData Get(1: string word),
     StatusData Put(1: string word, 2: string definition),
-    Entry FindWordHelper(1: string word),
     StatusData InsertWordHelper(1: string word, 2: string definition, 3: i32 wordId),
     StatusData FindPredCachingHelper(1: string word, 2: string definition, 3: i32 wordId),
     oneway void Kill()

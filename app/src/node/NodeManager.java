@@ -117,7 +117,8 @@ public class NodeManager {
         nodeStructure.predId = pred.id;
         nodeStructure.fingers = getNodeFingers();
         nodeStructure.entries = getNodeEntries();
-
+        
+        System.out.println("Node Structure upon entering the system:");
         Print.nodeStructure(nodeStructure);
     }
 
@@ -177,43 +178,38 @@ public class NodeManager {
     /**
     * Returns the word and its definition
     */
-    public Entry findWord(String word) {
+    public EntryData findWord(String word) {
+        EntryData data = new EntryData();
+        Entry entry = new Entry();
+        String def = "";
         int wordId = getHash(word);
         System.out.println("Node " + info.id + ": Get request came in for word " + word + "(key " + wordId + ")");
-        String def = "";
-        Entry entry = new Entry();
+        
         if (isResponsible(wordId)) {
             def = dict.get(word);
             if (def == null) {
-                return null;
+                System.out.println("Node " + info.id + ": " + word + " not in proper dict, done");
+                data.entry = null;
+                data.status = Status.SUCCESS;
             } else {
+                System.out.println("Node " + info.id + ": " + word + " grabbed from dict");
                 entry.word = word;
                 entry.definition = def;
-                return entry;
+                data.entry = entry;
+                data.status = Status.SUCCESS;
             }
         } else {
             entry = cache.checkCache(word);
             if (entry != null) {
-                System.out.println("Node " + info.id + ": " + word + "grabbed from cache");
-                return entry;
+                System.out.println("Node " + info.id + ": " + word + " grabbed from cache");
+                data.entry = entry;
+                data.status = Status.SUCCESS;
             } else {
-                Entry ans = new Entry();
-                NodeDetails nextNode = ClosestPrecedingFinger(wordId);
-                try {
-                    System.out.println("Node " + info.id +": forwarding Get() for " + word + "(key " + wordId + ") to node " + nextNode.id);
-                    NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                    ans = nodeCon.client.FindWordHelper(word);
-                    factory.closeNodeConn(nodeCon);
-                } catch (TTransportException x) {
-                    System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findWord() - nodeCon: " + x.getStackTrace());
-                    System.exit(1);
-                } catch (TException e) {
-                    System.out.println("Error: Node " + info.id + ": RPC FindWordHelper() call to Node " + nextNode.id + " inside findWord() - nodeCon: " + e.getStackTrace());
-                    System.exit(1);
-                }
-                return ans;
+                data.entry = null;
+                data.status = Status.ERROR;
             }
         }
+        return data;
     }
 
 
