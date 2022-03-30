@@ -10,6 +10,7 @@ import pa2.Finger;
 import pa2.Status;
 import pa2.NodeStructure;
 import pa2.NodeJoinData;
+import pa2.EntryData;
 import utils.Hash;
 import utils.NodeComm;
 import utils.ConnFactory;

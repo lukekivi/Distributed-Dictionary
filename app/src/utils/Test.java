@@ -2,6 +2,10 @@ package utils;
 
 
 import pa2.DHTData;
+import pa2.NodeStructure;
+import pa2.Entry;
+import utils.Hash;
+import utils.Range;
 import java.util.*;
 
 public class Test {
@@ -21,10 +25,11 @@ public class Test {
             Print.nodeStructure(dhtData.nodeStructures.get(i));
             boolean pred = CheckNodePred(dhtData, i);
             boolean table = CheckNodeTable(dhtData, i);
+            boolean entries = checkHashTable(dhtData, i);
 
             System.out.println();
 
-            if (!pred || !table) {
+            if (!pred || !table || !entries) {
                 numFalse++;
             }
         }
@@ -139,5 +144,24 @@ public class Test {
         }
 
         return result;
+    }
+
+    public boolean checkHashTable(DHTData dhtData, int index) {
+        NodeStructure node = dhtData.nodeStructures.get(index);
+        List<Entry> entryList = node.entries;
+        int predId = node.predId;
+        int nodeId = node.id;
+        for (Entry listEntry : entryList) {
+            String word = listEntry.word;
+            int maxKey = ((int) Math.pow(2, M)) - 1;
+            int key = Hash.makeKey(word, maxKey);
+
+            if (!(Range.InRangeExIn(key, predId, nodeId))) {
+                System.out.println("False so return is triggered");
+                return false;
+            }
+            System.out.println("id: " + key + ", word: " + word + ", node" + nodeId + ". Appeared in the correct node, congrats");
+        }
+        return true;
     }
 }

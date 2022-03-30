@@ -111,7 +111,7 @@ public class ClientManager {
 
             if (command.length != 3) {
                 System.out.println("ERROR: ClientManager.handlePut(): put command of length "  + command.length + " is invalid. Command should be of" +
-                    " the form 'put, <word>, <definition>'");
+                    " the form 'put :: <word> :: <definition>'. Notice the spaces on either side of the '::'s");
                 System.exit(1);
             }
 

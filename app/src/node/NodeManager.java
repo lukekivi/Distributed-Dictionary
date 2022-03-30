@@ -21,6 +21,7 @@ import pa2.Status;
 import pa2.StatusData;
 import pa2.JoinStatus;
 import pa2.NodeStructure;
+import pa2.EntryData;
 import utils.*;
 
 
@@ -178,7 +179,7 @@ public class NodeManager {
     */
     public Entry findWord(String word) {
         int wordId = getHash(word);
-        // System.out.println("Get request came in for key " + wordId + " at Node " + info.id);
+        System.out.println("Node " + info.id + ": Get request came in for word " + word + "(key " + wordId + ")");
         String def = "";
         Entry entry = new Entry();
         if (isResponsible(wordId)) {
@@ -193,12 +194,13 @@ public class NodeManager {
         } else {
             entry = cache.checkCache(word);
             if (entry != null) {
-                System.out.println("Grabbed from Cache");
+                System.out.println("Node " + info.id + ": " + word + "grabbed from cache");
                 return entry;
             } else {
                 Entry ans = new Entry();
                 NodeDetails nextNode = ClosestPrecedingFinger(wordId);
                 try {
+                    System.out.println("Node " + info.id +": forwarding Get() for " + word + "(key " + wordId + ") to node " + nextNode.id);
                     NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
                     ans = nodeCon.client.FindWordHelper(word);
                     factory.closeNodeConn(nodeCon);
@@ -220,7 +222,7 @@ public class NodeManager {
      */
     public Status putWord(String word, String def) {
         int wordId = getHash(word);
-        // System.out.println("Put request came in for key " + wordId + " at Node " + this.id);
+        System.out.println("Node " + info.id + ": Put request came in for word " + word + "(key " + wordId + ")");
         Status ans = Status.ERROR;
 
         ans = findPredCaching(word, def, wordId);
@@ -230,7 +232,7 @@ public class NodeManager {
 
     public Status findPredCaching(String word, String def, int wordId) {
         Status ans = Status.ERROR;
-        // System.out.println("Adding entry to cache");
+        System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to cache");
         Entry entry = new Entry(word, def);
         cache.addEntry(entry);
 
@@ -239,7 +241,7 @@ public class NodeManager {
         if (nextNode.id == info.id) {
             nextNode = getSucc(); // Update nextNode to the successor
 
-            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+            System.out.println("Node " + info.id +": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + ". This next Node IS responsible");
             try {
                 NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
                 StatusData insertData = nodeCon.client.InsertWordHelper(word, def, wordId);
@@ -256,7 +258,7 @@ public class NodeManager {
 
         } else {
             try {
-            // System.out.println("Moving key " + wordId + " to node " + nextNode.id);
+                System.out.println("Node " + info.id + ": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + ". This next node MAY NOT be responsible");
                 NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
                 StatusData cacheData = nodeCon.client.FindPredCachingHelper(word, def, wordId);
                 ans = cacheData.status;
@@ -274,10 +276,10 @@ public class NodeManager {
 
 
     public Status insertWord(String word, String def, int wordId) {
-        // System.out.println("Word added to node " + this.id + "'s dictionary");
         Status ans = Status.ERROR;
         if (isResponsible(wordId)) {
             dict.put(word, def);
+            System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to the dictionary");
             return Status.SUCCESS;
         } else {
             return Status.ERROR; // Shouldn't ever get here
