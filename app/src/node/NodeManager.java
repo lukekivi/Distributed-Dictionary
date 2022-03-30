@@ -88,8 +88,8 @@ public class NodeManager {
      * to communicate with the rest of the network
      */
     private void InitFingerTable(NodeDetails node) {
-        System.out.println("Initing finger table");
-        final String FUNC_ID = "NodeManager.InitFingerTable()";   // error sourcing in nodeComm
+        final String FUNC_ID = "NodeManager.InitFingerTable()";
+        System.out.println(FUNC_ID + ": Initing finger table");
 
         fingers[0] = InitFinger(null, 0);
         fingers[0].succ = NodeComm.findSuccessor(FUNC_ID, node, fingers[0].start);
@@ -99,12 +99,16 @@ public class NodeManager {
         NodeComm.setSucc(FUNC_ID, pred, info);              // set pred.succ to be this
 
         for (int i = 0; i < fingers.length - 1; i++) {
+            System.out.println(FUNC_ID + ": Init finger " + (i+1));
             Finger nextFinger = InitFinger(null, i + 1);
-
+            System.out.println(FUNC_ID + ": need to find the successor of " + nextFinger.start);
+            System.out.println(FUNC_ID + ": init comparison " + info.id + " <= " + nextFinger.start + " < " + fingers[i].succ.id);
             if (Range.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+                System.out.println(FUNC_ID + ": init finger, true: handled locally");
                 // the previous finger's successor is a valid successor for this finger too
                 nextFinger.succ = fingers[i].succ;
             } else {
+                System.out.println(FUNC_ID + ": init finger, false: handled remotely via node " + node.id);
                 // search the DHT for the best successor for nextFinger
                 nextFinger.succ = NodeComm.findSuccessor(FUNC_ID, node, nextFinger.start);
             }
@@ -128,15 +132,15 @@ public class NodeManager {
     public void updateOthers() {
         final String FUNC_ID = "NodeManager.updateOthers()";
 
-        System.out.println("Updating others");
+        System.out.println(FUNC_ID + ": Updating others");
 
         for (int i = 0; i < fingers.length; i++) {
             int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
             NodeDetails pred = FindPredecessor(nId);
-            System.out.println("Predecessor of " + nId + " is " + pred.id);
+            System.out.println(FUNC_ID + ": Predecessor of " + nId + " is " + pred.id);
 
             if (pred.id != info.id) {
-                System.out.println("Attempting to update\n\tfinger: " + i + "\n\tnode: " + pred.id);
+                System.out.println(FUNC_ID + ": Attempting to update\n\tfinger: " + i + "\n\tnode: " + pred.id);
                 NodeComm.updateFingerTable(FUNC_ID, pred, info, i);
             }
         }
@@ -145,12 +149,14 @@ public class NodeManager {
     
     // Find id's predecessor
     public NodeDetails FindPredecessor(int id) {
-        final String ` = "NodeManager.FindPredecessor()";
+        final String FUNC_ID = "NodeManager.FindPredecessor()";
+        System.out.println(FUNC_ID + ": find pred of id " + id);
 
         NodeDetails nodeInfo = info;
         int nodeSuccId = fingers[0].succ.id;
 
-        while (!(Range.InRangeExIn(id, nodeInfo.id, nodeSuccId))) {  
+        while (!(Range.InRangeExIn(id, nodeInfo.id, nodeSuccId))) {
+            System.out.println(FUNC_ID + ": comparison " + nodeInfo.id + " < " + id + " <= " + nodeSuccId); 
             if (nodeInfo.id == info.id) {
                 nodeInfo = ClosestPrecedingFinger(id);
             } else {
@@ -159,6 +165,8 @@ public class NodeManager {
             nodeSuccId = NodeComm.getSucc(FUNC_ID, nodeInfo).id;
         }
         
+        System.out.println(FUNC_ID + ": closest preceding finger was " + nodeInfo.id);
+
         return nodeInfo;
     }
 

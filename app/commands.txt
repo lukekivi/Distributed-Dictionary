@@ -1,1 +1,1 @@
-print
+put:-word:-definition

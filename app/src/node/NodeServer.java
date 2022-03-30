@@ -11,7 +11,6 @@ import pa2.JoinStatus;
 import pa2.Status;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
-import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
@@ -39,19 +38,19 @@ public class NodeServer {
             manager = new NodeManager(nodeInfo);
             NodeHandler handler = new NodeHandler(manager);
 
-            // enter into the DHT
-            if (establishSelf(handler) == Status.ERROR) {
-                return;
-            }
-            
             // Perform server duties
             Node.Processor processor = new Node.Processor<NodeHandler>(handler);
             Runnable simple = new Runnable() {
                 public void run() {
-                    simple(processor, nodeInfo.port);
+                    multiThreadedServer(processor, nodeInfo.port);
                 }
             };
             new Thread(simple).start();
+            
+            // enter into the DHT
+            if (establishSelf(handler) == Status.ERROR) {
+                System.exit(0);
+            }
 
         } catch (Exception e) {
             System.out.println("ERROR: NodeServer.main()");
@@ -113,10 +112,10 @@ public class NodeServer {
     }
 
 
-    public static void simple(Node.Processor processor, int port) {
+    public static void multiThreadedServer(Node.Processor processor, int port) {
         try {
             TServerTransport serverTransport = new TServerSocket(port);
-            TServer node = new TThreadPoolServer( // Auto creates new threads for each task
+            TThreadPoolServer node = new TThreadPoolServer( // Auto creates new threads for each task
                 new TThreadPoolServer.Args(serverTransport).processor(processor)
             );
 

@@ -176,13 +176,17 @@ public class NodeHandler implements Node.Iface {
     @Override
     public NodeDetails FindSuccessor(int id) {
         final String FUNC_ID = "NodeHandler.FindSuccessor()";
-        
+        System.out.println(FUNC_ID + ": Incoming find successor of " + id);
+
+        System.out.println(FUNC_ID + ": must find predecessor of " + id);
         NodeDetails predInfo = manager.FindPredecessor(id);
 
-        if (predInfo.id == manager.info.id || id == manager.info.id) {
+        if (predInfo.id == manager.info.id) {
+            System.out.println(FUNC_ID + ": find predecssor locally, we are the pred");
             return manager.getSucc();
         }
 
+        System.out.println(FUNC_ID + ": find predecssor remotely via pred: " + predInfo.id);
         return NodeComm.getSucc(FUNC_ID, predInfo);
     }
 

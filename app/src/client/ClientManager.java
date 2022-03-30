@@ -187,10 +187,10 @@ public class ClientManager {
         if (dhtData.status == Status.ERROR) {
             System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
             System.exit(1);
-        } else {
-            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
-                Print.nodeStructure(dhtData.nodeStructures.get(i));
-            }
+        } 
+        
+        for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
+            Print.nodeStructure(dhtData.nodeStructures.get(i));
         }
     }
 
@@ -203,10 +203,6 @@ public class ClientManager {
         if (dhtData.status == Status.ERROR) {
             System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
             System.exit(1);
-        } else {
-            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
-                Print.nodeStructure(dhtData.nodeStructures.get(i));
-            }
         }
 
         Test test = new Test(readIn.getM());

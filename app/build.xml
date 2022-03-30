@@ -68,7 +68,7 @@
      </target>
 
      <!-- Run super node -->
-    <target name="superNode" depends="compile, cleanSuperNodeLog">
+    <target name="superNode" depends="cleanLog, compile">
         <echo>superNode:</echo>
         <java classpathref="pa2.classpath" output="${log.dir}/${superNode.log}" failonerror="false" fork="true" classname="superNode/SuperNodeServer"/>
      </target>
@@ -85,8 +85,8 @@
     </target>
 
     <!-- Clean super node log -->
-    <target name="cleanSuperNodeLog">
-        <delete file="${log.dir}/${superNode.log}"/>
+    <target name="cleanLog">
+        <delete dir="${log.dir}"/>
     </target>
 
     <!-- Clean everything -->

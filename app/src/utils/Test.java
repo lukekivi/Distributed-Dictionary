@@ -13,12 +13,15 @@ public class Test {
     }
 
     public void CheckNodes(DHTData dhtData) {
+        System.out.println("****** Starting Node Test ******");
+
         int numFalse = 0;
 
         for (int i = 0; i < dhtData.nodeStructures.size(); i++) {;
             Print.nodeStructure(dhtData.nodeStructures.get(i));
             boolean pred = CheckNodePred(dhtData, i);
             boolean table = CheckNodeTable(dhtData, i);
+
             System.out.println();
 
             if (!pred || !table) {
