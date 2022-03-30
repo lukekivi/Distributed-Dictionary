@@ -19,7 +19,7 @@ class SuperNodeServer {
         try {
             Logger.getRootLogger().setLevel(Level.ERROR);
 
-            SuperNodeHandler handler = new SuperNodeHandler();
+            SuperNodeHandler handler = new SuperNodeHandler(readIn.getM());
             SuperNode.Processor processor = new SuperNode.Processor<SuperNodeHandler>(handler);
 
             Runnable simple = new Runnable() {

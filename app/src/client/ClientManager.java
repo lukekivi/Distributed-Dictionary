@@ -3,12 +3,15 @@ package client;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 import pa2.*;
+import utils.Test;
 import utils.ReadIn;
 import utils.ServerInfo;
 import utils.SuperConn;
 import utils.ConnFactory;
 import utils.NodeConn;
 import utils.Print;
+import utils.NodeComm;
+import utils.SuperComm;
 
 
 public class ClientManager {
@@ -75,7 +78,7 @@ public class ClientManager {
 
         while((input = readIn.readCommand()) != null) {
             decipherCommand(input);
-        }
+        }   
     }
 
 
@@ -172,31 +175,43 @@ public class ClientManager {
      * @param command
      */
     private void handlePrint(String[] command) {
-        try {
-            if (command.length != 1) {
-                System.out.println("ERROR: ClientManager.handlePrint(): print command of length "  +
-                                    command.length + " is invalid. Command should be of" +
-                                    " the form 'print'");
-                System.exit(1);
-            }
-            
-            SuperConn superConn = connFactory.makeSuperConn(getSuperNodeInfo());
-            DHTData dhtData = superConn.client.GetDHTStructure(); 
-            connFactory.closeSuperConn(superConn);
-
-            if (dhtData.status == Status.ERROR) {
-                System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
-                System.exit(1);
-            } else {
-                for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
-                    Print.nodeStructure(dhtData.nodeStructures.get(i));
-                }
-            }
-        } catch (TException x) {
-            System.out.println("ERROR: ClientManager.handlePrint() - TException occurred in command " + command[0]);
-            x.printStackTrace();
+        final String FUNC_ID = "ClientManager.handlePrint()";
+        if (command.length != 1) {
+            System.out.println("ERROR: ClientManager.handlePrint(): print command of length "  +
+                command.length + " is invalid. Command should be of the form 'print'");
             System.exit(1);
         }
+            
+        DHTData dhtData = SuperComm.getDHTStructure(FUNC_ID, getSuperNodeInfo());
+
+        if (dhtData.status == Status.ERROR) {
+            System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
+            System.exit(1);
+        } else {
+            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
+                Print.nodeStructure(dhtData.nodeStructures.get(i));
+            }
+        }
+    }
+
+
+    public void testDHTStructure() {
+        final String FUNC_ID = "ClientManager.testDHTStructure()";
+            
+        DHTData dhtData = SuperComm.getDHTStructure(FUNC_ID, getSuperNodeInfo());
+
+        if (dhtData.status == Status.ERROR) {
+            System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
+            System.exit(1);
+        } else {
+            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
+                Print.nodeStructure(dhtData.nodeStructures.get(i));
+            }
+        }
+
+        Test test = new Test(readIn.getM());
+
+        test.CheckNodes(dhtData);
     }
 
 

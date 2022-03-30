@@ -146,8 +146,6 @@ struct NodeStructureData {
  * successors, and/or finger tables.
  */
 service Node {
-    GetData Get(1: string word),
-    StatusData Put(1: string word, 2: string definition),
     NodeStructureData GetNodeStructure(),
     StatusData UpdateFingerTable(1: NodeDetails node, 2: i32 i)
     NodeDetails GetSucc(),
@@ -155,6 +153,9 @@ service Node {
 	NodeDetails GetPred(),
     StatusData SetPred(1: NodeDetails nodeInfo),
 	NodeDetails FindSuccessor(1: i32 id),
+    NodeDetails ClosestPrecedingFinger(1: i32 id),
+    GetData Get(1: string word),
+    StatusData Put(1: string word, 2: string definition),
     Entry FindWordHelper(1: string word),
     StatusData InsertWordHelper(1: string word, 2: string definition, 3: i32 wordId),
     StatusData FindPredCachingHelper(1: string word, 2: string definition, 3: i32 wordId),

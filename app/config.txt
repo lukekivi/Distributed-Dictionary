@@ -1,2 +1,3 @@
-SuperNode csel-kh1250-12.cselabs.umn.edu 9000
-Node 9002 10
+SuperNode csel-kh1250-12.cselabs.umn.edu 8900
+Node 8900 10
+M 3

@@ -6,18 +6,22 @@ import java.lang.Math;
 import pa2.*;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
-import utils.ConnFactory;
 import utils.NodeConn;
 import utils.SuperConn;
 
 public class SuperNodeManager {
-    private final int M = 4;
-    private final Random r = new Random();
-    private final int MAX_KEY = ((int) Math.pow(2, M) - 1);
+    private int M;
+    private int maxKey;
     private boolean isBusy = false;
-    public ConnFactory factory = new ConnFactory();
-
+    private final Random r = new Random();
     private ArrayList<NodeDetails> nodes = new ArrayList<NodeDetails>();
+
+
+    public SuperNodeManager(int M) {
+        this.M = M;
+        maxKey = ((int) Math.pow(2, M) - 1);
+    }
+
 
     /**
      * Get a random node from the DHT.
@@ -65,16 +69,16 @@ public class SuperNodeManager {
     public int getHashID() {
         isBusy = true;
 
-        if (nodes.size() == MAX_KEY) {
-            System.out.println("ERROR: exceeded max size.");
+        if (nodes.size() == maxKey) {
+            System.out.println("ERROR: " + nodes.size() + " exceeded max size of " + maxKey + ".");
             return -1;
         }
 
         Random r = new Random();
-        int id = r.nextInt(MAX_KEY);
+        int id = r.nextInt(maxKey);
 
         while (!isAvailable(id)) {
-            if (id == MAX_KEY) {
+            if (id == maxKey) {
                 id = 0;
             } else {
                 id++;

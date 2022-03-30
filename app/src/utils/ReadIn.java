@@ -127,4 +127,34 @@ public class ReadIn {
 
         return results;
     }
+
+
+    public int getM() {
+        int M = -1;
+
+        try {
+            FileInputStream file = new FileInputStream(CONFIG_FILE);
+            Scanner scanConfig = new Scanner(file);
+            String[] line;
+
+            while (scanConfig.hasNextLine()) {
+                line = scanConfig.nextLine().split(" ");
+                if (line[0].equals("M")) { 
+                    M = Integer.parseInt(line[1]);
+                    break;
+                }
+            }
+
+            scanConfig.close();
+        } catch (Exception exception) {
+            System.out.println("ERROR: ReadIn.getM() - " + exception);
+            System.exit(1);
+        }
+        if (M == -1) { 
+            System.out.println("ERROR: ReadIn.getM() Improper Configuration file - Invalid cacheSize value.\n");
+            System.exit(1);
+        }
+
+        return M;
+    }
 }

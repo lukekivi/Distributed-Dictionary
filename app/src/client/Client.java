@@ -20,9 +20,11 @@ class Client {
 
         manager.connectToDHT();
 
-        if (commandsPath != null) {
-            manager.doCommands(commandsPath);
-        }
+        // if (commandsPath != null) {
+        //     manager.doCommands(commandsPath);
+        // }
+
+        manager.testDHTStructure();
 
         manager.close();
     }

@@ -1,6 +1,7 @@
 package superNode;
 
 import utils.Print;
+import utils.NodeComm;
 import pa2.DHTData;
 import pa2.NodeDetails;
 import pa2.NodeForClientData;
@@ -14,13 +15,15 @@ import pa2.NodeStructure;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 import java.util.ArrayList;
-import utils.ConnFactory;
 import utils.NodeConn;
 
 
 public class SuperNodeHandler implements SuperNode.Iface {
-
-    private final SuperNodeManager manager = new SuperNodeManager();
+    private SuperNodeManager manager;
+    
+    public SuperNodeHandler(int M) {
+        manager = new SuperNodeManager(M);
+    }
     
     @Override
     public NodeForClientData GetNodeForClient() {
@@ -81,30 +84,22 @@ public class SuperNodeHandler implements SuperNode.Iface {
 
     @Override
     public DHTData GetDHTStructure() {
+        final String FUNC_ID = "SuperNodeHandler.GetDHTStructure()";
         DHTData data = new DHTData();
         ArrayList<NodeStructure> nodeStructures = new ArrayList<NodeStructure>();
         for (int i = 0; i < manager.getNodeSize(); i++) {
             NodeDetails node = manager.getNode(i);
-            try {
-                System.out.print("Getting details for ");
-                Print.nodeDetails(node);
-                // Connect to node
-                NodeConn nodeCon = manager.factory.makeNodeConn(node);
-                NodeStructureData result = nodeCon.client.GetNodeStructure();
-                nodeStructures.add(result.nodeStructure);
-                manager.factory.closeNodeConn(nodeCon);
-            } catch (TTransportException x) {
-                System.out.println("Something went wrong with Node connection.");
-                System.exit(1);
-            } catch (TException e) {
-                System.out.println("Something went wrong with the RPC GetNodeStructure() call");
-                System.exit(1);
-            }
+            System.out.print("Getting details for ");
+            Print.nodeDetails(node);
+    
+            NodeStructureData nodeStructureData = NodeComm.getNodeStructure(FUNC_ID, node);
+            nodeStructures.add(nodeStructureData.nodeStructure);
+            System.out.print("Got details");
         }
 
         data.nodeStructures = nodeStructures;
         data.status = Status.SUCCESS;
-        data.msg = "Node structures added for " + nodeStructures.size();
+        data.msg = "Node structures added for " + nodeStructures.size() + "nodes";
         return data;
 
     }

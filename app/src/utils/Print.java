@@ -4,6 +4,7 @@ import pa2.NodeStructure;
 import pa2.Finger;
 import pa2.Entry;
 import pa2.NodeDetails;
+import pa2.NodeJoinData;
 
 public class Print {
     public static void nodeStructure(NodeStructure node) {
@@ -55,5 +56,19 @@ public class Print {
             "\tip: " + nodeInfo.ip + 
             "\tport: " + nodeInfo.port
         );
+    }
+
+    public static void nodeJoinData(NodeJoinData nodeJoinData) {
+        System.out.println("NodeJoinData:"
+            + "\n\tnew node id: " + nodeJoinData.id
+            + "\n\tstatus: " + nodeJoinData.status
+            + "\n\tmsg: " + nodeJoinData.msg
+            + "\nnode for setup:"
+        );
+        if (nodeJoinData.nodeInfo == null) {
+            System.out.println("no node provided; this is the original");
+        } else {
+            nodeDetails(nodeJoinData.nodeInfo);
+        }
     }
 }

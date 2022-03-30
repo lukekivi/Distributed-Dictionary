@@ -11,8 +11,10 @@ import pa2.Status;
 import pa2.NodeStructure;
 import pa2.NodeJoinData;
 import utils.Hash;
+import utils.NodeComm;
 import utils.ConnFactory;
 import utils.NodeConn;
+import utils.Range;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
@@ -87,19 +89,6 @@ public class NodeHandler implements Node.Iface {
             data.msg = "Word found by node " + manager.info.id;
             return data;
         }
-
-        // *** THIS IS TEMPORARY FOR TESTING - START TESTING
-        // System.out.print("Get() - " + word);
-
-        // GetData data = new GetData();
-        
-        // data.status = Status.SUCCESS;
-        // data.msg = word;
-        // data.definition = "this is the definition";
-
-        // return data;
-        // *** END TESTING
-
     }
 
     @Override
@@ -145,7 +134,9 @@ public class NodeHandler implements Node.Iface {
 
         data.nodeStructure = nodeStruct;
         data.status = Status.SUCCESS;
+        
         data.msg = "Data for node " + manager.info.id;
+
         return data;
     }
 
@@ -158,7 +149,7 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public StatusData SetSucc(NodeDetails nodeInfo) {
-        manager.setSucc(nodeInfo);;
+        manager.setSucc(nodeInfo);
         StatusData data = new StatusData();
         data.status = Status.SUCCESS;
         data.msg = "Successfully set the successor";
@@ -184,52 +175,52 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public NodeDetails FindSuccessor(int id) {
-        NodeDetails pred = manager.FindPredecessor(id);
-        NodeDetails succ = new NodeDetails();
-        try {
-            NodeConn con = manager.factory.makeNodeConn(pred); // Connect to pred
+        final String FUNC_ID = "NodeHandler.FindSuccessor()";
+        
+        NodeDetails predInfo = manager.FindPredecessor(id);
 
-            succ = con.client.GetSucc();
-            manager.factory.closeNodeConn(con);
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + manager.info.id + " connect to Node " + pred.id + " inside FindSuccessor() - con: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + manager.info.id + ": RPC GetSucc() call to Node " + pred.id + " inside FindSuccessor() - con: " + e.getStackTrace());
-            System.exit(1);
+        if (predInfo.id == manager.info.id || id == manager.info.id) {
+            return manager.getSucc();
         }
-        return succ;
+
+        return NodeComm.getSucc(FUNC_ID, predInfo);
     }
 
 
     @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
-        boolean result = manager.updateFingerTableHelper(node, i);
+        System.out.println("UpdatingFingerTable() - attempted update\n\tnode: " + node.id + "\n\tfinger: " + i + "\n\tthis.node: " + manager.GetId() + "\n\tthis.pred: " + manager.pred.id);
+        final String FUNC_ID = "NodeHandler.UpdateFingerTable()";
+
         StatusData data = new StatusData();
-        try {
-            if (result) {
 
-                NodeConn con = manager.factory.makeNodeConn(manager.pred); // Connect to pred
-                StatusData connData = con.client.UpdateFingerTable(node, i);
-                manager.factory.closeNodeConn(con);
+        Finger finger = manager.getFinger(i);
 
-                data.status = Status.SUCCESS;
-                data.msg = "updated successfully: node " + manager.info.id;
-                return data;
+        if (Range.InRangeInEx(node.id, finger.start, finger.succ.id)) {
+            
+            manager.setFingerSucc(i, node);
+
+            if (manager.pred.id != node.id) {
+                System.out.println("Update was needed - continue on to:\n\tnode: " + manager.pred.id + "\n\tfinger: " + i);
+                data = NodeComm.updateFingerTable(FUNC_ID, manager.pred, node, i);
             } else {
-                data.status = Status.SUCCESS;
-                data.msg = "Didn't need to update: node " + manager.info.id;
-                return data;
+                System.out.println("Update wasn't needed");
             }
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + manager.info.id + " connect to Node " + manager.pred.id + " inside UpdateFingerTable() - con: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + manager.info.id + ": RPC UpdateFingerTable() call to Node " + manager.pred.id + " inside UpdateFingerTable() - con: " + e.getStackTrace());
-            System.exit(1);
+        } else {
+            System.out.println("Update wasn't needed");
+            data.status = Status.SUCCESS;
+            data.msg = "Succesfull update.";
         }
-        return null;
+
+        return data;
     }
+
+
+    @Override
+    public NodeDetails ClosestPrecedingFinger(int id) {
+        return manager.ClosestPrecedingFinger(id);
+    }
+
 
     @Override
     public void Kill() {

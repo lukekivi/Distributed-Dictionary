@@ -2,6 +2,7 @@ package node;
 
 import utils.ReadIn;
 import utils.ServerInfo;
+import utils.Print;
 import pa2.Node;
 import pa2.SuperNode;
 import pa2.NodeJoinData;
@@ -11,8 +12,8 @@ import pa2.Status;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.TException;
@@ -32,7 +33,7 @@ public class NodeServer {
             Logger.getRootLogger().setLevel(Level.ERROR);
             NodeDetails nodeInfo = new NodeDetails();
 
-            nodeInfo.ip = InetAddress.getLocalHost().getHostName();
+            nodeInfo.ip = InetAddress.getLocalHost().getHostName() + ".cselabs.umn.edu";
             nodeInfo.port = r.getNodePort();
 
             manager = new NodeManager(nodeInfo);
@@ -76,6 +77,7 @@ public class NodeServer {
 
         } catch (TTransportException x) {
             System.out.println("Error: Node can't connect to the superNode");
+            x.printStackTrace();
             System.exit(1);
         } catch (TException x) {
             System.out.println("Error: Node couldn't call GetNodeForJoin() on the superNode");
@@ -98,11 +100,7 @@ public class NodeServer {
             return Status.ERROR;
         }
 
-        System.out.println("NodeData:"
-            + "\n\tid: " + joinData.id
-            + "\n\tnodeInfo: " + joinData.nodeInfo
-            + "\n\tstatus: " + joinData.status
-            + "\n\tmsg: " + joinData.msg);
+        Print.nodeJoinData(joinData);
 
         int cacheSize = r.getNodeCacheSize();
         manager.setLog(joinData.id);
@@ -118,10 +116,12 @@ public class NodeServer {
     public static void simple(Node.Processor processor, int port) {
         try {
             TServerTransport serverTransport = new TServerSocket(port);
-            TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
+            TServer node = new TThreadPoolServer( // Auto creates new threads for each task
+                new TThreadPoolServer.Args(serverTransport).processor(processor)
+            );
 
-            System.out.println("Starting the NodeServer...");
-            server.serve();
+            System.out.println("Starting the multi-threaded NodeServer...");
+            node.serve();
         } catch (Exception e) {
             System.out.println("NodeServer: Client connection closed with exception.");
             e.printStackTrace();

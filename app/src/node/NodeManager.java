@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
-
 import pa2.NodeDetails;
 import pa2.Finger;
 import pa2.NodeJoinData;
@@ -21,6 +20,7 @@ import pa2.Entry;
 import pa2.Status;
 import pa2.StatusData;
 import pa2.JoinStatus;
+import pa2.NodeStructure;
 import utils.*;
 
 
@@ -47,6 +47,7 @@ public class NodeManager {
      * to communicate with the rest of the network
      */
     public void Join(NodeJoinData joinData, int cacheSize) {
+        System.out.println("Joining");
         maxKey = ((int) Math.pow(2, joinData.m)) - 1;
 
         fingers = new Finger[joinData.m];
@@ -66,9 +67,115 @@ public class NodeManager {
             InitFingerTable(joinData.nodeInfo);
             updateOthers();
         }
+
         System.out.println("Node " + info.id + " joined");
     }
 
+
+    /**
+     * This is the first node in the system. 
+     */
+    public void initNewNode() {
+        for (int i = 0; i < fingers.length; i++) {
+            fingers[i] = InitFinger(info, i);
+        }
+        pred = info;
+    }
+
+
+    /** 
+     * node is an arbitrary node in the network used
+     * to communicate with the rest of the network
+     */
+    private void InitFingerTable(NodeDetails node) {
+        System.out.println("Initing finger table");
+        final String FUNC_ID = "NodeManager.InitFingerTable()";   // error sourcing in nodeComm
+
+        fingers[0] = InitFinger(null, 0);
+        fingers[0].succ = NodeComm.findSuccessor(FUNC_ID, node, fingers[0].start);
+    
+        pred = NodeComm.getPred(FUNC_ID, fingers[0].succ);  // set pred to be the succ.pred
+        NodeComm.setPred(FUNC_ID, fingers[0].succ, info);   // set succ.pred to be this
+        NodeComm.setSucc(FUNC_ID, pred, info);              // set pred.succ to be this
+
+        for (int i = 0; i < fingers.length - 1; i++) {
+            Finger nextFinger = InitFinger(null, i + 1);
+
+            if (Range.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
+                // the previous finger's successor is a valid successor for this finger too
+                nextFinger.succ = fingers[i].succ;
+            } else {
+                // search the DHT for the best successor for nextFinger
+                nextFinger.succ = NodeComm.findSuccessor(FUNC_ID, node, nextFinger.start);
+            }
+
+            fingers[i + 1] = nextFinger;
+        }
+
+        NodeStructure nodeStructure = new NodeStructure();
+        nodeStructure.id = info.id;
+        nodeStructure.predId = pred.id;
+        nodeStructure.fingers = getNodeFingers();
+        nodeStructure.entries = getNodeEntries();
+
+        Print.nodeStructure(nodeStructure);
+    }
+
+
+    /**
+     * Update other nodes in the DHT that may require this new node in their fingerTables
+     */
+    public void updateOthers() {
+        final String FUNC_ID = "NodeManager.updateOthers()";
+
+        System.out.println("Updating others");
+
+        for (int i = 0; i < fingers.length; i++) {
+            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
+            NodeDetails pred = FindPredecessor(nId);
+            System.out.println("Predecessor of " + nId + " is " + pred.id);
+
+            if (pred.id != info.id) {
+                System.out.println("Attempting to update\n\tfinger: " + i + "\n\tnode: " + pred.id);
+                NodeComm.updateFingerTable(FUNC_ID, pred, info, i);
+            }
+        }
+    }
+
+    
+    // Find id's predecessor
+    public NodeDetails FindPredecessor(int id) {
+        final String ` = "NodeManager.FindPredecessor()";
+
+        NodeDetails nodeInfo = info;
+        int nodeSuccId = fingers[0].succ.id;
+
+        while (!(Range.InRangeExIn(id, nodeInfo.id, nodeSuccId))) {  
+            if (nodeInfo.id == info.id) {
+                nodeInfo = ClosestPrecedingFinger(id);
+            } else {
+                nodeInfo = NodeComm.closestPrecedingFinger(FUNC_ID, nodeInfo, id);
+            }
+            nodeSuccId = NodeComm.getSucc(FUNC_ID, nodeInfo).id;
+        }
+        
+        return nodeInfo;
+    }
+
+
+    // the first fingertable successor between this node and the id
+    public NodeDetails ClosestPrecedingFinger(int id) {
+        for (int i = fingers.length - 1; i >= 0; i--) {
+            Finger finger = fingers[i];
+            
+            if (Range.InRangeExEx(finger.succ.id, info.id, id)) {
+                return fingers[i].succ;
+            }
+        }
+        return info;
+    }
+
+    
 
     /**
     * Returns the word and its definition
@@ -182,30 +289,6 @@ public class NodeManager {
     }
 
 
-    // the first fingertable successor between this node and the id
-    public NodeDetails ClosestPrecedingFinger(int id) {
-        for (int i = fingers.length - 1; i >= 0; i--) {
-            Finger finger = fingers[i];
-            
-            if (Range.InRangeExEx(finger.succ.id, info.id, id)) {
-                return fingers[i].succ;
-            }
-        }
-        return info;
-    }
-
-
-    // Find id's predecessor
-    public NodeDetails FindPredecessor(int id) {
-        NodeDetails node = info;
-
-        while (!(Range.InRangeExIn(id, info.id, fingers[0].succ.id))) {  
-            node = ClosestPrecedingFinger(id);
-        }
-        return node;
-    }
-    
-
     public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger();
         finger.succ = node;
@@ -219,173 +302,6 @@ public class NodeManager {
         }
     
         return finger;
-    }
-
-
-    public boolean updateFingerTableHelper(NodeDetails node, int i) {
-        if (Range.InRangeInEx(node.id, fingers[i].start, fingers[i].succ.id)) { 
-            fingers[i].succ = node;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
-
-
-
-    /** 
-     * node is an arbitrary node in the network used
-     * to communicate with the rest of the network
-     */
-    private void InitFingerTable(NodeDetails node) {
-
-        fingers[0] = InitFinger(null, 0);
-
-        try {
-
-            // Connect to node
-            NodeConn con1 = factory.makeNodeConn(node);
-            NodeDetails result1 = con1.client.FindSuccessor(fingers[0].start);
-            factory.closeNodeConn(con1);
-            fingers[0].succ = result1;
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + info.id + " connect to Node " + node.id + " inside InitFingerTable() - con1: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + info.id + ": RPC FindSuccessor(fingers[0].start) or call to Node " + node.id + " inside InitFingerTable() - con1: " + e.getStackTrace());
-            System.exit(1);
-        }    
-
-        NodeDetails succPred = new NodeDetails();
-        try {
-            // Connect to Successor (fingers[0].succ)
-            NodeConn con2 = factory.makeNodeConn(fingers[0].succ);
-            succPred = con2.client.GetPred();
-            pred = succPred;
-            factory.closeNodeConn(con2);
-
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + info.id + " connect to Node " + fingers[0].succ.id + " inside InitFingerTable() - con2: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + info.id + ": RPC GetPred() or call to Node " + fingers[0].succ.id + " inside InitFingerTable() - con2: " + e.getStackTrace());
-            System.exit(1);
-        }    
-
-        try {
-
-            // Connect to Successor's Predecessor (fingers[0].succ.pred)
-            NodeConn con3 = factory.makeNodeConn(succPred);
-            StatusData con3Data = con3.client.SetPred(info);
-            factory.closeNodeConn(con3);
-
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + info.id + " connect to Node " + succPred.id + " inside InitFingerTable() - con3: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + info.id + ": RPC SetPred(info) or call to Node " + succPred.id + " inside InitFingerTable() - con3: " + e.getStackTrace());
-            System.exit(1);
-        }    
-
-        try {
-
-            // connect to Predecessor
-            NodeConn con4 = factory.makeNodeConn(pred);
-            StatusData con4Data = con4.client.SetSucc(info);
-            factory.closeNodeConn(con4);
-
-        } catch (TTransportException x) {
-            System.out.println("Error: Node " + info.id + " connect to Node " + pred.id + " inside InitFingerTable() - con4: " + x.getStackTrace());
-            System.exit(1);
-        } catch (TException e) {
-            System.out.println("Error: Node " + info.id + ": RPC SetSucc(info) or call to Node " + pred.id + " inside InitFingerTable() - con4: " + e.getStackTrace());
-            System.exit(1);
-        }
-
-        for (int i = 0; i < fingers.length - 1; i++) {
-            Finger nextFinger = InitFinger(null, i + 1);
-
-            if (Range.InRangeInEx(nextFinger.start, info.id, fingers[i].succ.id)) {
-                try {
-                    
-                    // Connect to nextFinger.succ
-                    // client4. SetSucc(manager.fingers[i].succ);
-                    NodeConn con5 = factory.makeNodeConn(nextFinger.succ);
-                    StatusData con5Data = con5.client.SetSucc(fingers[i].succ);
-                    factory.closeNodeConn(con5);
-
-                } catch (TTransportException x) {
-                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() - con5: " + x.getStackTrace());
-                    System.exit(1);
-                } catch (TException e) {
-                    System.out.println("Error: Node " + info.id + ": RPC SetSucc() call to Node " + nextFinger.succ.id + " inside InitFingerTable() - con5: " + e.getStackTrace());
-                    System.exit(1);
-                }
-            } else {
-                NodeDetails result2 = new NodeDetails();
-                try {
-                    // Connect to node
-                    // NodeDetails result2 = client5.FindSuccessor(nextFinger.start);
-                    NodeConn con6 = factory.makeNodeConn(node);
-                    result2 = con6.client.FindSuccessor(nextFinger.start);
-                    factory.closeNodeConn(con6);
-                } catch (TTransportException x) {
-                    System.out.println("Error: Node " + info.id + " connect to Node " + node.id + " inside InitFingerTable() - con6: " + x.getStackTrace());
-                    System.exit(1);
-                } catch (TException e) {
-                    System.out.println("Error: Node " + info.id + ": RPC FindSuccessor(nextFingers.start) call to Node " + node.id + " inside InitFingerTable() - con6: " + e.getStackTrace());
-                    System.exit(1);
-                }
-
-                try {
-                    // Connect to nextFinger.succ
-                    // client6.SetSucc(result2);
-                    NodeConn con7 = factory.makeNodeConn(nextFinger.succ);
-                    StatusData con7Data = con7.client.SetSucc(result2);
-                    factory.closeNodeConn(con7);
-
-                } catch (TTransportException x) {
-                    System.out.println("Error: Node " + info.id + " connect to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: ");
-                    x.printStackTrace();
-                    System.exit(1);
-                } catch (TException e) {
-                    System.out.println("Error: Node " + info.id + ": RPC SetSucc(result2) call to Node " + nextFinger.succ.id + " inside InitFingerTable() for loop else statement - con7: " + e.getStackTrace());
-                    System.exit(1);
-                }
-            }
-
-            fingers[i + 1] = nextFinger;
-        }
-    }
-
-    
-
-
-
-
-
-
-    public void updateOthers() {
-        for (int i = 0; i < fingers.length; i++) {
-            int nId = Range.CircularSubtraction(info.id, (int) Math.pow(2, i) - 1, maxKey);
-            NodeDetails pred = FindPredecessor(nId);
-
-            // Connect to pred
-            try {
-                NodeConn nodeCon = factory.makeNodeConn(pred); // connect to nextNode
-                nodeCon.client.UpdateFingerTable(info, i);
-                factory.closeNodeConn(nodeCon);
-            } catch (TTransportException x) {
-                System.out.println("Error: Node " + info.id + " connect to Node " + pred.id + " inside updateOthers() - nodeCon: " + x.getStackTrace());
-                System.exit(1);
-            } catch (TException e) {
-                System.out.println("Error: Node " + info.id + ": RPC UpdateFingerTable() call to Node " + pred.id + " inside udpateOthers() - nodeCon: " + e.getStackTrace());
-                System.exit(1);
-            }
-
-        }
     }
 
 
@@ -405,22 +321,22 @@ public class NodeManager {
     }
 
 
-    public void initNewNode() {
-        // this is the first node in the system
-        for (int i = 0; i < fingers.length; i++) {
-            fingers[i] = InitFinger(info, i);
-        }
-        pred = info;
-    }
-
-
     public int GetId() {
         return info.id;
     }
 
 
     public ArrayList<Entry> getNodeEntries() {
-        return cache.getList();
+        ArrayList<Entry> ans = new ArrayList<Entry>();
+        for (java.util.Map.Entry mapElement : dict.entrySet()) {
+            String word = (String)mapElement.getKey();
+            String def = (String)mapElement.getValue();
+            Entry entry = new Entry();
+            entry.word = word;
+            entry.definition = def;
+            ans.add(entry);
+        }
+        return ans;
     }
 
 
@@ -480,5 +396,15 @@ public class NodeManager {
 
     public void setSucc(NodeDetails nodeInfo) {
         fingers[0].succ = nodeInfo;
+    }
+
+    
+    public Finger getFinger(int i) {
+        return fingers[i];
+    }
+
+
+    public void setFingerSucc(int i, NodeDetails nodeInfo) {
+        fingers[i].succ = nodeInfo;
     }
 }
