@@ -26,7 +26,7 @@ export DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
 **Example environment variables script**
 ```
 export THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
-export THRIFT_COMPILER_PATH="../../thrift-0.15.0/compiler/cpp/thrift""
+export THRIFT_COMPILER_PATH="project/kivix019/thrift-0.15.0/compiler/cpp/thrift""
 export DHT_USER_NAME="kivix019"
 export DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
 ```
