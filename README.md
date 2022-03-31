@@ -12,7 +12,7 @@ A dictionary implemented via a distributed hash table based on the Chord protoco
 git clone https://github.com/lukekivi/Distributed-Dictionary.git
 ```
 
-2. Set **required** environment variable.
+2. Set **required** environment variable. These variables must be set on each machine running an entity for the DHT.
 ```
 export THRIFT_LIB_PATH="<path-to-thrift-libs>"
 export THRIFT_COMPILER_PATH="<path-to-thrit-compiler>"
@@ -26,7 +26,7 @@ export DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
 **Example environment variables script**
 ```
 export THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
-export THRIFT_COMPILER_PATH="/project/kivix019/thrift-0.15.0/compiler/cpp/thrift""
+export THRIFT_COMPILER_PATH="/project/kivix019/thrift-0.15.0/compiler/cpp/thrift"
 export DHT_USER_NAME="kivix019"
 export DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
 ```
