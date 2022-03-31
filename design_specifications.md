@@ -87,7 +87,7 @@ Encapsulate process of querying for word in the DHT. Check local cache map, if w
 ### insertWord()
 Called when current node is the proper one. Puts word and def into dict.
 
-###findPredCaching()
+### findPredCaching()
 Called when current node is not proper one, word and def get added into cache as an Entry.
 
 #### PutWord()
@@ -102,22 +102,22 @@ Handles the node when it joins. Will initialize the finger table and call update
 Called to initialize the finger table. This Creates connections to other nodes to grab values for its finger table as well as update the other node's finger tables.
 
 ### updateOthers()
-Called upon enterin the DHT, calls updateFingerTable() on other nodes to update their tables since this node is now joining the DHT.
+Called upon entering the DHT, calls updateFingerTable() on other nodes to update their tables since this node is now joining the DHT.
 
 ### FindPredecessor()
 Finds predecessor of the index that's passed in as an input.
 
 ### ClosestPrecedingFinger()
-Finds a node that precedes the given index thats passed as an input, returns the closest one.
+Finds the closest node that precedes the given index thats passed as an input, returns the closest one.
 
 ### InitFinger()
 Used to initialize a finger table entry.
 
 ### isResponsible
-Used to check if the node is responsible to add the word and def to its dictionary. Just a boolean check statement.
+Used to check if the node is responsible to add a word and its def to its dictionary. Just a boolean check statement.
 
 ### getNodeEntries()
-Returns all of the dictionary entries as an Array List.
+Returns all of the dictionary entries as an ArrayList.
 
 ### getNodeFingers()
 returns all of the fingertable entries as an ArrayList.
