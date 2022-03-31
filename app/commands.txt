@@ -15,7 +15,6 @@ put :: shirt :: A piece of clothing that is worn on the upper body.
 put :: ear :: Body part on the side of someones head, allows people to hear.
 put :: degree :: unit of measurement for temperature or a certificate of college completion
 put :: zebra :: a fast type of animal with stripes that is native to Africa
-put :: mouse :: an i/o device that is used on computers (2nd def entered for mouse)
 
 get :: apple
 get :: highway
@@ -35,7 +34,3 @@ get :: ear
 get :: degree
 get :: zebra
 get :: mouse
-get :: clock
-
-test
-kill
