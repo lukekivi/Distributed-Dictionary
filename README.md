@@ -165,7 +165,7 @@ ant client
 3. Choose the DHT size you would like to make.
 4. Open that directory.
 5. Check the file contents of the `ssh_commands_<#>_nodes.sh` file and be sure you have access to those machines. They will be pointing to UMN machines by default.
-6. Be sure the machine used for the `ant superNode` command in this file matches the `config.txt` file SuperNode address entry. More details about how to do this in the **Config** section.
+6. Be sure the machine used for the `ant superNode` (line 1) command in this file matches the `config.txt` file SuperNode address entry. More details about how to do this in the **Config** section.
 7. If you change the machines be sure to change the machines in the `ssh_cleanup_<#>_nodes.sh` file to match.
 8. Source (run) the `ssh_commands_<#>_nodes.sh`.
 9. If everything is running correctly you may then go follow the **Runnning a Client** section steps in order to run a client locally. 
