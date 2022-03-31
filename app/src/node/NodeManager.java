@@ -49,6 +49,8 @@ public class NodeManager {
     /** 
      * node is an arbitrary node in the network used
      * to communicate with the rest of the network
+     * @param NodeJoinData data of a node joining
+     * @param int size of the cache to be created
      */
     public void Join(NodeJoinData joinData, int cacheSize) {
         System.out.println("Joining");
@@ -95,8 +97,8 @@ public class NodeManager {
 
 
     /** 
-     * node is an arbitrary node in the network used
-     * to communicate with the rest of the network
+     * node is an existing node in the system, used by this node to enter the DHT system
+     * @param NodeDetails existing node
      */
     private void InitFingerTable(NodeDetails node) {
         final String FUNC_ID = "NodeManager.InitFingerTable()";
@@ -141,7 +143,10 @@ public class NodeManager {
     }
 
     
-    // Find id's predecessor
+    /** 
+     * Find the predecessor of the index thats passed in
+     * @param int id value that we want to find the predecessor of
+     */
     public NodeDetails FindPredecessor(int id) {
         final String FUNC_ID = "NodeManager.FindPredecessor()";
 
@@ -162,7 +167,11 @@ public class NodeManager {
     }
 
 
-    // the first fingertable successor between this node and the id
+    /** 
+     * The first fingertable successor between this node and the id
+     * @param int id to use as an upperbound for checking if  a node is in range
+     * @return Finger table entry successor that precedes id (closest)
+     */
     public NodeDetails ClosestPrecedingFinger(int id) {
         for (int i = fingers.length - 1; i >= 0; i--) {
             Finger finger = fingers[i];
@@ -176,9 +185,11 @@ public class NodeManager {
 
     
 
-    /**
-    * Returns the word and its definition
-    */
+    /** 
+     * Searches the either Cache or dictionary for the word
+     * @param String the word that we want to look for
+     * @return EntryData that encapsulates a word, its def, and status
+     */
     public EntryData findWord(String word) {
         EntryData data = new EntryData();
         Entry entry = new Entry();
@@ -214,8 +225,11 @@ public class NodeManager {
     }
 
 
-    /**
-     * Returns a string describing the put status
+    /** 
+     * Puts the word and def into its cache if it's not the proper node, dictionary if it is
+     * @param String word 
+     * @param String definition
+     * @return Status which says if it was put in a dictionary or not. Used to decide whether or not to forward the request
      */
     public Status putWord(String word, String def) {
         int wordId = getHash(word);
@@ -232,6 +246,13 @@ public class NodeManager {
     }
 
 
+    /** 
+     * Puts the word into its cache
+     * @param String word 
+     * @param String definition
+     * @param int wordId which is the key value of the word
+     * @return Status which says if it was put in the cache or not. Used to decide whether or not to forward the request
+     */
     public Status findPredCaching(String word, String def, int wordId) {
         Status ans = Status.ERROR;
         System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to cache");
@@ -240,14 +261,25 @@ public class NodeManager {
         return ans;
     }
 
-
+    /** 
+     * Puts the word into its dictionary
+     * @param String word 
+     * @param String definition
+     * @param int wordId which is the key value of the word
+     * @return Status which says if it was put in a dictionary or not. Used to decide whether or not to forward the request
+     */
     public Status insertWord(String word, String def, int wordId) {
         dict.put(word, def);
         System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to the dictionary");
         return Status.SUCCESS;
     }
 
-
+    /** 
+     * Initializes a finger entry, creates a start, end, and succ value.
+     * @param NodeDetails node which is the successor/entry
+     * @param int i which is the index of the entry
+     * @return the initialized finger entry
+     */
     public Finger InitFinger(NodeDetails node, int i) {
         Finger finger = new Finger();
         finger.succ = node;
@@ -265,8 +297,8 @@ public class NodeManager {
 
 
     /**
+    * Checks if the node is responsible for the key id
     * @param id the key we are checking if the current node is responsible for 
-    * Checks if the current node is the successor for the given id
     */
     public boolean isResponsible(int id) {
         if (id == info.id) {
@@ -285,6 +317,9 @@ public class NodeManager {
     }
 
 
+    /** 
+     * Creates a list of all the dictionary entries
+     */
     public ArrayList<Entry> getNodeEntries() {
         ArrayList<Entry> ans = new ArrayList<Entry>();
         for (java.util.Map.Entry mapElement : dict.entrySet()) {
@@ -298,7 +333,9 @@ public class NodeManager {
         return ans;
     }
 
-
+    /** 
+     * Creates a list of all the Finger table entries
+     */
     public ArrayList<Finger> getNodeFingers() {
         ArrayList<Finger> list = new ArrayList<Finger>();
         for (int i = 0; i < fingers.length; i++) {
@@ -320,7 +357,10 @@ public class NodeManager {
         return info.port;
     }
 
-
+    /** 
+     * Gets the hash value (key) of the word
+     * @param String word to be hashed
+     */
     public int getHash(String word) {
         if (maxKey == -1) {
             System.out.println("ERROR: Node + " + info.id + " getHash() - attempted to hash prior to having a maxKey set");
@@ -347,22 +387,30 @@ public class NodeManager {
         }
     }
 
-
+    /** 
+     * Returns the node's successor
+     */
     public NodeDetails getSucc() {
         return fingers[0].succ;
     }
 
-
+    /** 
+     * Sets the node's successor
+     */
     public void setSucc(NodeDetails nodeInfo) {
         fingers[0].succ = nodeInfo;
     }
 
-    
+    /** 
+     * Gets the finger entry as index i
+     */
     public Finger getFinger(int i) {
         return fingers[i];
     }
 
-
+    /** 
+     * Sets the finger entry at index i
+     */
     public void setFingerSucc(int i, NodeDetails nodeInfo) {
         fingers[i].succ = nodeInfo;
     }

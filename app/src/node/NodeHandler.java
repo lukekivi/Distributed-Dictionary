@@ -31,6 +31,10 @@ public class NodeHandler implements Node.Iface {
     }
 
     
+    /** 
+     * Starts the process of a Get() in the DHT system
+     * @param String word that we want to grab the definition of
+     */
     @Override
     public GetData Get(String word) {
         EntryData result = manager.findWord(word);
@@ -72,6 +76,11 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
+    /** 
+     * Starts the process of a Put() request into the DHT system
+     * @param String word that we want to store
+     * @param String definition of the word
+     */
     @Override
     public StatusData Put(String word, String definition) {
         Status status = manager.putWord(word, definition); // Puts word if responsible
@@ -106,6 +115,10 @@ public class NodeHandler implements Node.Iface {
         }
     }
 
+
+    /** 
+     * Returns the NodeStructure of this node along with a message and status
+     */
     @Override
     public NodeStructureData GetNodeStructure() {
         NodeStructureData data = new NodeStructureData();
@@ -125,12 +138,18 @@ public class NodeHandler implements Node.Iface {
     }
 
 
+    /** 
+     * Grabs the successor from the Node Manager
+     */
     @Override
     public NodeDetails GetSucc() {
         return manager.getSucc();
     }
 
 
+    /** 
+     * Sets the successor using the input NodeDetails
+     */
     @Override
     public StatusData SetSucc(NodeDetails nodeInfo) {
         manager.setSucc(nodeInfo);
@@ -141,12 +160,18 @@ public class NodeHandler implements Node.Iface {
     }
     
 
+    /** 
+     * Uses the node manager to get the node's predecessor
+     */
     @Override
     public NodeDetails GetPred() {
         return manager.pred;
     }
 
 
+    /** 
+     * Uses the input node to set the current node's predecessor
+     */
     @Override
     public StatusData SetPred(NodeDetails nodeInfo) {
         manager.pred = nodeInfo;
@@ -157,6 +182,10 @@ public class NodeHandler implements Node.Iface {
     }
 
 
+    /** 
+     * Finds the successor of the id passed in
+     * @param int the id of which we want the successor
+     */
     @Override
     public NodeDetails FindSuccessor(int id) {
         final String FUNC_ID = "NodeHandler.FindSuccessor()";
@@ -171,6 +200,11 @@ public class NodeHandler implements Node.Iface {
     }
 
 
+    /** 
+     * Updates the ith index of the finger table using node
+     * @param NodeDetails node
+     * @param Sint i
+     */
     @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
         final String FUNC_ID = "NodeHandler.UpdateFingerTable()";
@@ -195,13 +229,19 @@ public class NodeHandler implements Node.Iface {
         return data;
     }
 
-
+    /** 
+     * Get the closest preceding finger of id
+     * @param int id of which we want to the find the closest predecessor
+     */
     @Override
     public NodeDetails ClosestPrecedingFinger(int id) {
         return manager.ClosestPrecedingFinger(id);
     }
 
 
+    /** 
+     * Closes down the system
+     */
     @Override
     public void Kill() {
         System.out.println("Node " + manager.info.id + ": Received kill command.");
