@@ -15,7 +15,7 @@ git clone https://github.com/lukekivi/Distributed-Dictionary.git
 2. Set **required** environment variable.
 ```
 export THRIFT_LIB_PATH="<path-to-thrift-libs>"
-export THRIFT_LIB_PATH="<path-to-thrit-compiler>"
+export THRIFT_COMPILER_PATH="<path-to-thrit-compiler>"
 ```
 
 3. Set **optional** environment variables. These are required if you want to use our scripts for automated setup of DHTs and testing. This only needs to be done on the machine  starting these DHT and testing scripts.
@@ -26,7 +26,7 @@ export DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
 **Example environment variables script**
 ```
 export THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
-export THRIFT_LIB_PATH="../../thrift-0.15.0/compiler/cpp/thrift""
+export THRIFT_COMPILER_PATH="../../thrift-0.15.0/compiler/cpp/thrift""
 export DHT_USER_NAME="kivix019"
 export DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
 ```
