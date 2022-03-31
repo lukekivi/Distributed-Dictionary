@@ -94,6 +94,10 @@ public class ClientManager {
                         break;
             case "print": handlePrint(command);
                         break;
+            case "kill": handleKill(command);
+                        break;
+            case "test": handleTest(command);
+                        break;
         }
     }
 
@@ -111,7 +115,7 @@ public class ClientManager {
 
             if (command.length != 3) {
                 System.out.println("ERROR: ClientManager.handlePut(): put command of length "  + command.length + " is invalid. Command should be of" +
-                    " the form 'put, <word>, <definition>'");
+                    " the form 'put :: <word> :: <definition>'. Notice the spaces on either side of the '::'s");
                 System.exit(1);
             }
 
@@ -152,15 +156,14 @@ public class ClientManager {
                 System.exit(1);
             }
 
-            System.out.println("ClientManager.handleGet():");
-            System.out.println("\tword: " + command[1]);
+            System.out.println("ClientManager.handleGet() - word: " + command[1]);
 
             GetData getData = nodeConn.client.Get(command[1]);
 
             if (getData.status == Status.SUCCESS) {
-                System.out.println("Successful Get:\n\t" + command[1] + " : " + getData.definition);
+                System.out.println("Successful - \n\t" + command[1] + ": " + getData.definition + "\n");
             } else {
-                System.out.println(command[1] + " failed to be entered into the dictionary.\n\t" + getData.msg);
+                System.out.println("Failure - \n\t" + getData.msg);
             }
         } catch (TException x) {
             System.out.println("ERROR: ClientManager.handleGet() - TException occurred in command " + command[0]);
@@ -187,39 +190,66 @@ public class ClientManager {
         if (dhtData.status == Status.ERROR) {
             System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
             System.exit(1);
-        } else {
-            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
-                Print.nodeStructure(dhtData.nodeStructures.get(i));
-            }
+        } 
+        
+        for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
+            Print.nodeStructure(dhtData.nodeStructures.get(i));
         }
     }
 
 
-    public void testDHTStructure() {
-        final String FUNC_ID = "ClientManager.testDHTStructure()";
+    /**
+     * Give a kill request to the DHT.
+     * @param command
+     */
+    private void handleKill(String[] command) {
+        final String FUNC_ID = "ClientManager.handleKill()";
+        if (command.length != 1) {
+            System.out.println("ERROR: " + FUNC_ID + ": print command of length "  +
+                command.length + " is invalid. Command should be of the form 'kill'");
+            System.exit(1);
+        }
+            
+        SuperComm.killDHT(FUNC_ID, getSuperNodeInfo());
+    }
+
+
+    /**
+     * Give a GetNodeStructure request to the DHT. Run tests on the results.
+     * @param command
+     */
+    private void handleTest(String[] command) {
+        final String FUNC_ID = "ClientManager.handleTest()";
+        if (command.length != 1) {
+            System.out.println("ERROR: " + FUNC_ID + ": print command of length "  +
+                command.length + " is invalid. Command should be of the form 'test'");
+            System.exit(1);
+        }
             
         DHTData dhtData = SuperComm.getDHTStructure(FUNC_ID, getSuperNodeInfo());
 
         if (dhtData.status == Status.ERROR) {
-            System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
+            System.out.println("ERROR: " + FUNC_ID + "\n\t" + dhtData.msg);
             System.exit(1);
-        } else {
-            for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
-                Print.nodeStructure(dhtData.nodeStructures.get(i));
-            }
-        }
-
+        } 
+        
         Test test = new Test(readIn.getM());
 
         test.CheckNodes(dhtData);
     }
 
 
+    /**
+     * Close the chonnection to the ambassador node.
+     */
     public void close() {
         connFactory.closeNodeConn(nodeConn);
     }
 
 
+    /**
+     * Get superNode details. 
+     */
     private ServerInfo getSuperNodeInfo() {
         if (superInfo == null) {
             superInfo = readIn.getSuperNodeInfo();

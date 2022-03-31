@@ -1,8 +1,7 @@
 package client;
 
-import utils.ServerInfo;
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 class Client {
     private static final ClientManager manager = new ClientManager();
@@ -20,11 +19,9 @@ class Client {
 
         manager.connectToDHT();
 
-        // if (commandsPath != null) {
-        //     manager.doCommands(commandsPath);
-        // }
-
-        manager.testDHTStructure();
+        if (commandsPath != null) {
+            manager.doCommands(commandsPath);
+        }
 
         manager.close();
     }

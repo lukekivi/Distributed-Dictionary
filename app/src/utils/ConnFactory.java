@@ -9,7 +9,11 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 
 
-
+/**
+ * This is a factory that produces thrift connections via NodeDetails or
+ * ServerInfo data structures. It returns active NodeConn or SuperConn
+ * objects and can then be used to close them later.
+ */
 public class ConnFactory {
     /**
      * Return an active node connection. 

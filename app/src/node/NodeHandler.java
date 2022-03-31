@@ -10,6 +10,7 @@ import pa2.Finger;
 import pa2.Status;
 import pa2.NodeStructure;
 import pa2.NodeJoinData;
+import pa2.EntryData;
 import utils.Hash;
 import utils.NodeComm;
 import utils.ConnFactory;
@@ -19,6 +20,9 @@ import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
 
+/**
+ * Landing site for RPCs to Node. Uses the NodeManager as an assistant.
+ */
 public class NodeHandler implements Node.Iface {
     private NodeManager manager;
 
@@ -26,50 +30,20 @@ public class NodeHandler implements Node.Iface {
         this.manager = manager;
     }
 
-
-    @Override
-    public Entry FindWordHelper(String word) {
-        return manager.findWord(word);
-    }
-
-
-    @Override
-    public StatusData InsertWordHelper(String word, String definition, int wordId) {
-        StatusData result = new StatusData();
-        Status status = manager.insertWord(word, definition, wordId);
-        if (status == Status.SUCCESS) {
-            result.msg = "Successfully inserted the word";
-        } else {
-            result.msg = "Something went wrong inserting the word";
-        }
-        result.status = status;
-        return result;
-    }
-
-
-    @Override
-    public StatusData FindPredCachingHelper(String word, String definition, int wordId) {
-        StatusData result = new StatusData();
-        Status status = manager.findPredCaching(word, definition, wordId);
-        if (status == Status.SUCCESS) {
-            result.msg = "Successfully cached the word";
-        } else {
-            result.msg = "Something went wrong caching the word";
-        }
-        result.status = status;
-        return result;
-    }
     
-
     @Override
     public GetData Get(String word) {
-        Entry entry = manager.findWord(word);
+        EntryData result = manager.findWord(word);
         GetData data = new GetData();
-        if (entry == null) {
+        if (result.entry == null && result.status == Status.ERROR) { // Not in cache, isnt' correct dict
             int wordId = manager.getHash(word);
             NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
 
+            if (nextNode.id == manager.info.id) { // This node is closest preceding node to the word, send to its successor
+                nextNode = manager.getSucc();
+            }
             // Set up connection to next 
+            System.out.println("Node " + manager.info.id + ": forwarding Get() for " + word + "(key " + wordId + ") to node " + nextNode.id + " since it wasn't in the cache and not correct node");
             try {
                 NodeConn con = manager.factory.makeNodeConn(nextNode);
                 data = con.client.Get(word);
@@ -83,8 +57,15 @@ public class NodeHandler implements Node.Iface {
             }
             return data;
             
-        } else {
-            data.definition = entry.definition;
+        } else if (result.entry == null && result.status == Status.SUCCESS) { // Correct node, not in proper dict
+            // System.out.println("Node " + info.id +": " + word + "(key " + wordId + ") not in the dictionary. This is the proper node";
+            data.definition = null;
+            data.status = Status.ERROR;
+            data.msg = word + " not in the dictionary";
+            return data;
+        }
+        else { // Found it
+            data.definition = result.entry.definition;
             data.status = Status.SUCCESS;
             data.msg = "Word found by node " + manager.info.id;
             return data;
@@ -99,10 +80,13 @@ public class NodeHandler implements Node.Iface {
         if (status == Status.ERROR) { // Not responsible
             int wordId = manager.getHash(word);
             NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
-
+            if (nextNode.id == manager.info.id) {
+                nextNode = manager.getSucc();
+            }
             try {
                 // Set up connection to next 
                 // return client.Put(word, definition);
+                System.out.println("Node " + manager.info.id + ": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + " since this isn't the proper node");
                 NodeConn con = manager.factory.makeNodeConn(nextNode);
                 data = con.client.Put(word, definition);
                 manager.factory.closeNodeConn(con);
@@ -176,10 +160,10 @@ public class NodeHandler implements Node.Iface {
     @Override
     public NodeDetails FindSuccessor(int id) {
         final String FUNC_ID = "NodeHandler.FindSuccessor()";
-        
+
         NodeDetails predInfo = manager.FindPredecessor(id);
 
-        if (predInfo.id == manager.info.id || id == manager.info.id) {
+        if (predInfo.id == manager.info.id) {
             return manager.getSucc();
         }
 
@@ -189,7 +173,6 @@ public class NodeHandler implements Node.Iface {
 
     @Override
     public StatusData UpdateFingerTable(NodeDetails node, int i) { // Different from design specs doc
-        System.out.println("UpdatingFingerTable() - attempted update\n\tnode: " + node.id + "\n\tfinger: " + i + "\n\tthis.node: " + manager.GetId() + "\n\tthis.pred: " + manager.pred.id);
         final String FUNC_ID = "NodeHandler.UpdateFingerTable()";
 
         StatusData data = new StatusData();
@@ -201,13 +184,10 @@ public class NodeHandler implements Node.Iface {
             manager.setFingerSucc(i, node);
 
             if (manager.pred.id != node.id) {
-                System.out.println("Update was needed - continue on to:\n\tnode: " + manager.pred.id + "\n\tfinger: " + i);
                 data = NodeComm.updateFingerTable(FUNC_ID, manager.pred, node, i);
-            } else {
-                System.out.println("Update wasn't needed");
             }
+            
         } else {
-            System.out.println("Update wasn't needed");
             data.status = Status.SUCCESS;
             data.msg = "Succesfull update.";
         }

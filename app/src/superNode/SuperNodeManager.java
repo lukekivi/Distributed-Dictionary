@@ -6,9 +6,13 @@ import java.lang.Math;
 import pa2.*;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
+import utils.NodeComm;
 import utils.NodeConn;
 import utils.SuperConn;
 
+/**
+ * Does all of extra labor and data storage of the SuperNodeHandler.
+ */
 public class SuperNodeManager {
     private int M;
     private int maxKey;
@@ -111,8 +115,15 @@ public class SuperNodeManager {
         return M;
     }
 
-    public int getNodeSize() {
+    public int getNodesSize() {
         return nodes.size();
+    }
+
+    public void killNodes() {
+        final String FUNC_ID = "SuperNodeManager.killNodes()";
+        for (int i = 0; i < nodes.size(); i++) {
+            NodeComm.kill(FUNC_ID, nodes.get(i));
+        }
     }
 
     public NodeDetails getNode(int i) {

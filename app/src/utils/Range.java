@@ -1,7 +1,11 @@
 package utils;
 
+/**
+ * This class is used to calculate ranges in a circular manner. You will
+ * find functions use in and ex to indicate the inclusiveness over their bounds.
+ */
 public class Range {
-        /**
+    /**
      * exclusive start, inclusive end. Handles circular ranges.
      */
     public static boolean InRangeExIn(int id, int start, int end) {

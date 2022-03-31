@@ -7,6 +7,17 @@ import pa2.StatusData;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
+
+/**
+ * NodeComm is a class that conveniently handles node communication. It
+ * essentially just abstracts away thrift boiler plate and truly allows 
+ * users to treat RPC calls like simple function calls.
+ * 
+ * It creates thrift connections between system entites via the ConnFactory.
+ * Then it calls RPC functions and handles errors. Each function gets a 
+ * [from] field which helps build better error messages. It is supposed to be
+ * of the form ClassName.functionName().
+ */
 public class NodeComm {
     private static final ConnFactory connFactory = new ConnFactory();
 
@@ -18,9 +29,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getSucc()");
+            handleException(x, from, "calling NodeComm.getSucc() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getSucc()");
+            handleException(x, from, "calling NodeComm.getSucc() onto node" + nodeInfo.id);
         }
         return succInfo;
     }
@@ -33,9 +44,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.setSucc()");
+            handleException(x, from, "NodeComm.setSucc() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.setSucc()");
+            handleException(x, from, "NodeComm.setSucc() onto node" + nodeInfo.id);
         }
     }
 
@@ -48,9 +59,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.findSuccessor()");
+            handleException(x, from, "NodeComm.findSuccessor(" + id + ") onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.findSuccessor()");
+            handleException(x, from, "NodeComm.findSuccessor(" + id + ") onto node" + nodeInfo.id);
         }
         return succInfo;
     }
@@ -64,9 +75,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getPred()");
+            handleException(x, from, "NodeComm.getPred() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getPred()");
+            handleException(x, from, "NodeComm.getPred() onto node" + nodeInfo.id);
         }
         return predInfo;
     }
@@ -79,9 +90,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.setPred()");
+            handleException(x, from, "NodeComm.setPred() onto node" + nodeInfo.id + ". Setting pred to " + predInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.setPred()");
+            handleException(x, from, "NodeComm.setPred() onto node" + nodeInfo.id + ". Setting pred to " + predInfo.id);
         }
     }
 
@@ -95,9 +106,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id + ". Updating node" + nodeInfo.id + " finger" + fingerTableIndex + ".succ to node" + newNodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.updateFingerTable() onto node" + nodeInfo.id + ". Updating node" + nodeInfo.id + " finger" + fingerTableIndex + ".succ to node" + newNodeInfo.id);
         }
 
         return statusData;
@@ -113,9 +124,9 @@ public class NodeComm {
 
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.closestPrecedingFinger() onto node" + nodeInfo.id + " on index " + id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.updateFingerTable()");
+            handleException(x, from, "NodeComm.closestPrecedingFinger() onto node" + nodeInfo.id + " on index " + id);
         }
 
         return closestNodeInfo;
@@ -127,17 +138,34 @@ public class NodeComm {
         try {
             NodeConn nodeConn = connFactory.makeNodeConn(nodeInfo);
             nodeStructureData = nodeConn.client.GetNodeStructure();
-            Print.nodeStructure(nodeStructureData.nodeStructure);
+
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
-            handleException(x, from, "NodeComm.getNodeStructure()");
+            handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
         } catch (TException x) {
-            handleException(x, from, "NodeComm.getNodeStructure()");
+            handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
         }
         return nodeStructureData;
     }
 
 
+    public static void kill(String from, NodeDetails nodeInfo) {
+        try {
+            NodeConn nodeConn = connFactory.makeNodeConn(nodeInfo);
+            nodeConn.client.Kill();
+
+            connFactory.closeNodeConn(nodeConn);
+        } catch (TTransportException x) {
+            handleException(x, from, "NodeComm.kill() onto node" + nodeInfo.id);
+        } catch (TException x) {
+            handleException(x, from, "NodeComm.kill() onto node" + nodeInfo.id);
+        }
+    }
+
+
+    /**
+     * Exception handling helper.
+     */
     private static void handleException(Exception x, String from, String msg) {
         System.out.println("ERROR: " + from + " - " + msg);
         x.printStackTrace();

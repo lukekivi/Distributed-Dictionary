@@ -31,6 +31,15 @@ public class Cache {
     }
 
     public void addEntry(Entry entry) {
+        for (int i = 0; i < size; i++) {
+            String entryWord = cache[i].word;
+            if (entryWord != null) {
+                if (entryWord.equals(entry.word)) { // entry already in cache
+                    cache[i] = entry;
+                    return;
+                }
+            }
+        }
         cache[pointer] = entry;
         pointer += 1;
         if (pointer >= size) {
