@@ -15,6 +15,7 @@ git clone https://github.com/lukekivi/Distributed-Dictionary.git
 2. Set **required** environment variable.
 ```
 export THRIFT_LIB_PATH="<path-to-thrift-libs>"
+export THRIFT_LIB_PATH="<path-to-thrit-compiler>"
 ```
 
 3. Set **optional** environment variables. These are required if you want to use our scripts for automated setup of DHTs and testing. This only needs to be done on the machine  starting these DHT and testing scripts.
@@ -25,6 +26,7 @@ export DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
 **Example environment variables script**
 ```
 export THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
+export THRIFT_LIB_PATH="../../thrift-0.15.0/compiler/cpp/thrift""
 export DHT_USER_NAME="kivix019"
 export DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
 ```
@@ -156,6 +158,7 @@ ant node
 2. Navigate to `Distributed-Dictionary/app`. 
 3. Setup `commands.txt` file. Read more about this in **Commands** section.
 3. Run a `client`.
+4. Check results in logs. See **Results** section for more details.
 ```
 ant client
 ```
@@ -171,6 +174,14 @@ ant client
 9. If everything is running correctly you may then go follow the **Runnning a Client** section steps in order to run a client locally. 
 10. You can run a client as many times as you want and modify your `command.txt` file between each run. See details about the `commands.txt` file in the **Commands** section.
 11. Once you are done it may behoove you too run the `ssh_cleanup_<#>_nodes.sh` script as well. This will make subsequent runs easier.
+12. View Results. Check **Results** section for more details.
+
+## Results
+Results can be found in `Distributed-Dictionary/app/logs` directory. 
+* Each node will have a log that corresponds to its id. If it crashes before it receives a node id it will not have a log and will instead output to its stdout. In the logs you will be able to see the flow of transactions and onboarding of new nodes.
+* SuperNode emits a log.
+* The core output will be in the client log. It is refreshed each time a client is run. This is where the output for all commands is found.
+
 
 ### Test 1 - Standard
 Number of Nodes: 5
