@@ -221,7 +221,12 @@ public class NodeManager {
         System.out.println("Node " + info.id + ": Put request came in for word " + word + "(key " + wordId + ")");
         Status ans = Status.ERROR;
 
-        ans = findPredCaching(word, def, wordId);
+        if (isResponsible(wordId)) { // Node's successor is itself meaninng only one node, therefore don't cache
+            Status insertData = insertWord(word, def, wordId);
+            ans = insertData;
+        } else {
+            ans = findPredCaching(word, def, wordId);
+        }
         return ans;
     }
 
@@ -231,55 +236,14 @@ public class NodeManager {
         System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to cache");
         Entry entry = new Entry(word, def);
         cache.addEntry(entry);
-
-        NodeDetails nextNode = ClosestPrecedingFinger(wordId);
-
-        if (nextNode.id == info.id) {
-            nextNode = getSucc(); // Update nextNode to the successor
-
-            System.out.println("Node " + info.id +": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + ". This next Node IS responsible");
-            try {
-                NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                StatusData insertData = nodeCon.client.InsertWordHelper(word, def, wordId);
-                ans = insertData.status;
-                factory.closeNodeConn(nodeCon);
-            } catch (TTransportException x) {
-                System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + x.getStackTrace());
-                System.exit(1);
-            } catch (TException e) {
-                System.out.println("Error: Node " + info.id + ": RPC InsertWordHelper() call to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + e.getStackTrace());
-                System.exit(1);
-            }
-            return ans;
-
-        } else {
-            try {
-                System.out.println("Node " + info.id + ": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + ". This next node MAY NOT be responsible");
-                NodeConn nodeCon = factory.makeNodeConn(nextNode); // connect to nextNode
-                StatusData cacheData = nodeCon.client.FindPredCachingHelper(word, def, wordId);
-                ans = cacheData.status;
-                factory.closeNodeConn(nodeCon);
-            } catch (TTransportException x) {
-                System.out.println("Error: Node " + info.id + " connect to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + x.getStackTrace());
-                System.exit(1);
-            } catch (TException e) {
-                System.out.println("Error: Node " + info.id + ": RPC FindPredCachingHelper() call to Node " + nextNode.id + " inside findPredCaching() - nodeCon: " + e.getStackTrace());
-                System.exit(1);
-            }
-            return ans;
-        }
+        return ans;
     }
 
 
     public Status insertWord(String word, String def, int wordId) {
-        Status ans = Status.ERROR;
-        if (isResponsible(wordId)) {
-            dict.put(word, def);
-            System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to the dictionary");
-            return Status.SUCCESS;
-        } else {
-            return Status.ERROR; // Shouldn't ever get here
-        }
+        dict.put(word, def);
+        System.out.println("Node " + info.id + ": adding " + word + "(key " + wordId + ") to the dictionary");
+        return Status.SUCCESS;
     }
 
 

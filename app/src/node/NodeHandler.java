@@ -27,35 +27,7 @@ public class NodeHandler implements Node.Iface {
         this.manager = manager;
     }
 
-
-    @Override
-    public StatusData InsertWordHelper(String word, String definition, int wordId) {
-        StatusData result = new StatusData();
-        Status status = manager.insertWord(word, definition, wordId);
-        if (status == Status.SUCCESS) {
-            result.msg = "Successfully inserted the word";
-        } else {
-            result.msg = "Something went wrong inserting the word";
-        }
-        result.status = status;
-        return result;
-    }
-
-
-    @Override
-    public StatusData FindPredCachingHelper(String word, String definition, int wordId) {
-        StatusData result = new StatusData();
-        Status status = manager.findPredCaching(word, definition, wordId);
-        if (status == Status.SUCCESS) {
-            result.msg = "Successfully cached the word";
-        } else {
-            result.msg = "Something went wrong caching the word";
-        }
-        result.status = status;
-        return result;
-    }
     
-
     @Override
     public GetData Get(String word) {
         EntryData result = manager.findWord(word);
@@ -105,10 +77,13 @@ public class NodeHandler implements Node.Iface {
         if (status == Status.ERROR) { // Not responsible
             int wordId = manager.getHash(word);
             NodeDetails nextNode = manager.ClosestPrecedingFinger(wordId);
-
+            if (nextNode.id == manager.info.id) {
+                nextNode = manager.getSucc();
+            }
             try {
                 // Set up connection to next 
                 // return client.Put(word, definition);
+                System.out.println("Node " + manager.info.id + ": forwarding Put() for " + word + "(key " + wordId + ") to node " + nextNode.id + " since this isn't the proper node");
                 NodeConn con = manager.factory.makeNodeConn(nextNode);
                 data = con.client.Put(word, definition);
                 manager.factory.closeNodeConn(con);
