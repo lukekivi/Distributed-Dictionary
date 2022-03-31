@@ -26,6 +26,20 @@ public class SuperComm {
     }
 
 
+    public static void killDHT(String from, ServerInfo superInfo) {
+        try {
+            SuperConn superConn = connFactory.makeSuperConn(superInfo);
+            superConn.client.KillDHT();
+
+            connFactory.closeSuperConn(superConn);
+        } catch (TTransportException x) {
+            handleException(x, from, "SuperComm.KillDHT()");
+        } catch (TException x) {
+            handleException(x, from, "SuperComm.KillDHT()");
+        }
+    }
+
+
     private static void handleException(Exception x, String from, String msg) {
         System.out.println("ERROR: " + from + " - " + msg);
         x.printStackTrace();

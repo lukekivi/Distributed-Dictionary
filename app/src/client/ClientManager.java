@@ -94,6 +94,10 @@ public class ClientManager {
                         break;
             case "print": handlePrint(command);
                         break;
+            case "kill": handleKill(command);
+                        break;
+            case "test": handleTest(command);
+                        break;
         }
     }
 
@@ -194,16 +198,41 @@ public class ClientManager {
     }
 
 
-    public void testDHTStructure() {
-        final String FUNC_ID = "ClientManager.testDHTStructure()";
+    /**
+     * Give a kill request to the DHT.
+     * @param command
+     */
+    private void handleKill(String[] command) {
+        final String FUNC_ID = "ClientManager.handleKill()";
+        if (command.length != 1) {
+            System.out.println("ERROR: " + FUNC_ID + ": print command of length "  +
+                command.length + " is invalid. Command should be of the form 'kill'");
+            System.exit(1);
+        }
+            
+        SuperComm.killDHT(FUNC_ID, getSuperNodeInfo());
+    }
+
+
+    /**
+     * Give a GetNodeStructure request to the DHT. Run tests on the results.
+     * @param command
+     */
+    private void handleTest(String[] command) {
+        final String FUNC_ID = "ClientManager.handleTest()";
+        if (command.length != 1) {
+            System.out.println("ERROR: " + FUNC_ID + ": print command of length "  +
+                command.length + " is invalid. Command should be of the form 'test'");
+            System.exit(1);
+        }
             
         DHTData dhtData = SuperComm.getDHTStructure(FUNC_ID, getSuperNodeInfo());
 
         if (dhtData.status == Status.ERROR) {
-            System.out.println("ERROR: ClientManager.handlePrint()\n\t" + dhtData.msg);
+            System.out.println("ERROR: " + FUNC_ID + "\n\t" + dhtData.msg);
             System.exit(1);
-        }
-
+        } 
+        
         Test test = new Test(readIn.getM());
 
         test.CheckNodes(dhtData);

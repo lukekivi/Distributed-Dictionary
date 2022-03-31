@@ -17,7 +17,7 @@ public class Test {
     }
 
     public void CheckNodes(DHTData dhtData) {
-        System.out.println("****** Starting Node Test ******");
+        System.out.println("********************* Starting Node Test *********************");
 
         int numFalse = 0;
 
@@ -34,6 +34,8 @@ public class Test {
             }
         }
 
+        System.out.println("*********************       Summary       *********************");
+
         System.out.println("Node ids:");
         for (int i = 0; i < dhtData.nodeStructures.size(); i++) {
            System.out.println("\t" + dhtData.nodeStructures.get(i).id);
@@ -44,7 +46,8 @@ public class Test {
         } else {
             System.out.println(numFalse + " node(s) were incorrect...");
         }
-    
+
+        System.out.println("********************* Completed Node Test *********************");
     }
 
     private boolean CheckNodePred(DHTData dhtData, int index) {

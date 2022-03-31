@@ -127,7 +127,7 @@ public class NodeComm {
         try {
             NodeConn nodeConn = connFactory.makeNodeConn(nodeInfo);
             nodeStructureData = nodeConn.client.GetNodeStructure();
-            Print.nodeStructure(nodeStructureData.nodeStructure);
+
             connFactory.closeNodeConn(nodeConn);
         } catch (TTransportException x) {
             handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
@@ -135,6 +135,20 @@ public class NodeComm {
             handleException(x, from, "NodeComm.getNodeStructure() onto node" + nodeInfo.id);
         }
         return nodeStructureData;
+    }
+
+
+    public static void kill(String from, NodeDetails nodeInfo) {
+        try {
+            NodeConn nodeConn = connFactory.makeNodeConn(nodeInfo);
+            nodeConn.client.Kill();
+
+            connFactory.closeNodeConn(nodeConn);
+        } catch (TTransportException x) {
+            handleException(x, from, "NodeComm.kill() onto node" + nodeInfo.id);
+        } catch (TException x) {
+            handleException(x, from, "NodeComm.kill() onto node" + nodeInfo.id);
+        }
     }
 
 

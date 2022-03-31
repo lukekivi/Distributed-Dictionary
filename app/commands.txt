@@ -37,4 +37,5 @@ get :: zebra
 get :: mouse
 get :: clock
 
-print
+test
+kill

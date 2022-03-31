@@ -87,7 +87,7 @@ public class SuperNodeHandler implements SuperNode.Iface {
         final String FUNC_ID = "SuperNodeHandler.GetDHTStructure()";
         DHTData data = new DHTData();
         ArrayList<NodeStructure> nodeStructures = new ArrayList<NodeStructure>();
-        for (int i = 0; i < manager.getNodeSize(); i++) {
+        for (int i = 0; i < manager.getNodesSize(); i++) {
             NodeDetails node = manager.getNode(i);
             System.out.print("Getting details for ");
             Print.nodeDetails(node);
@@ -106,6 +106,8 @@ public class SuperNodeHandler implements SuperNode.Iface {
 
     @Override
     public void KillDHT() {
-        
+        System.out.println("Received KillDHT commant. Bye bye.");
+        manager.killNodes();
+        System.exit(0);
     }
 }
