@@ -183,6 +183,60 @@ Results can be found in `Distributed-Dictionary/app/logs` directory.
 * The core output will be in the client log. It is refreshed each time a client is run. This is where the output for all commands is found.
 
 
+# Tests
+## Running
+We have set up scripts that start up the Client, SuperNode, and Nodes. The Client passes in its requests via a `commands.txt` file.  Look at commands section to see the proper format.
+
+In order to run the tests users must complete the following steps:
+* navigate to the respective test directory, for instance `test02`:
+    ```
+    Distributed-Dictionary
+    |-- app
+		|-- tests
+		    |-- test01
+		    |-- test02   <-- expand
+		    |-- ...
+    ```
+ * Within each test directory you will find `config.txt`, `commands.txt`, `ssh_cleanup.sh`, and `ssh_commands.sh` files:
+    ```
+    |-- test02
+        |-- commands.txt
+        |-- config.txt
+        |-- ssh_cleanup.sh
+        |-- ssh_commands.sh
+    ```
+* Copy (don't cut) the files and replace their respective files located here:
+    ```
+    Distributed-Dictionary
+    |-- app
+    |   |-- ...
+    |   |-- commands.txt  <-- replace me
+    |   |-- config.txt  <-- replace me
+    |   |-- ...
+    |-- ssh_cleanup.sh
+    |-- ssh_commands.sh
+    ```
+* run `ant clean` to get rid of any old logs and builds. 
+* run `ant compile` to compile the code and build it
+* run the `ssh_commands.sh` file which is located outside the `app` folder to run the SuperNode, Nodes, and Client
+    ```
+    Distributed-Image-Processing
+    |-- app
+    |   |-- logs   <-- logs
+    |   |-- ...
+    |-- tests
+        |-- test01
+        |-- test02
+        |   |-- data
+        |   |-- config.txt
+        |-- ...   
+    |-- ssh_commands.sh
+    |-- ssh_cleanup.sh
+    ```
+* Run the `ssh_cleanup.sh` file afterwards to end the processes on each machine. Its location can be found in the diagram above.
+
+For the tests, the terminal will print the `NodeJoinData` object for each Node that gives its id, join status, a message, and the node id that it used to enter the system. The Client and SuperNode terminals won't print anything. All of the output will be in their respective log files which can be found in the logs directory.
+    
 ### Test 1 - Standard
 Number of Nodes: 5
 M-bit value: 4
@@ -199,7 +253,7 @@ Test `Get()` and `Put()`, 10 puts and 9 gets. Mouse is entered twice with a diff
 Number of Nodes: 5
 M-bit value: 4
 Key/Node Value Range: 0-15
-Test `Get()` and `Put()`, 9 puts and 10 gets. All of the puts are unique while theres a get at the end that's for 'glasses' which doesn't appear in the DHT. Expect the node log files to describe its process upon receiving `Get()` and `Put()` requests as well as how they deal with them (Caching, Forwarding, and Dictionary). For the client log, the Get() request for 'glasses' will respond with a failure message saying that the word isn't in the dictionary.
+Test `Get()` and `Put()`, 9 puts and 10 gets. All of the puts are unique while theres a get at the end thats for 'glasses' which doesn't appear in the DHT. Expect the node log files to describe its process upon receiving `Get()` and `Put()` requests as well as how they deal with them (Caching, Forwarding, and Dictionary). For the client log, the Get() request for 'glasses' will respond with a failure message saying that the word isn't in the dictionary.
 
 ### Test 4 - Standard but with 1 Node
 Number of Nodes: 1
@@ -207,7 +261,6 @@ M-bit value: 4
 Key/Node Value Range: 0-15
 
 Test `Get()` and `Put()`, 9 of each. All words put in are unique and all words grabbed are already entered. Expect the node log files to describe adding everything to its dictionary instead of caching the values since it's the correct node. Also there will be no forwarding since there's only one node. Expect the client log to have success messages for put()s and get()s.
-
 
 # Experiments
 This was our local DHT implementation we used for proof of concept. We left in the project because it was a lot of work. We will not document the sub-app because we have sunk so much time into this project and the documentation would be the last straw.
