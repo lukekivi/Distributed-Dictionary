@@ -1,0 +1,36 @@
+put :: apple :: a fruit that is red
+put :: highway :: a road that is for fast travel
+put :: cow :: animal, also eaten as beef
+put :: car :: automobile
+put :: khakis :: type of pants
+put :: kite :: something that flies in the air with the wind
+put :: house :: a building that humans live in
+put :: school :: A place where students can learn
+put :: mouse :: A small rodent
+put :: keyboard :: Provides input for a pc and allows someone to operate one
+put :: table :: Flat board with legs that objects can rest on
+put :: snack :: Small portion of food to satisfy a small hunger
+put :: watch :: A mini clock that straps onto someone's wrist
+put :: shirt :: A piece of clothing that is worn on the upper body.
+put :: ear :: Body part on the side of someones head, allows people to hear.
+put :: degree :: unit of measurement for temperature or a certificate of college completion
+put :: zebra :: a fast type of animal with stripes that is native to Africa
+
+get :: apple
+get :: highway
+get :: cow
+get :: car
+get :: khakis
+get :: kite
+get :: house
+get :: school
+get :: mouse
+get :: keyboard
+get :: table
+get :: snack
+get :: watch
+get :: shirt
+get :: ear
+get :: degree
+get :: zebra
+get :: mouse

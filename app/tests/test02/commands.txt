@@ -1,0 +1,20 @@
+put :: apple :: A fruit that is red
+put :: highway :: A road that is for fast travel
+put :: kite :: Something that flies in the air with the wind
+put :: school :: A place where students can learn
+put :: mouse :: A small rodent
+put :: keyboard :: Provides input for a pc and allows someone to operate one
+put :: table :: Flat board with legs that objects can rest on
+put :: snack :: Small portion of food to satisfy a small hunger
+put :: zebra :: a fast type of animal with stripes that is native to Africa
+put :: mouse :: an i/o device that is used on computers (2nd def entered for mouse)
+
+get :: apple
+get :: highway
+get :: kite
+get :: school
+get :: keyboard
+get :: table
+get :: snack
+get :: zebra
+get :: mouse
