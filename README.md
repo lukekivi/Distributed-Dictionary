@@ -14,19 +14,19 @@ git clone https://github.com/lukekivi/Distributed-Dictionary.git
 
 2. Set **required** environment variable.
 ```
-THRIFT_LIB_PATH="<path-to-thrift-libs>"
+export THRIFT_LIB_PATH="<path-to-thrift-libs>"
 ```
 
 3. Set **optional** environment variables. These are required if you want to use our scripts for automated setup of DHTs and testing. This only needs to be done on the machine  starting these DHT and testing scripts.
 ```
-DHT_USER_NAME="<username>"
-DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
+export DHT_USER_NAME="<username>"
+export DHT_APP_PATH="<path-to-distributed-dictionary-app-directory>"
 ```
 **Example environment variables script**
 ```
-THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
-DHT_USER_NAME="kivix019"
-DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
+export THRIFT_LIB_PATH="/project/kivix019/thrift-0.15.0/lib/java/build/libs"
+export DHT_USER_NAME="kivix019"
+export DHT_APP_PATH="../../project/kivix019/Distributed-Dictionary/app"
 ```
 4. Be sure to have a current JDK and JRE downloaded in order to compile and run Java applications.
 
