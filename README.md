@@ -238,27 +238,27 @@ In order to run the tests users must complete the following steps:
 For the tests, the terminal will print the `NodeJoinData` object for each Node that gives its id, join status, a message, and the node id that it used to enter the system. The Client and SuperNode terminals won't print anything. All of the output will be in their respective log files which can be found in the logs directory.
     
 ### Test 1 - Standard
-Number of Nodes: 5
-M-bit value: 4
-Key/Node Value Range: 0-15
+Number of Nodes: 5 \
+M-bit value: 4 \
+Key/Node Value Range: 0-15 \
 Test `Get()` and `Put()`, 16 of each. All words put in are unique and all words grabbed are already entered. Expect the node log files to describe its process upon receiving `Get()` and `Put()` requests as well as how they deal with them (Caching, Forwarding, and Dictionary). Expect the client log to have success messages for put()s and get()s.
 
 ### Test 2 - Put() an entry in twice
-Number of Nodes: 5
-M-bit value: 4
-Key/Node Value Range: 0-15
+Number of Nodes: 5 \
+M-bit value: 4 \
+Key/Node Value Range: 0-15 \
 Test `Get()` and `Put()`, 10 puts and 9 gets. Mouse is entered twice with a different definition. All of the gets are for words that exist in the dictionary. Expect the node log files to describe its process upon receiving `Get()` and `Put()` requests as well as how they deal with them (Caching, Forwarding, and Dictionary). In the client log, the `Get(mouse)` call should return it's updated definition describing a computer mouse. It is however possible that the DHT gets the description from a cache that hasn't been updated with the new meaning.
 
 ### Test 3 - Get() an absent entry
-Number of Nodes: 5
-M-bit value: 4
-Key/Node Value Range: 0-15
+Number of Nodes: 5 \
+M-bit value: 4 \
+Key/Node Value Range: 0-15 \
 Test `Get()` and `Put()`, 9 puts and 10 gets. All of the puts are unique while theres a get at the end thats for 'glasses' which doesn't appear in the DHT. Expect the node log files to describe its process upon receiving `Get()` and `Put()` requests as well as how they deal with them (Caching, Forwarding, and Dictionary). For the client log, the Get() request for 'glasses' will respond with a failure message saying that the word isn't in the dictionary.
 
 ### Test 4 - Standard but with 1 Node
-Number of Nodes: 1
-M-bit value: 4
-Key/Node Value Range: 0-15
+Number of Nodes: 1 \
+M-bit value: 4 \
+Key/Node Value Range: 0-15 \
 
 Test `Get()` and `Put()`, 9 of each. All words put in are unique and all words grabbed are already entered. Expect the node log files to describe adding everything to its dictionary instead of caching the values since it's the correct node. Also there will be no forwarding since there's only one node. Expect the client log to have success messages for put()s and get()s.
 
