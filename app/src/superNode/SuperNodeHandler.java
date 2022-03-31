@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import utils.NodeConn;
 
 
+/**
+ * Landing site for RPCs to SuperNode. Uses the SuperNodeHandler as an assistant.
+ */
 public class SuperNodeHandler implements SuperNode.Iface {
     private SuperNodeManager manager;
     

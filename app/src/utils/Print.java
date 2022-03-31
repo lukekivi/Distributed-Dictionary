@@ -6,7 +6,11 @@ import pa2.Entry;
 import pa2.NodeDetails;
 import pa2.NodeJoinData;
 
+/**
+ * This class is used to print varius PA2 data structures.
+ */
 public class Print {
+    
     public static void nodeStructure(NodeStructure node) {
         System.out.println("Node[" + node.id + "]:\n" + 
             "\t- pred: " + node.predId + "\n" +

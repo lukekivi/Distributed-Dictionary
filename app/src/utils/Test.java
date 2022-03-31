@@ -8,14 +8,21 @@ import utils.Hash;
 import utils.Range;
 import java.util.*;
 
+
+/**
+ * Used to test the DHT. Generally gets called from a client and uses the DHTData structure.
+ */
 public class Test {
     private int M;
-
 
     public Test(int M) {
         this.M = M;
     }
 
+    /**
+     * Check the correctness of all nodes in the system. This includes checking their predecessor
+     * id, fingers, and entries.
+     */
     public void CheckNodes(DHTData dhtData) {
         System.out.println("********************* Starting Node Test *********************");
 
@@ -82,6 +89,9 @@ public class Test {
     }
 
 
+    /**
+     * Check how far end is behind start in a circular manner.
+     */
     private int CalcCircularPrecedence(int start, int end) {
         int val;
         if (start < end) {
@@ -126,7 +136,9 @@ public class Test {
         return numFalse == 0;
     }
 
-
+    /**
+     * Check how far end is after start in a circular manner.
+     */
     private int CalcCircularSubsequence(int start, int end) {
         int val;
         if (end < start) {
@@ -139,6 +151,9 @@ public class Test {
     }
 
 
+    /**
+     * Perform circular addition.
+     */
     private int CircularAddition(int a, int b) {
         int result = a + b;
         int maxKey = ((int) Math.pow(2, M)) - 1;

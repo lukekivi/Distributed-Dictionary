@@ -21,23 +21,16 @@ The core interface to the DHT system. Is able to `Get()` and `Put()` dictionary 
 
 ### Local Operations
 
-#### Get()
-Calls Node get function.
+#### ConnectToDHT()
+Establish a connection with the DHT. It needs to read the SuperNode details from the `config.txt` file via the `ReadIn` class. It then establishes a connection with the SuperNode and asks it for an ambassador node in order to communicate with the DHT continuously.
 
-#### Put()
-Calls Node put function.
+#### DoCommands()
+ReadIn a commands from the `commands.txt` file and complete all commands. This can be get, put, test, print, and kill operations.
 
-#### StartClient()
-Calls SuperNode GetNodeForClient function.
+#### Close()
+Close connection to the ambassador node.
 
-#### PrintStructure()
-Calls `SuperNode.GetDHTStructure()` and then prints it.
 
-```
-- Node ID - range of keys - predecessor - number of words stored
-Words List
-Finger Table
-```
 
 ## Supernode
 ### Interface Operations

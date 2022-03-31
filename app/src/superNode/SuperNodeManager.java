@@ -10,6 +10,9 @@ import utils.NodeComm;
 import utils.NodeConn;
 import utils.SuperConn;
 
+/**
+ * Does all of extra labor and data storage of the SuperNodeHandler.
+ */
 public class SuperNodeManager {
     private int M;
     private int maxKey;

@@ -239,11 +239,17 @@ public class ClientManager {
     }
 
 
+    /**
+     * Close the chonnection to the ambassador node.
+     */
     public void close() {
         connFactory.closeNodeConn(nodeConn);
     }
 
 
+    /**
+     * Get superNode details. 
+     */
     private ServerInfo getSuperNodeInfo() {
         if (superInfo == null) {
             superInfo = readIn.getSuperNodeInfo();

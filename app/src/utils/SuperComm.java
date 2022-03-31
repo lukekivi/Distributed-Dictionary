@@ -6,7 +6,16 @@ import pa2.DHTData;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
-
+/**
+ * SuperComm is a class that conveniently handles SuperNode communication. It
+ * essentially just abstracts away thrift boiler plate and truly allows 
+ * users to treat RPC calls like simple function calls.
+ * 
+ * It creates thrift connections between system entites via the ConnFactory.
+ * Then it calls RPC functions and handles errors. Each function gets a 
+ * [from] field which helps build better error messages. It is supposed to be
+ * of the form ClassName.functionName().
+ */
 public class SuperComm {
     private static final ConnFactory connFactory = new ConnFactory();
 
@@ -40,6 +49,9 @@ public class SuperComm {
     }
 
 
+    /**
+     * Exception handling helper.
+     */
     private static void handleException(Exception x, String from, String msg) {
         System.out.println("ERROR: " + from + " - " + msg);
         x.printStackTrace();

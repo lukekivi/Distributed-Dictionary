@@ -20,6 +20,9 @@ import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
 
+/**
+ * Landing site for RPCs to Node. Uses the NodeManager as an assistant.
+ */
 public class NodeHandler implements Node.Iface {
     private NodeManager manager;
 

@@ -4,6 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+/**
+ * This class is used to manage configuration of the app and
+ * read in commands for the client.
+ */
 public class ReadIn {
     private final String CONFIG_FILE = "config.txt";
 
@@ -100,7 +104,9 @@ public class ReadIn {
     }
 
 
-
+    /**
+     * Set the command file to read from.
+     */
     public void setCommandFile(String filePath) {
         try {
             commandFile = new FileInputStream(filePath);
@@ -110,6 +116,9 @@ public class ReadIn {
         }
     }
 
+    /**
+     * Read commands from the command file.
+     */
     public String[] readCommand() {
         String[] results = null;
 

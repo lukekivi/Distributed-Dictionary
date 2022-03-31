@@ -59,6 +59,9 @@ public class NodeServer {
     }
 
 
+    /**
+     * Do the thrift boiler plate for setting up a server.
+     */
     private static Status establishSelf(NodeHandler handler) {
         Status status = Status.ERROR;
         try {
@@ -87,6 +90,9 @@ public class NodeServer {
     }
 
 
+    /**
+     * Do the logic of joining the DHT.
+     */
     private static Status joinDHT(SuperNode.Client superNodeClient) throws TException {
         // Get join data from supernode
         NodeJoinData joinData = superNodeClient.GetNodeForJoin();
@@ -112,6 +118,9 @@ public class NodeServer {
     }
 
 
+    /**
+     * Start a multiThreaded thrift server. 
+     */
     public static void multiThreadedServer(Node.Processor processor, int port) {
         try {
             TServerTransport serverTransport = new TServerSocket(port);

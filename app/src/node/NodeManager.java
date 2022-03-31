@@ -25,6 +25,9 @@ import pa2.EntryData;
 import utils.*;
 
 
+/**
+ * NodeManager does all of the extra labor and data storage for NodeHandler.
+ */
 public class NodeManager {
     private final String LOG_FILE = "log/node";
     private int maxKey = -1; // the max possible key in the DHT node is a member of
@@ -69,7 +72,14 @@ public class NodeManager {
             updateOthers();
         }
 
-        System.out.println("Node " + info.id + " joined");
+        NodeStructure nodeStructure = new NodeStructure();
+        nodeStructure.id = info.id;
+        nodeStructure.predId = pred.id;
+        nodeStructure.fingers = getNodeFingers();
+        nodeStructure.entries = getNodeEntries();
+        
+        System.out.println("Joined the DHT:");
+        Print.nodeStructure(nodeStructure);
     }
 
 
@@ -111,15 +121,6 @@ public class NodeManager {
 
             fingers[i + 1] = nextFinger;
         }
-
-        NodeStructure nodeStructure = new NodeStructure();
-        nodeStructure.id = info.id;
-        nodeStructure.predId = pred.id;
-        nodeStructure.fingers = getNodeFingers();
-        nodeStructure.entries = getNodeEntries();
-        
-        System.out.println("Node Structure upon entering the system:");
-        Print.nodeStructure(nodeStructure);
     }
 
 
